@@ -23,9 +23,24 @@ App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / バージョン
 - [x] 配信地域：**日本のみ**。新しい地域が増えても自動配信しない
 - [x] GitHub に push（`docs/` にサポートページとプライバシーポリシー）
 
-## 残り2つ（本人しかできない）
+## 提出済み
 
-### 1. アプリのプライバシー →「データを収集しません」
+**2026-08-30 22:56（JST）に審査へ提出した。** `WAITING_FOR_REVIEW`。
+
+```
+reviewSubmission: 397190ad-c52f-4a6f-8a31-6af1dd8b56f4
+appStoreVersion:  9b6b0e24-0ba6-47b5-92c4-5cae5ab19afc
+```
+
+リリースは**手動**にしてあるので、審査が通っても勝手には公開されない。
+
+**初回提出は Guideline 2.1（情報不足）で却下されると思っておく**（6節）。
+却下されたら、まず**ビルドの中身を疑う**。指摘された箇所以外も実機で一通り触ること。
+順番は「ビルド差し替え → 返信 → 再提出」。返信だけでは審査は再開しない。
+
+## 提出前に本人がやったこと（Claude側では無理だったもの）
+
+### 1. アプリのプライバシー →「データを収集しません」（完了）
 
 **理由：`appDataUsages` は API に存在しない。**（`POST /v1/appDataUsages` → 404。
 審査に出せない理由としては返ってくるのに、エンドポイントが無い。→ 4-51）
@@ -35,7 +50,7 @@ App Store Connect → Tilecheck → 左の「**アプリのプライバシー**�
 
 通信しないアプリなので、これで終わり。
 
-### 2. GitHub Pages を有効にする
+### 2. GitHub Pages を有効にする（完了）
 
 **理由：トークンが無いのでGitHubのAPIを叩けない。**
 （repoスコープの Personal Access Token をもらえれば、以後はClaude側でできる）
@@ -44,17 +59,6 @@ https://github.com/zzzjjj080/mochimono/settings/pages
 → Source: **Deploy from a branch** → Branch: **main** → フォルダ: **`/docs`**
 
 **既定は `/(root)` なので必ず変える**（→ 4-42）。反映に1〜3分。
-
-## そのあと（Claude側）
-
-1. `curl` でサポートURLとプライバシーURLが 200 を返すことを確認する。
-   **404のまま審査に出さない。**
-2. 審査に提出する。提出枠は作ってあるので、アイテムを足して `submitted=true` にするだけ。
-
-```
-reviewSubmission: 397190ad-c52f-4a6f-8a31-6af1dd8b56f4
-appStoreVersion:  9b6b0e24-0ba6-47b5-92c4-5cae5ab19afc
-```
 
 ## 使う道具
 
