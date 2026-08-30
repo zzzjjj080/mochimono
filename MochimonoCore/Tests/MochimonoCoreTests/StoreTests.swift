@@ -51,19 +51,23 @@ struct StoreTests {
 
     @Test func 添字でリストを差し替えられる() {
         var store = Store.starter
+        let before = store.lists.count
         let id = store.lists[0].id
         var l = store[id]!
         l.name = "改名"
         store[id] = l
         #expect(store.lists[0].name == "改名")
-        #expect(store.lists.count == 2)
+        #expect(store.lists.count == before)      // 差し替えであって追加ではない
     }
 
     @Test func 削除は該当だけ消す() {
         var store = Store.starter
-        store.remove(id: store.lists[0].id)
-        #expect(store.lists.count == 1)
-        #expect(store.lists[0].name == "野球")
+        let before = store.lists.count
+        let removed = store.lists[0]
+        let rest = store.lists.dropFirst().map(\.name)
+        store.remove(id: removed.id)
+        #expect(store.lists.count == before - 1)
+        #expect(store.lists.map(\.name) == Array(rest))
     }
 
     /// 保存に入るので、値が変わると列数の設定が壊れる。

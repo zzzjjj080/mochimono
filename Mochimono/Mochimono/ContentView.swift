@@ -2,6 +2,7 @@ import SwiftUI
 import MochimonoCore
 
 enum Route: Hashable {
+    case add
     case list(PackingList.ID)
     case edit(PackingList.ID)
     case settings(PackingList.ID)
@@ -15,9 +16,19 @@ struct ContentView: View {
         @Bindable var model = model
         NavigationStack(path: $path) {
             HomeView(open: { path.append(.list($0)) },
-                     addAndEdit: { path.append(contentsOf: [.list($0), .edit($0)]) })
+                     add: { path.append(.add) })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
+                    case .add:
+                        AddListView(
+                            pickPreset: { preset in
+                                // 追加の画面には戻らない。作ったリストをそのまま開く。
+                                path = [.list(model.addList(from: preset))]
+                            },
+                            startBlank: {
+                                let id = model.addBlankList()
+                                path = [.list(id), .edit(id)]
+                            })
                     case .list(let id):
                         ListView(listID: id,
                                  edit: { path.append(.edit(id)) },

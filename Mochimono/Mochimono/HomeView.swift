@@ -6,38 +6,58 @@ struct HomeView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var colorScheme
     let open: (PackingList.ID) -> Void
-    let addAndEdit: (PackingList.ID) -> Void
+    let add: () -> Void
+
+    /// 削除待ち。**スワイプからも設定画面からも、確認は同じ1本を通す。**
+    /// 経路ごとに確認を書くと、片方だけ確認を迂回する道ができる（引き継ぎ書 4-12）。
+    @State private var pendingDelete: PackingList?
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(model.store.lists) { list in     // 添字ではなく要素を回す（引き継ぎ書 4-10）
-                    Button { open(list.id) } label: { row(list) }
-                        .buttonStyle(.plain)             // 中の文字色が青に染まるのを止める
-                        .accessibilityIdentifier("list-\(list.name)")
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-
-            if model.store.lists.isEmpty {
-                Text("リストがありません。\n右上の「＋」から作れます。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 60)
+        List {
+            ForEach(model.store.lists) { list in     // 添字ではなく要素を回す（引き継ぎ書 4-10）
+                Button { open(list.id) } label: { row(list) }
+                    .buttonStyle(.plain)             // 中の文字色が青に染まるのを止める
+                    .accessibilityIdentifier("list-\(list.name)")
+                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .swipeActions(edge: .trailing) {
+                        Button("削除", role: .destructive) { pendingDelete = list }
+                            .accessibilityIdentifier("swipeDelete")
+                    }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .background(Color(.systemGroupedBackground))
+        .overlay {
+            if model.store.lists.isEmpty {
+                ContentUnavailableView {
+                    Label("リストがありません", systemImage: "checklist")
+                } description: {
+                    Text("右上の「＋」から、旅行や通勤などの雛形を選んで作れます。")
+                }
+            }
+        }
         .navigationTitle("モチモノ")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    addAndEdit(model.addList())
-                } label: {
-                    Label("追加", systemImage: "plus")
-                }
-                .accessibilityIdentifier("addList")
+                Button(action: add) { Label("追加", systemImage: "plus") }
+                    .accessibilityIdentifier("addList")
+            }
+        }
+        .alert("このリストを削除しますか？", isPresented: Binding(
+            get: { pendingDelete != nil },
+            set: { if !$0 { pendingDelete = nil } })
+        ) {
+            Button("削除する", role: .destructive) {
+                if let target = pendingDelete { model.remove(target.id) }
+                pendingDelete = nil
+            }
+            Button("やめる", role: .cancel) { pendingDelete = nil }
+        } message: {
+            if let target = pendingDelete {
+                Text("「\(target.name)」と、書いた \(target.items.count)個の持ち物がすべて消えます。元に戻せません。")
             }
         }
     }

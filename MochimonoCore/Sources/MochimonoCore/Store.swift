@@ -30,41 +30,14 @@ public struct Store: Equatable, Codable, Sendable {
         lists.removeAll { $0.id == id }
     }
 
-    /// 初回に入れておく例。何が書けるのかが分からないと、そもそも始められない。
+    /// 初回に入れておくリスト。
+    ///
+    /// 空っぽで始めると、何をどう書けばいいのかが分からない。
+    /// **よく使う3本を最初から入れておく。** 残りは「追加」から雛形として選べる。
     public static var starter: Store {
-        Store(appearance: .system, lists: [
-            PackingList(name: "街中",
-                        text: """
-                              財布
-                              スマホ
-                              鍵
-                              ハンカチ
-
-                              イヤホン
-                              モバイルバッテリー
-                              充電ケーブル
-
-                              目薬
-                              リップ
-                              """,
-                        palette: .colorful),
-            PackingList(name: "野球",
-                        text: """
-                              帽子
-                              ソックス
-                              アンダーシャツ
-                              ベルト
-
-                              グローブ
-                              バット
-                              スパイク
-
-                              タオル
-                              水筒
-                              日焼け止め
-                              保険証
-                              """,
-                        palette: .vivid),
-        ])
+        Store(appearance: .system,
+              lists: ["town", "commute", "trip-domestic"]
+                .compactMap { Preset.preset(id: $0)?.makeList() })
     }
+
 }

@@ -23,12 +23,13 @@ MochimonoCore/            UIに依存しないロジック（swift test で回�
   Color.swift             HSL・輝度・コントラスト
   Palette.swift           配色8種と色の決定
   PackingList.swift       テキストの解釈・チェックの引き継ぎ
+  Preset.swift            雛形12種
   Store.swift             保存するもの全部
 Mochimono/                Xcodeプロジェクト
   Mochimono/              SwiftUI
   MochimonoTests/         AppModel（保存と復元）
   MochimonoUITests/       セグメント・確認ダイアログ・編集
-mochimono.html            HTMLプロトタイプ（操作感を先に固めたもの）
+mochimono.html            HTMLプロトタイプ（操作感を固めるのに使った。雛形は入っていない）
 Tools-MakeIcon.swift      アイコン生成
 install-device.sh         接続中のiPhoneに入れる
 ```
@@ -48,15 +49,15 @@ HSLの明度で白黒を振り分けると、黄や緑で必ず読めなくな�
 ## テスト
 
 ```bash
-cd MochimonoCore && swift test                      # 29本
+cd MochimonoCore && swift test                      # 37本
 cd Mochimono && xcodebuild -scheme Mochimono \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # AppModel 8本 + UI 6本
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # AppModel 10本 + UI 9本
 ```
 
 ## 状態
 
 - [x] ① HTMLプロトタイプ
-- [x] ② MochimonoCore（29テスト）
+- [x] ② MochimonoCore（37テスト）
 - [x] ③ SwiftUI
 - [x] ④ シミュレータで実際にタップして確認
 - [ ] ⑤ 実機（iPhone Air）← **触覚は実機でしか確認できない**

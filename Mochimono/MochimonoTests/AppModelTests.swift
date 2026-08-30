@@ -14,10 +14,36 @@ struct AppModelTests {
         return d
     }
 
-    @Test func 初回は例のリストが入っている() {
+    @Test func 初回は雛形から3本入っている() {
         let model = AppModel(defaults: freshDefaults())
-        #expect(model.store.lists.map(\.name) == ["街中", "野球"])
+        #expect(model.store.lists.map(\.name) == ["街中", "通勤・通学", "国内旅行"])
+        #expect(model.store.lists.allSatisfy { !$0.items.isEmpty })
         #expect(model.saveError == nil)
+    }
+
+    /// 雛形から作ると、中身が入った独立したリストになる。
+    @Test func 雛形から追加できる() {
+        let model = AppModel(defaults: freshDefaults())
+        let before = model.store.lists.count
+        let preset = Preset.preset(id: "camp")!
+        let id = model.addList(from: preset)
+        #expect(model.store.lists.count == before + 1)
+        #expect(model.list(id)?.name == "キャンプ・BBQ")
+        #expect(model.list(id)?.items.count == preset.items.count)
+        #expect(model.list(id)?.palette == preset.palette)
+        #expect(model.list(id)?.packedCount == 0)
+    }
+
+    /// 同じ雛形から2本作っても、片方の編集がもう片方に及ばない。
+    @Test func 雛形から2本作っても互いに影響しない() {
+        let model = AppModel(defaults: freshDefaults())
+        let preset = Preset.preset(id: "gym")!
+        let a = model.addList(from: preset)
+        let b = model.addList(from: preset)
+        #expect(a != b)
+        model.updateContents(of: a, name: "ジムA", text: "タオルだけ")
+        #expect(model.list(b)?.items.count == preset.items.count)
+        #expect(model.list(b)?.name == "ジム・運動")
     }
 
     /// チェックしてアプリを閉じても、次に開いたら残っている。
@@ -39,21 +65,23 @@ struct AppModelTests {
     @Test func 全部外すと0になる() {
         let model = AppModel(defaults: freshDefaults())
         let id = model.store.lists[1].id
+        let total = model.list(id)!.items.count
         for item in model.list(id)!.items.prefix(3) { model.toggle(item.id, in: id) }
         #expect(model.list(id)?.packedCount == 3)
         model.clearAllPacked(in: id)
         #expect(model.list(id)?.packedCount == 0)
-        #expect(model.list(id)?.items.count == 11)   // 中身は消さない
+        #expect(model.list(id)?.items.count == total)   // 中身は消さない
     }
 
     /// 配色はリストごと。片方を変えても、もう片方は変わらない。
     @Test func 配色はリストごとに独立している() {
         let model = AppModel(defaults: freshDefaults())
-        let machi = model.store.lists[0].id
-        let yakyu = model.store.lists[1].id
-        model.setPalette(.mono, for: yakyu)
-        #expect(model.list(yakyu)?.palette == .mono)
-        #expect(model.list(machi)?.palette == .colorful)
+        let first = model.store.lists[0].id
+        let second = model.store.lists[1].id
+        let firstBefore = model.list(first)!.palette
+        model.setPalette(.mono, for: second)
+        #expect(model.list(second)?.palette == .mono)
+        #expect(model.list(first)?.palette == firstBefore)
     }
 
     /// 明るさはアプリ全体。
@@ -73,12 +101,14 @@ struct AppModelTests {
         #expect(model.list(id)?.name == "名前のないリスト")
     }
 
-    @Test func 追加と削除() {
+    @Test func 白紙の追加と削除() {
         let model = AppModel(defaults: freshDefaults())
-        let id = model.addList()
-        #expect(model.store.lists.count == 3)
+        let before = model.store.lists.count
+        let id = model.addBlankList()
+        #expect(model.store.lists.count == before + 1)
+        #expect(model.list(id)?.items.isEmpty == true)
         model.remove(id)
-        #expect(model.store.lists.count == 2)
+        #expect(model.store.lists.count == before)
         #expect(model.list(id) == nil)
     }
 
@@ -90,6 +120,6 @@ struct AppModelTests {
         model.clearAllPacked(in: id)
         model.setColumns(.two, for: id)
         model.updateContents(of: id, name: "x", text: "y")
-        #expect(model.store.lists.count == 1)
+        #expect(model.store.lists.count == 2)
     }
 }

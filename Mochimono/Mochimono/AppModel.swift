@@ -98,8 +98,18 @@ final class AppModel {
         save()
     }
 
+    /// 雛形から作る。以後は雛形と関係なく編集できる。
     @discardableResult
-    func addList() -> PackingList.ID {
+    func addList(from preset: Preset) -> PackingList.ID {
+        let l = preset.makeList()
+        store.lists.append(l)
+        Haptics.done()
+        save()
+        return l.id
+    }
+
+    @discardableResult
+    func addBlankList() -> PackingList.ID {
         let l = PackingList(name: "新しいリスト", text: "")
         store.lists.append(l)
         Haptics.select()
