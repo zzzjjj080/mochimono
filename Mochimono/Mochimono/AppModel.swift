@@ -17,6 +17,15 @@ final class AppModel {
 
     init(defaults: UserDefaults = .standard) {
         #if DEBUG
+        // 掲載用スクリーンショットのための状態。実際に触って作ると毎回ずれる。
+        // **リリース構成には残らないこと**を strings で確認すること（引き継ぎ書 4-7）。
+        if CommandLine.arguments.contains("-screenshot-demo") {
+            let suite = UserDefaults(suiteName: "mochimono.demo")!
+            suite.removePersistentDomain(forName: "mochimono.demo")
+            self.defaults = suite
+            store = Self.demoStore()
+            return
+        }
         // UIテストは毎回まっさらから始める。前回の状態が残ると結果が変わる。
         if CommandLine.arguments.contains("-ui-testing") {
             let suite = UserDefaults(suiteName: "mochimono.uitest")!
@@ -135,4 +144,33 @@ final class AppModel {
     }
 
     func dismissSaveError() { saveError = nil }
+
+    #if DEBUG
+    /// 掲載用の見本。進み具合が全部同じだと、画面が説明にならない。
+    private static func demoStore() -> Store {
+        var lists: [PackingList] = ["trip-domestic", "commute", "camp", "town", "gym"]
+            .compactMap { Preset.preset(id: $0)?.makeList() }
+        lists[0].palette = .rainbow
+        lists[1].palette = .tonal
+        lists[2].palette = .vivid
+        lists[3].palette = .pastel
+        lists[4].palette = .warmCool
+        // 名前で指してチェックする。添字だと雛形を直したときに別のものが付く。
+        let packed: [Int: [String]] = [
+            0: ["財布", "スマホ", "鍵", "免許証", "着替え", "下着", "歯ブラシ", "充電器", "常備薬"],
+            1: ["財布", "スマホ", "鍵", "社員証", "定期券"],
+            2: ["テント", "ペグ", "寝袋", "ランタン", "炭"],
+            3: ["財布", "スマホ"],
+            4: ["ウェア", "シューズ", "タオル", "水筒"],
+        ]
+        for (index, names) in packed {
+            for name in names {
+                if let item = lists[index].items.first(where: { $0.text == name }) {
+                    lists[index].toggle(item.id)
+                }
+            }
+        }
+        return Store(appearance: .system, lists: lists)
+    }
+    #endif
 }

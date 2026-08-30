@@ -1,0 +1,40 @@
+No account, login, or credentials are required. No in-app purchases, no
+subscriptions, no user-generated content shared with anyone, and no network
+connections of any kind.
+
+WHAT THE APP DOES
+Mochimono is a packing checklist. The user writes what to bring as plain text,
+one item per line. A blank line starts a new group, and each group is
+automatically given a different colour. In the list view the items are shown as
+a grid; tapping one marks it as packed (the tile fills with a stronger colour).
+This is for people who forget things when leaving home.
+
+HOW TO EXERCISE THE APP
+1. On launch, three lists are already present (Town / Commute / Domestic trip).
+   Tap any of them.
+2. Tap any tile. It turns a stronger colour and the counter at the top right
+   increases. Tap again to undo.
+3. Tap "全部外す" (Clear all) at the bottom left. A confirmation alert appears
+   stating how many checks will be removed. This is the only destructive action.
+4. Tap "編集" (Edit) at the bottom right to see the plain-text editor. Adding a
+   blank line splits the items into another colour group. Existing checks are
+   preserved by item name when the text is edited.
+5. Tap "設定" (Settings) in the navigation bar to choose one of eight colour
+   schemes for that list, the number of columns (2-5), and light/dark appearance
+   for the whole app.
+6. Tap "+" on the first screen to add a list. Twelve templates are offered
+   (travel, commute, gym, camping, disaster kit, and so on). Choosing one copies
+   it into an editable list. A blank list can also be created.
+7. Swipe a row left on the first screen to delete a list. A confirmation alert
+   appears naming the list and how many items will be lost.
+
+DATA AND PRIVACY
+All data is stored on the device using UserDefaults. Nothing is transmitted.
+The app does not use any third-party SDK, analytics, or advertising.
+
+External services: none. Only Apple frameworks (SwiftUI, UIKit for haptics).
+Regional differences: none. The app is Japanese only and is distributed in Japan.
+Not a medical app. No diagnosis, treatment, or health claims.
+Accessibility: text scales down to fit tiles; colour contrast between the tile
+fill and its label is verified to meet WCAG AA (4.5:1) by automated tests for
+every colour scheme in both light and dark appearance.
