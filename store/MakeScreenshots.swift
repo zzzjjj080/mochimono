@@ -31,11 +31,11 @@ struct Shot {
     let ink: UInt32
 }
 let shots = [
-    Shot(file: "01-home", lines: ["出かける前に、", "ひと目で"], ground: 0x2C7BF0, ink: 0xFFFFFF),
-    Shot(file: "02-grid", lines: ["持ったらタップ。", "残っているものが分かる"], ground: 0x117C46, ink: 0xFFFFFF),
+    Shot(file: "01-home", lines: ["用途ごとに、", "リストを持てる"], ground: 0x2C7BF0, ink: 0xFFFFFF),
+    Shot(file: "02-grid", lines: ["タップで埋める。", "残りがひと目で分かる"], ground: 0x117C46, ink: 0xFFFFFF),
     Shot(file: "03-edit", lines: ["テキストで書くだけ。", "空行を入れると色が分かれる"], ground: 0x1B2331, ink: 0xFFFFFF),
     Shot(file: "04-palette", lines: ["配色はリストごとに", "8種類から選べる"], ground: 0xC97A08, ink: 0xFFFFFF),
-    Shot(file: "05-presets", lines: ["旅行も通勤もキャンプも。", "12種類の雛形つき"], ground: 0x6D3FD6, ink: 0xFFFFFF),
+    Shot(file: "05-presets", lines: ["旅行も通勤も点検も。", "12種類の雛形つき"], ground: 0x6D3FD6, ink: 0xFFFFFF),
 ]
 
 func rgb(_ hex: UInt32) -> CGColor {

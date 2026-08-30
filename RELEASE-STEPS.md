@@ -1,4 +1,4 @@
-# モチモノ リリース手順
+# Tilecheck リリース手順
 
 **方針：APIで到達できることは全部Claude側でやる。**
 本人に頼むのは、人間でなければ物理的に無理なものだけ。
@@ -6,8 +6,10 @@
 
 ## 済んでいること（Claude側）
 
-- [x] アプリ名の重複確認（iTunes Search API。「モチモノ」は空き。
-      「モチモノート」「もちもの」は別物）
+- [x] アプリ名を `Tilecheck` に決定。表示名・掲載文・サポートページ・スクショを揃えた
+      （**「モチモノ」は登録画面で「すでに使用されています」で弾かれた。**
+      iTunes Search API では公開済みアプリしか見えず、予約済みの名前は分からない。
+      候補を54個当てて、空いているものから選び直した）
 - [x] **Explicit App ID の登録** `com.zzzjjj080.Mochimono` → id `2K77Y5M6HH`
       （`POST /v1/bundleIds` が 201。`Tools-ASC.py` で実行）
 - [x] アーカイブ（`1.0 (1)` / iOS 18.0以降 / 縦向き / 暗号化なし）
@@ -25,12 +27,15 @@
 **理由：APIに CREATE が無い。**（`POST /v1/apps` → 403
 `The resource 'apps' does not allow 'CREATE'`。実際に叩いて確認した）
 
+**名前が弾かれたら、次の候補で試す。** 空きを確認済みの順：
+`Tilecheck` → `Checkgrid` → `Tilist` → `チェクル` → `ヌリスト`
+
 https://appstoreconnect.apple.com → マイApp → ＋ → 新規App
 
 | 欄 | 入れる値 |
 |---|---|
 | プラットフォーム | iOS |
-| 名前 | モチモノ |
+| 名前 | Tilecheck |
 | プライマリ言語 | 日本語 |
 | バンドルID | `com.zzzjjj080.Mochimono`（登録済みなので候補に出る） |
 | SKU | `mochimono` |

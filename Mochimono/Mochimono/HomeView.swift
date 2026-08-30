@@ -39,7 +39,7 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle("モチモノ")
+        .navigationTitle("Tilecheck")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: add) { Label("追加", systemImage: "plus") }

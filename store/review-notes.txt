@@ -3,11 +3,16 @@ subscriptions, no user-generated content shared with anyone, and no network
 connections of any kind.
 
 WHAT THE APP DOES
-Mochimono is a packing checklist. The user writes what to bring as plain text,
-one item per line. A blank line starts a new group, and each group is
-automatically given a different colour. In the list view the items are shown as
-a grid; tapping one marks it as packed (the tile fills with a stronger colour).
-This is for people who forget things when leaving home.
+Tilecheck is a reusable checklist. The user writes the items as plain text, one
+per line. A blank line starts a new group, and each group is automatically given
+a different colour. The items are shown as a grid of tiles; tapping one marks it
+as done (the tile fills with a stronger colour). Checks stay until the user
+clears them, so the same list can be used again and again - packing for a trip,
+the morning commute, a shopping run, or a pre-departure safety check.
+
+The bundle identifier is com.zzzjjj080.Mochimono. This was registered before the
+app was named, and is intentionally left unchanged; it is internal only and is
+not shown to users.
 
 HOW TO EXERCISE THE APP
 1. On launch, three lists are already present (Town / Commute / Domestic trip).
@@ -15,7 +20,8 @@ HOW TO EXERCISE THE APP
 2. Tap any tile. It turns a stronger colour and the counter at the top right
    increases. Tap again to undo.
 3. Tap "全部外す" (Clear all) at the bottom left. A confirmation alert appears
-   stating how many checks will be removed. This is the only destructive action.
+   stating how many checks will be removed. This is the only destructive action
+   on the check state.
 4. Tap "編集" (Edit) at the bottom right to see the plain-text editor. Adding a
    blank line splits the items into another colour group. Existing checks are
    preserved by item name when the text is edited.
@@ -34,6 +40,7 @@ The app does not use any third-party SDK, analytics, or advertising.
 
 External services: none. Only Apple frameworks (SwiftUI, UIKit for haptics).
 Regional differences: none. The app is Japanese only and is distributed in Japan.
+The app name is in Latin script but the interface is entirely in Japanese.
 Not a medical app. No diagnosis, treatment, or health claims.
 Accessibility: text scales down to fit tiles; colour contrast between the tile
 fill and its label is verified to meet WCAG AA (4.5:1) by automated tests for
