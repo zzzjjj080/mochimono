@@ -2,80 +2,69 @@
 
 **方針：APIで到達できることは全部Claude側でやる。**
 本人に頼むのは、人間でなければ物理的に無理なものだけ。
-（`~/.claude/CLAUDE.md`「作業の分担」／`~/.claude/iOS-DEVLOG.md` 5-0）
+（`~/.claude/CLAUDE.md`「作業の分担」／`~/.claude/iOS-DEVLOG.md` 5-0、4-49〜4-51）
 
-## 済んでいること（Claude側）
+App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / バージョン `1.0 (1)`
 
-- [x] アプリ名を `Tilecheck` に決定。表示名・掲載文・サポートページ・スクショを揃えた
-      （**「モチモノ」は登録画面で「すでに使用されています」で弾かれた。**
-      iTunes Search API では公開済みアプリしか見えず、予約済みの名前は分からない。
-      候補を54個当てて、空いているものから選び直した）
-- [x] **Explicit App ID の登録** `com.zzzjjj080.Mochimono` → id `2K77Y5M6HH`
-      （`POST /v1/bundleIds` が 201。`Tools-ASC.py` で実行）
-- [x] アーカイブ（`1.0 (1)` / iOS 18.0以降 / 縦向き / 暗号化なし）
-- [x] リリース構成に確認用の抜け道が残っていないことを実物で確認
-      （`screenshot-demo` `ui-testing` `mochimono.demo` すべて0件）
-- [x] スクリーンショット 5枚 × 2寸法（1320x2868 / 1242x2688）→ `store/screenshots*`
-- [x] 掲載文（`store/` にプレーンテキストで。**そのまま貼れる形**）
-- [x] サポートページ・プライバシーポリシー → `docs/`
-- [x] App Review へのメモ（英語・`store/review-notes.txt`）
+## 済んでいること（すべてClaude側）
 
-## 本人しかできないこと
+- [x] Explicit App ID の登録（`2K77Y5M6HH`）
+- [x] ビルドのアップロード → **`1.0 (1)` は `VALID`。バージョンに紐づけ済み**
+- [x] 暗号化の申告（`Info.plist` の `ITSAppUsesNonExemptEncryption = NO` で自動的に済む）
+- [x] サブタイトル／プライバシーポリシーURL
+- [x] 概要／キーワード／プロモーション文／サポートURL／マーケティングURL
+- [x] 著作権 `2026 Jin Nakamura`、リリース方法は**手動**
+- [x] 審査の連絡先とメモ（連絡先は前作からAPIで引いた）、**サインイン不要**
+- [x] スクリーンショット 6.5インチ・6.9インチ 各5枚（10枚とも `COMPLETE`・エラー0）
+- [x] 年齢制限の申告（すべて該当なし）
+- [x] 第三者の素材を使っていない（`contentRightsDeclaration`）
+- [x] カテゴリ：**仕事効率化**（副：ユーティリティ）
+- [x] 価格：**無料**（基準の地域 JPN）
+- [x] 配信地域：**日本のみ**。新しい地域が増えても自動配信しない
+- [x] GitHub に push（`docs/` にサポートページとプライバシーポリシー）
 
-### 1. App Store Connect でアプリを新規登録
+## 残り2つ（本人しかできない）
 
-**理由：APIに CREATE が無い。**（`POST /v1/apps` → 403
-`The resource 'apps' does not allow 'CREATE'`。実際に叩いて確認した）
+### 1. アプリのプライバシー →「データを収集しません」
 
-**名前が弾かれたら、次の候補で試す。** 空きを確認済みの順：
-`Tilecheck` → `Checkgrid` → `Tilist` → `チェクル` → `ヌリスト`
+**理由：`appDataUsages` は API に存在しない。**（`POST /v1/appDataUsages` → 404。
+審査に出せない理由としては返ってくるのに、エンドポイントが無い。→ 4-51）
 
-https://appstoreconnect.apple.com → マイApp → ＋ → 新規App
+App Store Connect → Tilecheck → 左の「**アプリのプライバシー**」
+→ データ収集の質問に「**いいえ、このAppからデータを収集しません**」
 
-| 欄 | 入れる値 |
-|---|---|
-| プラットフォーム | iOS |
-| 名前 | Tilecheck |
-| プライマリ言語 | 日本語 |
-| バンドルID | `com.zzzjjj080.Mochimono`（登録済みなので候補に出る） |
-| SKU | `mochimono` |
-| ユーザーアクセス | フルアクセス |
+通信しないアプリなので、これで終わり。
 
-候補にバンドルIDが出ないときは**ページをリロード**する。
+### 2. GitHub Pages を有効にする
 
-### 2. GitHub にリポジトリを作る
+**理由：トークンが無いのでGitHubのAPIを叩けない。**
+（repoスコープの Personal Access Token をもらえれば、以後はClaude側でできる）
 
-**理由：トークンが無いのでAPIを叩けない。**
-`git push` は SSH鍵で通るので、**箱さえ作ってもらえれば中身は Claude が入れる。**
+https://github.com/zzzjjj080/mochimono/settings/pages
+→ Source: **Deploy from a branch** → Branch: **main** → フォルダ: **`/docs`**
 
-https://github.com/new → 名前 `mochimono` → Public → 空のまま作成
+**既定は `/(root)` なので必ず変える**（→ 4-42）。反映に1〜3分。
 
-**Personal Access Token（repoスコープ）をもらえれば、以後この作業も Claude 側でできる。**
+## そのあと（Claude側）
 
-## そのあと（全部 Claude 側）
+1. `curl` でサポートURLとプライバシーURLが 200 を返すことを確認する。
+   **404のまま審査に出さない。**
+2. 審査に提出する。提出枠は作ってあるので、アイテムを足して `submitted=true` にするだけ。
 
-1. `git remote add` → push → GitHub Pages を `/docs` で公開 → URL の疎通を curl で確認
-2. ビルドのアップロード（APIキー経由。`destination = upload`）
-3. 掲載情報の登録（`PATCH /v1/appStoreVersionLocalizations`）
-4. スクリーンショットの登録
-5. 価格（無料）・配信地域（日本のみ）・年齢制限・プライバシー（データを収集しません）
-6. 審査提出（`POST /v1/reviewSubmissions`）
+```
+reviewSubmission: 397190ad-c52f-4a6f-8a31-6af1dd8b56f4
+appStoreVersion:  9b6b0e24-0ba6-47b5-92c4-5cae5ab19afc
+```
 
 ## 使う道具
 
 ```bash
-./Tools-ASC.py get /v1/apps                    # App Store Connect API
-./Tools-ASC.py post /v1/bundleIds '{...}'
-./install-device.sh                            # 接続中のiPhoneに入れる
+./Tools-ASC.py get /v1/apps                        # App Store Connect API
+./Tools-UploadScreenshots.py <locId> APP_IPHONE_65 store/screenshots-65
+./install-device.sh                                # 接続中のiPhoneに入れる
 swiftc -O Tools-MakeIcon.swift -o /tmp/makeicon && /tmp/makeicon <出力先>
 swiftc -O store/MakeScreenshots.swift -o /tmp/makeshots
-/tmp/makeshots store/raw store/screenshots     # 6.9インチ
+/tmp/makeshots store/raw store/screenshots         # 6.9インチ
 /tmp/makeshots store/raw store/screenshots-65 1242 2688
-```
-
-スクリーンショットの素材は、`-screenshot-demo` を付けて起動すると
-決まった状態で撮れる（`AppModel` の `#if DEBUG`）。
-
-```bash
 xcrun simctl launch booted com.zzzjjj080.Mochimono -screenshot-demo
 ```
