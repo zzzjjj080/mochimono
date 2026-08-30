@@ -5,13 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>モチモノ プロトタイプ</title>
 <style>
+/* 明暗は「トークンを1か所で入れ替える」形にする。色ごとに if を書くと必ず破綻する。 */
 :root{
   --bg:#f2f3f7; --card:#ffffff; --text:#14161a; --sub:#6b7280; --line:#dfe2ea;
   --accent:#2f6df6; --danger:#d92d20; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
 }
 @media (prefers-color-scheme:dark){
-  :root{ --bg:#0b0d10; --card:#161a20; --text:#eef1f6; --sub:#98a2b3; --line:#252b34;
-         --accent:#5b8dff; --danger:#ff6b60; --shadow:none; }
+  :root:not([data-theme="light"]){
+    --bg:#0b0d10; --card:#161a20; --text:#eef1f6; --sub:#98a2b3; --line:#252b34;
+    --accent:#5b8dff; --danger:#ff6b60; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b0d10; --card:#161a20; --text:#eef1f6; --sub:#98a2b3; --line:#252b34;
+  --accent:#5b8dff; --danger:#ff6b60; --shadow:none;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
@@ -24,7 +31,7 @@ body{max-width:430px;margin:0 auto;min-height:100vh;overscroll-behavior:none}
   display:flex;align-items:center;gap:8px;padding:10px 12px;min-height:52px}
 .nav h1{font-size:17px;margin:0;font-weight:700;flex:1;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav .sub{font-size:12px;color:var(--sub);font-weight:500;margin-left:6px;white-space:nowrap}
+.nav .sub{font-size:12px;color:var(--sub);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums}
 .btn{border:0;background:transparent;color:var(--accent);font-size:15px;font-weight:600;
   padding:8px 6px;border-radius:6px;cursor:pointer;font-family:inherit}
 .btn:active{opacity:.5}
@@ -34,62 +41,65 @@ body{max-width:430px;margin:0 auto;min-height:100vh;overscroll-behavior:none}
 .wrap{padding:14px 12px 120px}
 .screen{display:none}
 .screen.on{display:block}
+.label{font-size:12px;font-weight:800;color:var(--sub);margin:22px 4px 8px;letter-spacing:.02em}
+.label:first-child{margin-top:2px}
+.note{color:var(--sub);font-size:12px;line-height:1.7;padding:8px 4px 0}
 
 /* ---------- リスト一覧 ---------- */
 .row{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px 16px;
-  margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer}
+  margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer}
 .row:active{transform:scale(.985)}
-.row .name{font-size:17px;font-weight:700;flex:1;min-width:0}
-.row .dots{display:flex;gap:4px;margin-top:6px}
-.row .dot{width:9px;height:9px;border-radius:50%}
-.row .cnt{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums;text-align:right}
-.row .cnt b{display:block;font-size:20px;color:var(--text);font-weight:800}
+.row .name{font-size:17px;font-weight:800}
+.row .dots{display:flex;gap:3px;margin-top:7px}
+.row .dot{width:16px;height:7px;border-radius:2px}
+.row .cnt{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;text-align:right}
+.row .cnt b{display:block;font-size:21px;color:var(--text);font-weight:800}
 .row.done .cnt b{color:#16a34a}
 .chev{color:var(--sub);font-size:20px}
 .empty{color:var(--sub);text-align:center;padding:48px 20px;line-height:1.9;font-size:14px}
 
-/* ---------- グリッド ---------- */
+/* ---------- グリッド（色は配色モードから算出するのでJSが入れる） ---------- */
 .grid{display:grid;gap:3px}
 .cell{
-  --h:210;
   position:relative;border-radius:5px;display:flex;align-items:center;justify-content:center;
-  text-align:center;padding:6px 5px;cursor:pointer;line-height:1.18;word-break:normal;line-break:strict;overflow-wrap:break-word;min-width:0;overflow:hidden;
-  font-weight:800;letter-spacing:-.02em;
-  border:0;
-  background:hsl(var(--h) 58% 91%);
-  color:hsl(var(--h) 52% 26%);
-  transition:transform .07s ease, background .12s ease, color .12s ease;
-}
-.cell.on{
-  background:hsl(var(--h) 64% 44%);
-  color:#fff;
+  text-align:center;padding:6px 5px;cursor:pointer;line-height:1.18;
+  word-break:normal;line-break:strict;overflow-wrap:break-word;min-width:0;overflow:hidden;
+  font-weight:800;letter-spacing:-.02em;border:0;
+  transition:transform .07s ease, background-color .12s ease, color .12s ease;
 }
 .cell:active{transform:scale(.93)}
 .cell .tick{position:absolute;top:3px;right:4px;font-size:9px;opacity:0;transition:opacity .12s}
 .cell.on .tick{opacity:.9}
-@media (prefers-color-scheme:dark){
-  .cell{background:hsl(var(--h) 26% 21%);color:hsl(var(--h) 48% 74%)}
-  .cell.on{background:hsl(var(--h) 62% 54%);color:#0a0c0f}
-}
 
 /* ---------- 進捗・完了 ---------- */
-.bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:0 0 14px}
+.bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:0 0 12px}
 .bar i{display:block;height:100%;background:var(--accent);transition:width .25s ease}
 .bar.full i{background:#16a34a}
 .done-banner{background:#16a34a;color:#fff;border-radius:8px;padding:12px 14px;font-weight:800;
-  text-align:center;margin-bottom:14px;font-size:15px}
+  text-align:center;margin-bottom:12px;font-size:15px}
 
-/* ---------- 編集 ---------- */
+/* ---------- 入力・設定 ---------- */
 .field{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;
-  padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;margin-bottom:12px}
-textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
-.hint{color:var(--sub);font-size:12.5px;line-height:1.8;padding:2px 4px 14px}
-.hint code{background:var(--line);padding:1px 5px;border-radius:5px;font-size:12px}
-.seg{display:flex;gap:6px;background:var(--line);padding:4px;border-radius:7px}
-.seg button{flex:1;border:0;background:transparent;color:var(--sub);font-weight:700;font-size:15px;
+  padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;margin-bottom:2px}
+textarea.field{min-height:46vh;line-height:1.85;resize:vertical}
+.hint{color:var(--sub);font-size:12.5px;line-height:1.8;padding:10px 4px 0}
+.hint code{background:var(--line);padding:1px 5px;border-radius:3px;font-size:12px}
+.seg{display:flex;gap:4px;background:var(--line);padding:3px;border-radius:8px}
+.seg button{flex:1;border:0;background:transparent;color:var(--sub);font-weight:800;font-size:14px;
   padding:9px 0;border-radius:6px;cursor:pointer;font-family:inherit}
 .seg button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
-.label{font-size:13px;font-weight:700;color:var(--sub);margin:18px 4px 8px}
+
+/* 配色モードの選択：見本そのものを押させる */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode{background:var(--card);border:1.5px solid var(--line);border-radius:9px;padding:9px 9px 10px;
+  cursor:pointer;text-align:left}
+.mode:active{transform:scale(.98)}
+.mode.on{border-color:var(--accent)}
+.mode .sw{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:8px}
+.mode .sw i{height:20px;border-radius:3px;display:block}
+.mode .nm{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:5px}
+.mode .nm .chk{color:var(--accent)}
+.mode .ds{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.45}
 
 /* ---------- シート ---------- */
 .mask{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;z-index:40}
@@ -102,7 +112,8 @@ textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
 .sheet p{margin:0 0 18px;color:var(--sub);font-size:14px;line-height:1.7}
 .sheet .acts{display:flex;flex-direction:column;gap:8px}
 .sheet .acts .btn{width:100%;padding:14px;border-radius:8px;background:var(--card);border:1px solid var(--line)}
-.fab{position:fixed;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;padding:12px 12px calc(12px + env(safe-area-inset-bottom));
+.fab{position:fixed;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 62%,transparent);display:flex;gap:8px;z-index:20}
 .fab .btn{flex:1}
 </style>
@@ -121,7 +132,7 @@ textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
     <button class="btn" onclick="go('home')">‹ 一覧</button>
     <h1 id="listTitle"></h1>
     <span class="sub" id="listCount"></span>
-    <button class="btn" onclick="openSheet()">…</button>
+    <button class="btn" onclick="go('conf')">設定</button>
   </div>
   <div class="wrap">
     <div class="bar" id="bar"><i></i></div>
@@ -135,7 +146,7 @@ textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
   </div>
 </section>
 
-<!-- ============ 編集（プレーンテキスト） ============ -->
+<!-- ============ 編集（中身） ============ -->
 <section id="screen-edit" class="screen">
   <div class="nav">
     <button class="btn ghost" onclick="cancelEdit()">キャンセル</button>
@@ -145,20 +156,43 @@ textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
   <div class="wrap">
     <div class="label">リスト名</div>
     <input id="editName" class="field" placeholder="例：野球">
-    <div class="label">持ち物（1行に1つ・空行でグループが分かれます）</div>
-    <textarea id="editText" class="field" spellcheck="false" placeholder="帽子&#10;ソックス&#10;&#10;グローブ&#10;バット"></textarea>
+    <div class="label">持ち物</div>
+    <textarea id="editText" class="field" spellcheck="false"
+              placeholder="帽子&#10;ソックス&#10;&#10;グローブ&#10;バット"></textarea>
     <div class="hint">
       ・1行 = 1つの持ち物<br>
       ・<code>空行</code>を入れると、そこでグループが分かれて色が変わります<br>
       ・チェックの状態は、名前が同じものは編集しても引き継がれます
     </div>
-    <div class="label">列数</div>
-    <div class="seg" id="colSeg"></div>
-    <div class="label" style="margin-top:26px">このリスト</div>
-    <button class="btn danger field" style="text-align:left;cursor:pointer" onclick="askDelete()">リストを削除</button>
   </div>
 </section>
 
+<!-- ============ 設定（見た目） ============ -->
+<section id="screen-conf" class="screen">
+  <div class="nav">
+    <button class="btn" onclick="go('list')">‹ 戻る</button>
+    <h1 id="confTitle"></h1>
+  </div>
+  <div class="wrap">
+    <div class="label">配色（このリストだけ）</div>
+    <div class="modes" id="modeGrid"></div>
+
+    <div class="label">列数（このリストだけ）</div>
+    <div class="seg" id="colSeg"></div>
+
+    <div class="label">明るさ（アプリ全体）</div>
+    <div class="seg" id="themeSeg"></div>
+    <div class="note">「自動」はiPhoneの設定に合わせます。</div>
+
+    <div class="label">このリスト</div>
+    <button class="btn field" style="text-align:left;cursor:pointer;margin-bottom:8px"
+            onclick="askReset()">チェックを全部外す</button>
+    <button class="btn danger field" style="text-align:left;cursor:pointer"
+            onclick="askDelete()">リストを削除</button>
+  </div>
+</section>
+
+<div id="saveErr" style="display:none;position:fixed;left:8px;right:8px;bottom:74px;z-index:60;border-radius:6px;max-width:430px;margin:0 auto;background:#d92d20;color:#fff;font-size:12px;padding:8px 12px"></div>
 <div class="mask" id="mask" onclick="closeSheet()"></div>
 <div class="sheet" id="sheet">
   <h2 id="sheetTitle"></h2>
@@ -169,13 +203,110 @@ textarea.field{min-height:46vh;line-height:1.85;resize:vertical;font-size:16px}
 <script>
 /* ==========================================================
    データ
-   list = { id, name, text, cols, items:[{id,text,g,on}] }
+   db   = { theme:'auto'|'light'|'dark', lists:[...] }
+   list = { id, name, text, cols, mode, items:[{id,text,g,on}] }
    text が正本。items は text から作り、チェック状態だけ持ち越す。
    ========================================================== */
-const KEY = 'mochimono.v1';
-const HUES = [210, 145, 28, 340, 265, 190, 55, 8, 300, 168];
+const KEY = 'mochimono.v2';
+
+/* ---------- 配色モード ----------
+   違いは「グループの色をどう選ぶか」。
+   hue(g) … そのグループの色相 ／ sat … 彩度の倍率
+   steps  … true なら色相ではなく明度の段で区別する
+   offL/onL/offD/onD … 未チェック・チェック済みの明度（ライト／ダーク） */
+const MODES = [
+  { id:'colorful', name:'カラフル', desc:'色を大きく飛ばす',
+    hue:g=>[210,145,28,340,265,190,55,8,300,168][g%10], sat:1 },
+  { id:'rainbow',  name:'にじ',     desc:'色相を順に回す',
+    hue:g=>(206+g*40)%360, sat:1 },
+  { id:'tonal',    name:'同系色',   desc:'1色の濃淡だけで分ける',
+    hue:()=>214, sat:1, steps:true },
+  { id:'warmcool', name:'暖色⇔寒色', desc:'暖かい色から冷たい色へ',
+    hue:g=>[16,40,352,318,272,224,196,162][g%8], sat:1 },
+  { id:'muted',    name:'くすみ',   desc:'彩度を落として静かに',
+    hue:g=>[206,148,32,344,264,188,52,12][g%8], sat:.42 },
+  { id:'vivid',    name:'ビビッド', desc:'彩度を上げて強く',
+    hue:g=>[222,150,36,338,276,192,58,0][g%8], sat:1.4,
+    offL:89, onL:42, offD:17, onD:58 },
+  { id:'pastel',   name:'パステル', desc:'淡くやわらかく',
+    hue:g=>[212,152,34,342,268,190,54,10][g%8], sat:.8,
+    offL:95, onL:60, offD:28, onD:74 },
+  { id:'mono',     name:'モノクロ', desc:'無彩色。持ったものだけ目立つ',
+    hue:()=>220, sat:0, steps:true },
+];
+const MODE = id => MODES.find(m => m.id === id) || MODES[0];
+
+/* ---- 色の実測（HSLの明度は当てにならない。黄や緑は同じ明度でも眩しい） ---- */
+function _rgb(h,s,l){ s/=100; l/=100;
+  const k = n => (n + h/30) % 12, a = s*Math.min(l, 1-l);
+  const f = n => l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1)));
+  return [f(0), f(8), f(4)];
+}
+function _lum(h,s,l){
+  const g = v => v <= .03928 ? v/12.92 : ((v + .055)/1.055) ** 2.4;
+  const [r,gr,b] = _rgb(h,s,l).map(g);
+  return .2126*r + .7152*gr + .0722*b;
+}
+const _ratio = (a,b) => { const hi = Math.max(a,b), lo = Math.min(a,b); return (hi + .05)/(lo + .05) };
+const _hsl = (h,s,l) => `hsl(${h} ${Math.round(s*10)/10}% ${Math.round(l*10)/10}%)`;
+
+const MIN_TEXT = 4.5;    // 文字が読める（WCAG AA）
+const MIN_STATE = 2.0;   // 未チェックと持ったものが見分けられる
+
+/* 塗りの上で読める文字色。白黒を決め打ちせず、輝度で選ぶ。 */
+function _fg(h, S, L){
+  const dS = Math.min(45, S), lS = Math.min(38, S);
+  const bg = _lum(h, S, L);
+  const rd = _ratio(bg, _lum(h, dS, 15)), rl = _ratio(bg, _lum(h, lS, 94));
+  return rd >= rl
+    ? { r:rd, css:_hsl(h, dS, 15) }
+    : { r:rl, css:_hsl(h, lS, 94) };
+}
+
+/* 条件を満たす明度のうち、狙いに一番近いものを選ぶ。
+   「文字を読めるまで動かす」と「未チェックと離すまで動かす」を順にやると
+   互いに押し戻して振動するので、候補を走査して1回で決める。 */
+function _pickL(h, S, want, ok){
+  let best = null, bestD = 1e9;
+  for(let L = 4; L <= 98; L += 0.5){
+    if(!ok(L)) continue;
+    const d = Math.abs(L - want);
+    if(d < bestD){ bestD = d; best = L }
+  }
+  return best;
+}
+
+/* モードと明暗から、そのグループの狙いの明度を出す。
+   段（同系色・モノクロ）は未チェックとチェック済みを同じ向きに動かす。
+   逆向きだと、段が進むほど2つが近づいて最後は同色になる。 */
+function _wantL(m, g, on, dark){
+  const st = m.steps ? (g % 5) : 0;
+  return dark
+    ? (on ? (m.onD  ?? 56) + st*6 : (m.offD ?? 19) + st*6)
+    : (on ? (m.onL  ?? 44) - st*6 : (m.offL ?? 92) - st*6);
+}
+
+/* グループgの色。明暗の分岐はここ1か所だけ。 */
+function tone(modeId, g, on, dark){
+  const m = MODE(modeId), h = m.hue(g);
+  const Soff = 58 * m.sat, Son = 64 * m.sat;
+
+  const offL = _pickL(h, Soff, _wantL(m,g,false,dark), L => _fg(h,Soff,L).r >= MIN_TEXT)
+            ?? _wantL(m,g,false,dark);
+  if(!on) return { bg:_hsl(h,Soff,offL), fg:_fg(h,Soff,offL).css };
+
+  const offLum = _lum(h, Soff, offL);
+  const want = _wantL(m,g,true,dark);
+  const onL =
+       _pickL(h, Son, want, L => _fg(h,Son,L).r >= MIN_TEXT
+                              && _ratio(_lum(h,Son,L), offLum) >= MIN_STATE)
+    ?? _pickL(h, Son, want, L => _fg(h,Son,L).r >= MIN_TEXT)
+    ?? want;
+  return { bg:_hsl(h,Son,onL), fg:_fg(h,Son,onL).css };
+}
+
 let db = load();
-let cur = null;          // 開いているリストのid
+let cur = null;
 let pendingAct = null;
 
 function uid(){ return Math.random().toString(36).slice(2,10) }
@@ -183,19 +314,37 @@ function uid(){ return Math.random().toString(36).slice(2,10) }
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
-    if(raw){ const d = JSON.parse(raw); if(d && Array.isArray(d.lists)) return d; }
-  }catch(e){ console.warn('読み込み失敗', e) }   // 握り潰さない（DEVLOG 4-1）
-  return { lists: [
-    seed('街中', '財布\nスマホ\n鍵\nハンカチ\n\nイヤホン\nモバイルバッテリー\n充電ケーブル\n\n目薬\nリップ'),
-    seed('野球', '帽子\nソックス\nアンダーシャツ\nベルト\n\nグローブ\nバット\nスパイク\n\nタオル\n水筒\n日焼け止め\n保険証'),
+    if(raw){
+      const d = JSON.parse(raw);
+      if(d && Array.isArray(d.lists)){
+        // 足りない項目は既定値で埋める。1つ欠けただけで全部読めなくなるのを避ける。
+        d.theme = d.theme || 'auto';
+        for(const l of d.lists){
+          l.cols = l.cols || 4;
+          l.mode = l.mode || 'colorful';
+          l.items = Array.isArray(l.items) ? l.items : parse(l.text || '', []);
+        }
+        return d;
+      }
+    }
+  }catch(e){ console.warn('読み込みに失敗したので初期データで開きます', e) }
+  return { theme:'auto', lists:[
+    seed('街中', '財布\nスマホ\n鍵\nハンカチ\n\nイヤホン\nモバイルバッテリー\n充電ケーブル\n\n目薬\nリップ', 'colorful'),
+    seed('野球', '帽子\nソックス\nアンダーシャツ\nベルト\n\nグローブ\nバット\nスパイク\n\nタオル\n水筒\n日焼け止め\n保険証', 'vivid'),
   ]};
 }
-function seed(name, text){
-  const l = { id:uid(), name, text, cols:4, items:[] };
-  l.items = parse(text, []);
-  return l;
+function seed(name, text, mode){
+  return { id:uid(), name, text, cols:4, mode, items:parse(text, []) };
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)) }catch(e){ alert('保存できませんでした：'+e.message) } }
+let saveErr = null;   // 握り潰さない。ただし毎タップalertは邪魔なので画面に出す
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); saveErr = null }
+  catch(e){
+    if(saveErr !== e.message){ saveErr = e.message; console.warn('保存できません:', e.message) }
+    const b = document.getElementById('saveErr');
+    if(b){ b.textContent = '保存できていません：' + e.message; b.style.display = 'block' }
+  }
+}
 
 /* text → items。old のチェック状態を、同じ名前のものへ引き継ぐ。 */
 function parse(text, old){
@@ -208,14 +357,32 @@ function parse(text, old){
     out.push({ id:uid(), text:t, g, on:false });
     seenInGroup = true;
   }
-  // 引き継ぎ：同グループの同名を優先し、無ければ全体から同名を1つ消費する
   const pool = (old||[]).map(o => ({...o, used:false}));
   for(const it of out){
-    let m = pool.find(o => !o.used && o.text === it.text && o.g === it.g)
-         || pool.find(o => !o.used && o.text === it.text);
+    const m = pool.find(o => !o.used && o.text === it.text && o.g === it.g)
+           || pool.find(o => !o.used && o.text === it.text);
     if(m){ m.used = true; it.on = m.on; it.id = m.id }
   }
   return out;
+}
+
+/* ==========================================================
+   明暗
+   ========================================================== */
+const mq = window.matchMedia('(prefers-color-scheme:dark)');
+function isDark(){ return db.theme === 'dark' || (db.theme === 'auto' && mq.matches) }
+function applyTheme(){
+  if(db.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', db.theme);
+}
+mq.addEventListener('change', () => { if(db.theme === 'auto') rerender() });
+
+function rerender(){
+  applyTheme();
+  const on = id => document.getElementById(id).classList.contains('on');
+  if(on('screen-home')) renderHome();
+  if(on('screen-list')) renderList();
+  if(on('screen-conf')) renderConf();
 }
 
 /* ==========================================================
@@ -223,14 +390,15 @@ function parse(text, old){
    ========================================================== */
 function go(name){
   for(const s of document.querySelectorAll('.screen')) s.classList.remove('on');
-  document.getElementById('screen-'+name).classList.add('on');
+  document.getElementById('screen-' + name).classList.add('on');
   window.scrollTo(0,0);
   if(name === 'home') renderHome();
   if(name === 'list') renderList();
   if(name === 'edit') renderEdit();
+  if(name === 'conf') renderConf();
 }
 function list(){ return db.lists.find(l => l.id === cur) }
-function stat(l){ const n = l.items.length, d = l.items.filter(i=>i.on).length; return {n, d} }
+function stat(l){ return { n:l.items.length, d:l.items.filter(i=>i.on).length } }
 
 function renderHome(){
   const el = document.getElementById('homeList');
@@ -238,10 +406,12 @@ function renderHome(){
     el.innerHTML = '<div class="empty">リストがありません。<br>右上の「＋ 追加」から作れます。</div>';
     return;
   }
+  const dark = isDark();
   el.innerHTML = db.lists.map(l => {
     const {n,d} = stat(l);
-    const gs = [...new Set(l.items.map(i=>i.g))];
-    const dots = gs.map(g => `<span class="dot" style="background:hsl(${HUES[g%HUES.length]} 62% 52%)"></span>`).join('');
+    const gs = [...new Set(l.items.map(i=>i.g))].slice(0,6);
+    const dots = gs.map(g =>
+      `<span class="dot" style="background:${tone(l.mode,g,true,dark).bg}"></span>`).join('');
     return `<div class="row ${n&&d===n?'done':''}" onclick="open_('${l.id}')">
       <div style="flex:1;min-width:0">
         <div class="name">${esc(l.name)}</div>
@@ -256,6 +426,7 @@ function renderHome(){
 function renderList(){
   const l = list(); if(!l) return go('home');
   const {n,d} = stat(l);
+  const dark = isDark();
   document.getElementById('listTitle').textContent = l.name;
   document.getElementById('listCount').textContent = n ? `${d}/${n}` : '';
   const bar = document.getElementById('bar');
@@ -270,9 +441,12 @@ function renderList(){
   const contW = document.getElementById('groups').clientWidth || Math.min(430, window.innerWidth) - 24;
   const cellW = (contW - 3*(cols-1)) / cols;
   const cellH = Math.round(cellW / ar);
-  const cells = l.items.map(it => `
-      <div class="cell ${it.on?'on':''}" style="--h:${HUES[it.g % HUES.length]};height:${cellH}px;font-size:${fsize(it.text,cols,cellW)}px"
-           onclick="toggle('${it.id}')"><span class="tick">✓</span>${esc(it.text)}</div>`).join('');
+  const cells = l.items.map(it => {
+    const c = tone(l.mode, it.g, it.on, dark);
+    return `<div class="cell ${it.on?'on':''}" onclick="toggle('${it.id}')"
+      style="height:${cellH}px;font-size:${fsize(it.text,cols,cellW)}px;background:${c.bg};color:${c.fg}"
+      ><span class="tick">✓</span>${esc(it.text)}</div>`;
+  }).join('');
   document.getElementById('groups').innerHTML = l.items.length
     ? `<div class="grid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells}</div>`
     : '<div class="empty">まだ何も入っていません。<br>下の「編集」から書けます。</div>';
@@ -295,15 +469,15 @@ function fitCells(){
 // （長さで場合分けすると「アンダーシャ／ツ」のように末尾1文字だけが落ちる）
 function fsize(t, cols, cellW){
   const base = cols<=2 ? 21 : cols===3 ? 18 : cols===4 ? 15.5 : 13.5;
-  const avail = Math.max(20, cellW - 12);            // 左右のpadding分を引く
-  const n = [...t].length || 1;                      // 和文は1文字≒1em
+  const avail = Math.max(20, cellW - 12);
+  const n = [...t].length || 1;
   const one = avail / n;
   if(one >= 11) return Math.min(base, one * 0.98);
   return Math.max(9.5, Math.min(base, avail * 2 / n * 0.98));
 }
 
 function toggle(id){
-  const l = list(); const it = l.items.find(i=>i.id===id); if(!it) return;   // 消えたIDは黙って無視（DEVLOG 4-10）
+  const l = list(); const it = l.items.find(i=>i.id===id); if(!it) return;   // 消えたIDは黙って無視
   it.on = !it.on;
   haptic(it.on ? 'on' : 'off');
   save(); renderList();
@@ -311,20 +485,16 @@ function toggle(id){
 
 function open_(id){ cur = id; go('list') }
 function newList(){
-  const l = { id:uid(), name:'新しいリスト', text:'', cols:4, items:[] };
+  const l = { id:uid(), name:'新しいリスト', text:'', cols:4, mode:'colorful', items:[] };
   db.lists.push(l); save(); cur = l.id; go('edit');
 }
 
-/* ---------- 編集 ---------- */
+/* ---------- 編集（中身） ---------- */
 function renderEdit(){
   const l = list(); if(!l) return go('home');
   document.getElementById('editName').value = l.name;
   document.getElementById('editText').value = l.text;
-  const seg = document.getElementById('colSeg');
-  seg.innerHTML = [2,3,4,5].map(c =>
-    `<button class="${(l.cols||4)===c?'on':''}" onclick="setCols(${c})">${c}列</button>`).join('');
 }
-function setCols(c){ const l=list(); l.cols=c; haptic('sel'); save(); renderEdit() }
 function saveEdit(){
   const l = list();
   const name = document.getElementById('editName').value.trim();
@@ -333,7 +503,35 @@ function saveEdit(){
   l.items = parse(l.text, l.items);
   haptic('ok'); save(); go('list');
 }
-function cancelEdit(){ const l=list(); go(l && l.items.length ? 'list' : 'home') }
+function cancelEdit(){ const l = list(); go(l && l.items.length ? 'list' : 'home') }
+
+/* ---------- 設定（見た目） ---------- */
+function renderConf(){
+  const l = list(); if(!l) return go('home');
+  const dark = isDark();
+  document.getElementById('confTitle').textContent = l.name + ' の設定';
+
+  document.getElementById('modeGrid').innerHTML = MODES.map(m => {
+    // 見本は「済・未・済・未」。塗りの2状態と色の選び方が同時に見える並びにする。
+    const sw = [0,1,2,3].map(g =>
+      `<i style="background:${tone(m.id,g,g%2===0,dark).bg}"></i>`).join('');
+    return `<div class="mode ${l.mode===m.id?'on':''}" onclick="setMode('${m.id}')">
+      <div class="sw">${sw}</div>
+      <div class="nm">${m.name}${l.mode===m.id?'<span class="chk">✓</span>':''}</div>
+      <div class="ds">${m.desc}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('colSeg').innerHTML = [2,3,4,5].map(c =>
+    `<button class="${(l.cols||4)===c?'on':''}" onclick="setCols(${c})">${c}列</button>`).join('');
+
+  document.getElementById('themeSeg').innerHTML =
+    [['auto','自動'],['light','ライト'],['dark','ダーク']].map(([v,n]) =>
+      `<button class="${db.theme===v?'on':''}" onclick="setTheme('${v}')">${n}</button>`).join('');
+}
+function setMode(id){ list().mode = id; haptic('sel'); save(); renderConf() }
+function setCols(c){ list().cols = c; haptic('sel'); save(); renderConf() }
+function setTheme(v){ db.theme = v; haptic('sel'); save(); applyTheme(); renderConf() }
 
 /* ---------- 確認シート ---------- */
 function sheet(title, body, acts){
@@ -351,26 +549,21 @@ function closeSheet(){
   document.getElementById('mask').classList.remove('on');
   document.getElementById('sheet').classList.remove('on');
 }
-function openSheet(){
-  const l = list(); const {n,d} = stat(l);
-  sheet(l.name, `${n}個中 ${d}個にチェックが付いています。`, [
-    {label:'編集する', run:()=>go('edit')},
-    {label:'チェックを全部外す', danger:true, run:doReset},
-  ]);
-}
 function askReset(){
   const l = list(); const {n,d} = stat(l);
   if(d === 0){ haptic('warn'); return }
-  sheet('チェックを全部外しますか？', `${n}個中 ${d}個に付いているチェックが、すべて外れます。元に戻せません。`,
+  sheet('チェックを全部外しますか？',
+    `${n}個中 ${d}個に付いているチェックが、すべて外れます。元に戻せません。`,
     [{label:'全部外す', danger:true, run:doReset}]);
 }
 function doReset(){
   const l = list(); l.items.forEach(i => i.on = false);
-  haptic('ok'); save(); renderList();
+  haptic('ok'); save(); go('list');
 }
 function askDelete(){
   const l = list();
-  sheet('このリストを削除しますか？', `「${l.name}」と、書いた ${l.items.length}個の持ち物がすべて消えます。元に戻せません。`,
+  sheet('このリストを削除しますか？',
+    `「${l.name}」と、書いた ${l.items.length}個の持ち物がすべて消えます。元に戻せません。`,
     [{label:'削除する', danger:true, run:()=>{
       db.lists = db.lists.filter(x => x.id !== l.id); cur = null; haptic('warn'); save(); go('home');
     }}]);
@@ -388,6 +581,7 @@ window.addEventListener('resize', () => {
   if(document.getElementById('screen-list').classList.contains('on')) renderList();
 });
 
+applyTheme();
 renderHome();
 </script>
 </body>
