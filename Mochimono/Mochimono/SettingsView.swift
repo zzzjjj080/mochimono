@@ -11,6 +11,7 @@ struct SettingsView: View {
 
     @State private var askingReset = false
     @State private var askingDelete = false
+    @State private var tipJar = TipJar(productID: TipJar.productID)
 
     private var list: PackingList? { model.list(listID) }
 
@@ -69,6 +70,9 @@ struct SettingsView: View {
                         .accessibilityIdentifier("deleteList")
                 }
             }
+
+            // リストが1つも無いときでも出す（if let list の外）
+            CoffeeTipSection(tipJar: tipJar)
         }
         .navigationTitle("設定")
         .navigationBarTitleDisplayMode(.inline)

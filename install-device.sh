@@ -1,26 +1,53 @@
 #!/bin/bash
-# 接続中のiPhoneに最新のビルドを入れる。
-# 機種変更しても書き換え不要なように、名前ではなく接続状態で選ぶ。
-set -euo pipefail
-cd "$(dirname "$0")/Mochimono"
+# 修正のたびに実機へ入れるためのスクリプト。
+# 使える端末を自動で選ぶので、機種変更しても書き換え不要。
+#
+#   ./install-device.sh            前回うまくいった端末を優先して入れる
+#   ./install-device.sh <UUID>     端末を指定して入れる
+set -e
+cd "$(dirname "$0")"
+REMEMBER="$(pwd)/.last-device"
+cd Mochimono
 
-# ペアリング済みのApple Watchも " connected " に一致するので iPhone に絞る。
-# "connected (no DDI)" は中身を送れない状態なので除く（引き継ぎ書 4-26）。
-# grep は空振りすると終了コード1。set -e で無言で死ぬので || true を付ける（4-19）。
-LINE=$(xcrun devicectl list devices 2>/dev/null | grep '(iPhone' | grep ' connected ' | grep -v 'no DDI' | head -1 || true)
-if [ -z "$LINE" ]; then
-  echo "繋がっているiPhoneが見つかりません。USBで接続してください。"
-  echo "（'available (paired)' は前にペアリングしただけで、今は使えません）"
+LIST=$(xcrun devicectl list devices 2>/dev/null || true)
+
+# grep が空振りすると set -e でその場で死ぬ。無言の終了が一番たちが悪いので必ず || true
+grab() { echo "$LIST" | grep -E "$1" || true; }
+ids()  { grab "$1" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' || true; }
+name() { grab "$1" | sed -E 's/.*[0-9A-F]{12} +//' | sed -E 's/^[a-z]+( \([a-z]+\))? +//'; }
+
+# 前回の端末 → USB接続 → ペアリング済み（Wi-Fi）の順に試す。
+# 応答するかどうかだけでは足りない。ネットワーク上に見えていても
+# developer disk image をマウントできない端末があり、それは実際に
+# ビルドさせてみないと分からない。
+CANDIDATES=$(printf '%s\n%s\n%s\n' \
+  "${1:-$(cat "$REMEMBER" 2>/dev/null || true)}" "$(ids ' connected ')" "$(ids ' available ')" \
+  | grep -v '^$' | awk '!seen[$0]++' || true)
+
+if [ -z "$CANDIDATES" ]; then
+  echo "❌ 使えるiPhoneがありません"
+  echo "   USBで繋ぐか、Macと同じWi-Fiに繋いでロックを解除してください。"
+  echo "$LIST" | tail -n +3
   exit 1
 fi
-DEV=$(echo "$LINE" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
-echo "対象: $DEV"
 
-xcodebuild -project Mochimono.xcodeproj -scheme Mochimono -configuration Release \
-  -destination "platform=iOS,id=$DEV" -destination-timeout 30 \
-  -derivedDataPath /tmp/mochimono-dev -allowProvisioningUpdates build
+for DEV in $CANDIDATES; do
+  MODEL=$(name "$DEV")
+  echo "→ ${MODEL:-$DEV} を試します"
+  # 30秒で見切りをつける。ここを長くすると、駄目な端末1台で10分待たされる。
+  if xcodebuild -project Mochimono.xcodeproj -scheme Mochimono -configuration Debug \
+      -destination "platform=iOS,id=$DEV" -destination-timeout 30 \
+      -derivedDataPath /tmp/yt-device \
+      -allowProvisioningUpdates build 2>&1 | grep -qE "BUILD SUCCEEDED"; then
+    xcrun devicectl device install app --device "$DEV" \
+      /tmp/yt-device/Build/Products/Debug-iphoneos/Mochimono.app 2>&1 | grep -E "bundleID"
+    echo "$DEV" > "$REMEMBER"      # 次回はこれを最初に試す
+    echo "✅ ${MODEL:-$DEV} に入れました"
+    exit 0
+  fi
+  echo "   …使えませんでした。次を試します"
+done
 
-APP=$(find /tmp/mochimono-dev/Build/Products -maxdepth 3 -name "Mochimono.app" -path "*Release*" | head -1)
-xcrun devicectl device install app --device "$DEV" "$APP"
-echo "入れ終わりました。ホーム画面から起動してください。"
-echo "触覚は実機でしか確認できません。タップ・チェック・設定の切り替えを一通り触ってください。"
+echo "❌ どの端末にも入れられませんでした"
+echo "$LIST" | tail -n +3
+exit 1
