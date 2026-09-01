@@ -97,6 +97,19 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         for i in items.indices { items[i].isPacked = false }
     }
 
+    /// 1つだけ足す。編集画面を開かずに書き足すための道。
+    ///
+    /// **末尾の空行を落としてから足す。** 落とさずに足すと、
+    /// 「空行＝グループの区切り」の解釈で、足したものだけが新しいグループになる。
+    /// 書いた本人は最後の塊に足したつもりなので、色が変わると驚く。
+    public mutating func append(_ line: String) {
+        let name = line.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+        var base = text
+        while base.hasSuffix("\n") || base.hasSuffix(" ") { base.removeLast() }
+        updateText(base.isEmpty ? name : base + "\n" + name)
+    }
+
     /// テキストを書き換える。チェックの状態は名前で突き合わせて引き継ぐ。
     public mutating func updateText(_ newText: String) {
         text = newText

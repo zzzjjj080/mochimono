@@ -157,6 +157,81 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertFalse(app.buttons["list-街中"].waitForExistence(timeout: 3))
     }
 
+    /// 編集画面を開かずに1つ足せる。
+    func testクイック追加で1つ足せる() {
+        let app = launch()
+        app.buttons["list-国内旅行"].tap()
+        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 5))
+
+        app.buttons["quickAdd"].tap()
+        let field = app.textFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+        field.typeText("虫除け")
+        app.alerts.firstMatch.button(labeled: "足す").tap()
+
+        XCTAssertTrue(app.staticTexts["0/21"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["item-虫除け"].exists)
+    }
+
+    /// やめれば何も足さない。
+    func testクイック追加をやめれば増えない() {
+        let app = launch()
+        app.buttons["list-国内旅行"].tap()
+        app.buttons["quickAdd"].tap()
+        let dialog = app.alerts.firstMatch
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3))
+        dialog.button(labeled: "やめる").tap()
+        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
+    }
+
+    /// 並べ替え。編集モードに入ってから掴んで動かす。
+    func testリストを並べ替えられる() {
+        let app = launch()
+        let first = app.buttons["list-街中"]
+        XCTAssertTrue(first.waitForExistence(timeout: 5))
+        XCTAssertLessThan(first.frame.minY, app.buttons["list-国内旅行"].frame.minY)
+
+        app.buttons["reorder"].tap()          // EditButton
+        // **行の本体ではなく、右端の掴む部分を引く。** 本体を引いても並べ替えは始まらない。
+        let window = app.windows.firstMatch
+        let target = app.buttons["list-国内旅行"]
+        let handleX = 0.93
+        let from = window.coordinate(withNormalizedOffset:
+            CGVector(dx: handleX, dy: first.frame.midY / window.frame.height))
+        let to = window.coordinate(withNormalizedOffset:
+            CGVector(dx: handleX, dy: (target.frame.maxY + 8) / window.frame.height))
+        from.press(forDuration: 1.0, thenDragTo: to)
+        app.buttons["reorder"].tap()          // 完了
+
+        // 街中が国内旅行より下に来ていること
+        XCTAssertGreaterThan(app.buttons["list-街中"].frame.minY,
+                             app.buttons["list-国内旅行"].frame.minY)
+    }
+
+    /// 文字を大きくする設定に追従すること。
+    /// **列が減ることで確かめる。** 減らさないと自動縮小がかかって元の大きさに戻る。
+    func test文字を大きくすると列が減る() {
+        let normal = XCUIApplication()
+        normal.launchArguments = ["-ui-testing"]
+        normal.launch()
+        normal.buttons["list-国内旅行"].tap()
+        let narrow = normal.buttons["item-財布"]
+        XCTAssertTrue(narrow.waitForExistence(timeout: 5))
+        let narrowWidth = narrow.frame.width
+        normal.terminate()
+
+        let big = XCUIApplication()
+        big.launchArguments = ["-ui-testing",
+                               "-UIPreferredContentSizeCategoryName",
+                               "UICTContentSizeCategoryAccessibilityXL"]
+        big.launch()
+        big.buttons["list-国内旅行"].tap()
+        let wide = big.buttons["item-財布"]
+        XCTAssertTrue(wide.waitForExistence(timeout: 5))
+        XCTAssertGreaterThan(wide.frame.width, narrowWidth * 1.4,
+                             "文字を大きくしても1マスの幅が変わっていない（列が減っていない）")
+    }
+
 }
 
 extension XCUIElement {

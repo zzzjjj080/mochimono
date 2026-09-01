@@ -44,14 +44,14 @@ struct AddListView: View {
         return VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(preset.name)
-                    .font(.system(size: 16, weight: .heavy))
+                    .font(.system(.subheadline, weight: .heavy))
                     .foregroundStyle(Color.primary)
                 Text(preset.detail)
-                    .font(.system(size: 12))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 4)
                 Text("\(preset.items.count)個")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(.caption, weight: .semibold))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
@@ -59,7 +59,7 @@ struct AddListView: View {
             HStack(spacing: 2) {
                 ForEach(preset.items.prefix(9)) { item in
                     Text(item.text)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(.caption2, weight: .bold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                         .padding(.horizontal, 4)
@@ -69,7 +69,7 @@ struct AddListView: View {
                                     in: .rect(cornerRadius: 3))
                 }
                 if preset.items.count > 9 {
-                    Text("…").font(.system(size: 10)).foregroundStyle(.secondary)
+                    Text("…").font(.caption2).foregroundStyle(.secondary)
                 }
             }
         }

@@ -92,3 +92,58 @@ struct ReconcileTests {
         #expect(l.groups == [0, 1, 2])
     }
 }
+
+/// 編集画面を開かずに1行足す道。
+struct AppendTests {
+
+    @Test func 末尾に足される() {
+        var l = PackingList(name: "x", text: "帽子\nバット")
+        l.append("グローブ")
+        #expect(l.items.map(\.text) == ["帽子", "バット", "グローブ"])
+        #expect(l.items.last?.group == 0)
+    }
+
+    /// 末尾に空行が残っていると、足したものだけ別グループになってしまう。
+    @Test func 末尾の空行があっても最後のグループに入る() {
+        var l = PackingList(name: "x", text: "帽子\n\nグローブ\n\n")
+        l.append("バット")
+        #expect(l.items.map { "\($0.text):\($0.group)" } == ["帽子:0", "グローブ:1", "バット:1"])
+    }
+
+    @Test func 空のリストにも足せる() {
+        var l = PackingList(name: "x", text: "")
+        l.append("財布")
+        #expect(l.items.map(\.text) == ["財布"])
+        #expect(l.text == "財布")
+    }
+
+    @Test func 空白だけなら何もしない() {
+        var l = PackingList(name: "x", text: "帽子")
+        l.append("   ")
+        l.append("\n")
+        #expect(l.items.count == 1)
+    }
+
+    @Test func 前後の空白は落ちる() {
+        var l = PackingList(name: "x", text: "帽子")
+        l.append("  バット  ")
+        #expect(l.items.last?.text == "バット")
+    }
+
+    /// 足しても、既に付いているチェックは消えない。
+    @Test func 既のチェックは残る() {
+        var l = PackingList(name: "x", text: "帽子\nバット")
+        l.toggle(l.items[0].id)
+        l.append("グローブ")
+        #expect(l.items.first { $0.text == "帽子" }?.isPacked == true)
+        #expect(l.items.last?.isPacked == false)
+        #expect(l.packedCount == 1)
+    }
+
+    /// テキストが正本なので、足したぶんが本文にも入っていること。
+    @Test func テキストにも入る() {
+        var l = PackingList(name: "x", text: "帽子\n\nグローブ")
+        l.append("バット")
+        #expect(l.text == "帽子\n\nグローブ\nバット")
+    }
+}

@@ -11,10 +11,27 @@ struct ListView: View {
     let settings: () -> Void
 
     @State private var askingReset = false
+    @State private var addingItem = false
+    @State private var newItem = ""
+
+    // 文字サイズの設定に追従させる。100 を基準に、いま何倍かを取る。
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .body) private var typeScale: CGFloat = 100
     /// 「そろった」の触覚は、そろった瞬間に1回だけ。毎回の描画で鳴らさない。
     @State private var wasComplete = false
 
     private var list: PackingList? { model.list(listID) }
+
+    /// 文字の倍率。伸ばしすぎると1マスが画面を覆うので上限を付ける。
+    private var scale: CGFloat { min(max(typeScale / 100, 0.85), 1.9) }
+
+    /// 実際に並べる列数。
+    /// **文字を大きくする設定のときは列を減らす。** 減らさないと、
+    /// 幅が足りずに自動縮小がかかって、結局もとの大きさに戻る（設定が効かない）。
+    private func columns(_ list: PackingList) -> Columns {
+        guard typeSize.isAccessibilitySize else { return list.columns }
+        return list.columns.rawValue > 2 ? .two : list.columns
+    }
 
     var body: some View {
         Group {
@@ -31,7 +48,7 @@ struct ListView: View {
             if let list {
                 ToolbarItem(placement: .topBarTrailing) {
                     Text("\(list.packedCount)/\(list.items.count)")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(.footnote, weight: .semibold))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
@@ -55,6 +72,14 @@ struct ListView: View {
                 Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
             }
         }
+        // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
+        .alert("持ち物を足す", isPresented: $addingItem) {
+            TextField("例：充電器", text: $newItem)
+            Button("足す") { model.append(newItem, to: listID); newItem = "" }
+            Button("やめる", role: .cancel) { newItem = "" }
+        } message: {
+            Text("いちばん最後のグループに入ります。")
+        }
     }
 
     @ViewBuilder
@@ -70,7 +95,7 @@ struct ListView: View {
 
                 if list.isComplete {
                     Text("ヨシ！ 全部そろいました")
-                        .font(.system(size: 15, weight: .heavy))
+                        .font(.system(.subheadline, weight: .heavy))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -85,7 +110,7 @@ struct ListView: View {
                         .padding(.top, 50)
                 } else {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 3),
-                                             count: list.columns.rawValue),
+                                             count: columns(list).rawValue),
                               spacing: 3) {
                         ForEach(list.items) { item in     // 添字ではなく要素を回す
                             cell(item, list: list, table: table)
@@ -106,11 +131,12 @@ struct ListView: View {
 
     private func cell(_ item: Item, list: PackingList, table: ToneTable) -> some View {
         let tone = table.tone(group: item.group, isPacked: item.isPacked)
+        let cols = columns(list)
         return Button {
             model.toggle(item.id, in: listID)
         } label: {
             Text(item.text)
-                .font(.system(size: baseFontSize(list.columns), weight: .heavy))
+                .font(.system(size: baseFontSize(cols) * scale, weight: .heavy))
                 .foregroundStyle(tone.label.color)
                 .lineLimit(2)
                 .minimumScaleFactor(0.45)      // 長い名前は自動で縮める
@@ -123,16 +149,22 @@ struct ListView: View {
                 .overlay(alignment: .topTrailing) {
                     if item.isPacked {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 9, weight: .black))
+                            .font(.system(size: 9 * scale, weight: .black))
                             .foregroundStyle(tone.label.color)
                             .padding(4)
                     }
                 }
-                .aspectRatio(list.columns.aspectRatio, contentMode: .fit)
+                // 文字が大きくなったぶんマスも縦に伸ばす。伸ばさないと縮小されて意味がない
+                .aspectRatio(cols.aspectRatio / scale, contentMode: .fit)
         }
         .buttonStyle(PressableCell())
         .accessibilityIdentifier("item-\(item.text)")
         .accessibilityAddTraits(item.isPacked ? .isSelected : [])
+        // 読み上げでは色が伝わらないので、状態を言葉で持たせる
+        .accessibilityLabel(item.text)
+        .accessibilityValue(item.isPacked ? "持った" : "まだ")
+        .accessibilityHint(item.isPacked ? "二本指でダブルタップすると外します"
+                                         : "二本指でダブルタップすると持った印を付けます")
     }
 
     private func baseFontSize(_ columns: Columns) -> CGFloat {
@@ -150,6 +182,12 @@ struct ListView: View {
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("clearAll")
+            Button { addingItem = true } label: {
+                Image(systemName: "plus").fontWeight(.semibold)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityLabel("持ち物を足す")
+            .accessibilityIdentifier("quickAdd")
             Button("編集", action: edit)
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)

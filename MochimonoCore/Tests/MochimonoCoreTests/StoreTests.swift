@@ -75,3 +75,52 @@ struct StoreTests {
         #expect(Columns.allCases.map(\.rawValue) == [2, 3, 4, 5])
     }
 }
+
+/// 並べ替え。SwiftUI の onMove と同じ規則で動くこと。
+/// 規則を取り違えると「1つ下へ動かしたのに動かない」といった挙動になる。
+struct MoveTests {
+
+    private func store(_ names: [String]) -> Store {
+        Store(lists: names.map { PackingList(name: $0, text: "A") })
+    }
+    private func names(_ s: Store) -> [String] { s.lists.map(\.name) }
+
+    @Test func 上へ動かす() {
+        var s = store(["A", "B", "C", "D"])
+        s.moveLists(fromOffsets: IndexSet(integer: 2), toOffset: 0)
+        #expect(names(s) == ["C", "A", "B", "D"])
+    }
+
+    /// 下へ動かすときの destination は「動かす前の並びでの位置」。
+    @Test func 下へ動かす() {
+        var s = store(["A", "B", "C", "D"])
+        s.moveLists(fromOffsets: IndexSet(integer: 0), toOffset: 3)
+        #expect(names(s) == ["B", "C", "A", "D"])
+    }
+
+    @Test func 一番下へ動かす() {
+        var s = store(["A", "B", "C"])
+        s.moveLists(fromOffsets: IndexSet(integer: 0), toOffset: 3)
+        #expect(names(s) == ["B", "C", "A"])
+    }
+
+    @Test func 複数まとめて動かす() {
+        var s = store(["A", "B", "C", "D"])
+        s.moveLists(fromOffsets: IndexSet([0, 2]), toOffset: 4)
+        #expect(names(s) == ["B", "D", "A", "C"])
+    }
+
+    @Test func 同じ位置なら変わらない() {
+        var s = store(["A", "B", "C"])
+        s.moveLists(fromOffsets: IndexSet(integer: 1), toOffset: 1)
+        #expect(names(s) == ["A", "B", "C"])
+    }
+
+    /// 範囲外を渡されても落ちないこと。
+    @Test func 範囲外でも落ちない() {
+        var s = store(["A", "B"])
+        s.moveLists(fromOffsets: IndexSet(integer: 9), toOffset: 0)
+        s.moveLists(fromOffsets: IndexSet(integer: 0), toOffset: 99)
+        #expect(s.lists.count == 2)
+    }
+}

@@ -72,6 +72,7 @@ struct SettingsView: View {
             }
 
             // リストが1つも無いときでも出す（if let list の外）
+            FeedbackSection()
             CoffeeTipSection(tipJar: tipJar)
         }
         .navigationTitle("設定")
@@ -114,16 +115,16 @@ struct SettingsView: View {
                 }
                 HStack(spacing: 4) {
                     Text(palette.name)
-                        .font(.system(size: 13.5, weight: .heavy))
+                        .font(.system(.footnote, weight: .heavy))
                         .foregroundStyle(Color.primary)
                     if selected {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 11, weight: .black))
+                            .font(.system(.caption2, weight: .black))
                             .foregroundStyle(Color.accentColor)
                     }
                 }
                 Text(palette.detail)
-                    .font(.system(size: 11))
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2, reservesSpace: true)
                     .multilineTextAlignment(.leading)

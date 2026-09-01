@@ -73,6 +73,24 @@ final class AppModel {
         save()
     }
 
+    /// 編集画面を開かずに1つ足す。
+    func append(_ line: String, to listID: PackingList.ID) {
+        guard var l = store[listID] else { return }
+        let before = l.items.count
+        l.append(line)
+        guard l.items.count != before else { return }   // 空白だけなら何もしない
+        store[listID] = l
+        Haptics.done()
+        save()
+    }
+
+    /// リストの並べ替え。使う順に並べられないと、増えたときに探すことになる。
+    func moveLists(from source: IndexSet, to destination: Int) {
+        store.moveLists(fromOffsets: source, toOffset: destination)
+        Haptics.select()
+        save()
+    }
+
     func updateContents(of listID: PackingList.ID, name: String, text: String) {
         guard var l = store[listID] else { return }
         l.name = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

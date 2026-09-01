@@ -26,6 +26,20 @@ public struct Store: Equatable, Codable, Sendable {
         }
     }
 
+    /// 並べ替え。SwiftUI の `move(fromOffsets:toOffset:)` と同じ規則で動く。
+    ///
+    /// `destination` は**動かす前の並びでの挿入位置**なので、
+    /// 先に取り除いてから入れると、前に詰まったぶんだけ位置がずれる。
+    /// 取り除いた個数を引いて補正する。
+    public mutating func moveLists(fromOffsets source: IndexSet, toOffset destination: Int) {
+        let moving = source.sorted().compactMap { lists.indices.contains($0) ? lists[$0] : nil }
+        guard !moving.isEmpty else { return }
+        for i in source.sorted(by: >) where lists.indices.contains(i) { lists.remove(at: i) }
+        let shift = source.filter { $0 < destination }.count
+        let at = min(max(destination - shift, 0), lists.count)
+        lists.insert(contentsOf: moving, at: at)
+    }
+
     public mutating func remove(id: PackingList.ID) {
         lists.removeAll { $0.id == id }
     }

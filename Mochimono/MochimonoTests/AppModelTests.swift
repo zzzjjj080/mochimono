@@ -101,6 +101,48 @@ struct AppModelTests {
         #expect(model.list(id)?.name == "名前のないリスト")
     }
 
+    /// 編集画面を開かずに1つ足せること。
+    @Test func ひとつだけ足せる() {
+        let model = AppModel(defaults: freshDefaults())
+        let id = model.store.lists[0].id
+        let before = model.list(id)!.items.count
+        model.append("折りたたみ傘", to: id)
+        #expect(model.list(id)?.items.count == before + 1)
+        #expect(model.list(id)?.items.last?.text == "折りたたみ傘")
+        #expect(model.list(id)?.items.last?.isPacked == false)
+    }
+
+    @Test func 空白だけ足しても何も起きない() {
+        let model = AppModel(defaults: freshDefaults())
+        let id = model.store.lists[0].id
+        let before = model.list(id)!.items.count
+        model.append("   ", to: id)
+        #expect(model.list(id)?.items.count == before)
+    }
+
+    @Test func 足したものが保存される() {
+        let defaults = freshDefaults()
+        let id: PackingList.ID
+        do {
+            let model = AppModel(defaults: defaults)
+            id = model.store.lists[0].id
+            model.append("虫除け", to: id)
+        }
+        #expect(AppModel(defaults: defaults).list(id)?.items.last?.text == "虫除け")
+    }
+
+    /// 並べ替えが保存されること。次に開いたとき元に戻っていては意味がない。
+    @Test func 並べ替えが保存される() {
+        let defaults = freshDefaults()
+        do {
+            let model = AppModel(defaults: defaults)
+            model.moveLists(from: IndexSet(integer: 2), to: 0)
+            #expect(model.store.lists.map(\.name) == ["国内旅行", "街中", "通勤・通学"])
+        }
+        #expect(AppModel(defaults: defaults).store.lists.map(\.name)
+                == ["国内旅行", "街中", "通勤・通学"])
+    }
+
     @Test func 白紙の追加と削除() {
         let model = AppModel(defaults: freshDefaults())
         let before = model.store.lists.count

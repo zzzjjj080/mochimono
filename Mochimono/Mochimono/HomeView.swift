@@ -26,6 +26,8 @@ struct HomeView: View {
                             .accessibilityIdentifier("swipeDelete")
                     }
             }
+            // 並べ替えは編集モードの中だけ。ふだんは行のタップを邪魔しない
+            .onMove { model.moveLists(from: $0, to: $1) }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -41,6 +43,11 @@ struct HomeView: View {
         }
         .navigationTitle("Tilecheck")
         .toolbar {
+            if model.store.lists.count > 1 {
+                ToolbarItem(placement: .topBarLeading) {
+                    EditButton().accessibilityIdentifier("reorder")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: add) { Label("追加", systemImage: "plus") }
                     .accessibilityIdentifier("addList")
@@ -69,7 +76,7 @@ struct HomeView: View {
         return HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 7) {
                 Text(list.name)
-                    .font(.system(size: 17, weight: .heavy))
+                    .font(.system(.headline, weight: .heavy))
                     .foregroundStyle(Color.primary)
                 HStack(spacing: 3) {
                     ForEach(list.groups.prefix(6), id: \.self) { g in
@@ -83,10 +90,12 @@ struct HomeView: View {
             VStack(alignment: .trailing, spacing: 0) {
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
                     Text("\(list.packedCount)")
-                        .font(.system(size: 21, weight: .heavy))
+                        .font(.system(.title2, weight: .heavy))
+                        .monospacedDigit()
                         .foregroundStyle(list.isComplete ? Color.green : Color.primary)
                     Text("/\(list.items.count)")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(.footnote, weight: .semibold))
+                        .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
                 Text(list.isComplete ? "そろった" : "個")
@@ -94,7 +103,7 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
             }
             Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(.footnote, weight: .semibold))
                 .foregroundStyle(.tertiary)
         }
         .padding(.horizontal, 16)
