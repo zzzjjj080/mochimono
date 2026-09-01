@@ -38,7 +38,7 @@ struct StoreTests {
         #expect(store.appearance == .system)
         #expect(store.lists.count == 1)
         #expect(store.lists[0].columns == .four)
-        #expect(store.lists[0].palette == .colorful)
+        #expect(store.lists[0].palette == .first)
         #expect(store.lists[0].packedCount == 1)      // チェックが消えていない
     }
 

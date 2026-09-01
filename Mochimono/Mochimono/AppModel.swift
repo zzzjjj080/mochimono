@@ -102,9 +102,11 @@ final class AppModel {
         save()
     }
 
-    func setPalette(_ palette: Palette, for listID: PackingList.ID) {
-        guard var l = store[listID], l.palette != palette else { return }
-        l.palette = palette
+    /// 配色を1つ送る。設定画面を開かせず、リストを見ながら決められるようにするため、
+    /// 出入り口はこの1本だけにする。
+    func cyclePalette(forward: Bool, for listID: PackingList.ID) {
+        guard var l = store[listID] else { return }
+        l.palette = forward ? l.palette.next() : l.palette.previous()
         store[listID] = l
         Haptics.select()
         save()
@@ -168,11 +170,11 @@ final class AppModel {
     private static func demoStore() -> Store {
         var lists: [PackingList] = ["trip-domestic", "commute", "camp", "town", "gym"]
             .compactMap { Preset.preset(id: $0)?.makeList() }
-        lists[0].palette = .rainbow
-        lists[1].palette = .tonal
-        lists[2].palette = .vivid
-        lists[3].palette = .pastel
-        lists[4].palette = .warmCool
+        lists[0].palette = Palette(13)
+        lists[1].palette = Palette(15)
+        lists[2].palette = Palette(7)
+        lists[3].palette = Palette(10)
+        lists[4].palette = Palette(18)
         // 名前で指してチェックする。添字だと雛形を直したときに別のものが付く。
         let packed: [Int: [String]] = [
             0: ["財布", "スマホ", "鍵", "免許証", "着替え", "下着", "歯ブラシ", "充電器", "常備薬"],

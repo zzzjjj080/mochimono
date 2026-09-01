@@ -50,7 +50,7 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     public private(set) var items: [Item]
 
     public init(id: UUID = UUID(), name: String, text: String,
-                columns: Columns = .four, palette: Palette = .colorful) {
+                columns: Columns = .four, palette: Palette = .first) {
         self.id = id
         self.name = name
         self.text = text
@@ -67,7 +67,7 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         name = try c.decodeIfPresent(String.self, forKey: .name) ?? "名前のないリスト"
         text = try c.decodeIfPresent(String.self, forKey: .text) ?? ""
         columns = try c.decodeIfPresent(Columns.self, forKey: .columns) ?? .four
-        palette = try c.decodeIfPresent(Palette.self, forKey: .palette) ?? .colorful
+        palette = try c.decodeIfPresent(Palette.self, forKey: .palette) ?? .first
         let saved = try c.decodeIfPresent([Item].self, forKey: .items)
         items = saved ?? Self.parse(text, preserving: [])
     }

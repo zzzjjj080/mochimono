@@ -74,14 +74,44 @@ struct AppModelTests {
     }
 
     /// 配色はリストごと。片方を変えても、もう片方は変わらない。
+    /// 配色はリストごと。片方を送っても、もう片方は動かない。
     @Test func 配色はリストごとに独立している() {
         let model = AppModel(defaults: freshDefaults())
         let first = model.store.lists[0].id
         let second = model.store.lists[1].id
         let firstBefore = model.list(first)!.palette
-        model.setPalette(.mono, for: second)
-        #expect(model.list(second)?.palette == .mono)
+        let secondBefore = model.list(second)!.palette
+        model.cyclePalette(forward: true, for: second)
+        #expect(model.list(second)?.palette == secondBefore.next())
         #expect(model.list(first)?.palette == firstBefore)
+    }
+
+    /// 送って戻せば元どおり。端でも行き止まらない。
+    @Test func 配色を送って戻せる() {
+        let model = AppModel(defaults: freshDefaults())
+        let id = model.store.lists[0].id
+        let before = model.list(id)!.palette
+        model.cyclePalette(forward: true, for: id)
+        #expect(model.list(id)?.palette != before)
+        model.cyclePalette(forward: false, for: id)
+        #expect(model.list(id)?.palette == before)
+
+        // 20回送れば一周して戻る
+        for _ in 0..<Palette.count { model.cyclePalette(forward: true, for: id) }
+        #expect(model.list(id)?.palette == before)
+    }
+
+    @Test func 配色が保存される() {
+        let defaults = freshDefaults()
+        let id: PackingList.ID
+        let after: Palette
+        do {
+            let model = AppModel(defaults: defaults)
+            id = model.store.lists[0].id
+            model.cyclePalette(forward: true, for: id)
+            after = model.list(id)!.palette
+        }
+        #expect(AppModel(defaults: defaults).list(id)?.palette == after)
     }
 
     /// 明るさはアプリ全体。

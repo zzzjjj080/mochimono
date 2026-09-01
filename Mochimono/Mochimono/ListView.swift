@@ -59,27 +59,6 @@ struct ListView: View {
             }
         }
         .safeAreaInset(edge: .bottom) { bottomBar }
-        // 破壊的な操作は、何が起きるかを具体的に書いて確認を通す。
-        // **confirmationDialog は使わない。** iOS 26 では画面の真ん中にポップオーバーで出て、
-        // しかも「やめる」が落ちる（取り消せない確認になる）。alert は必ず両方出る。
-        .alert("チェックを全部外しますか？", isPresented: $askingReset) {
-            Button("全部外す", role: .destructive) {
-                model.clearAllPacked(in: listID)
-            }
-            Button("やめる", role: .cancel) {}
-        } message: {
-            if let list {
-                Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
-            }
-        }
-        // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
-        .alert("持ち物を足す", isPresented: $addingItem) {
-            TextField("例：充電器", text: $newItem)
-            Button("足す") { model.append(newItem, to: listID); newItem = "" }
-            Button("やめる", role: .cancel) { newItem = "" }
-        } message: {
-            Text("いちばん最後のグループに入ります。")
-        }
     }
 
     @ViewBuilder
@@ -92,6 +71,8 @@ struct ListView: View {
                 ProgressView(value: list.items.isEmpty ? 0
                                   : Double(list.packedCount) / Double(list.items.count))
                     .tint(list.isComplete ? .green : .accentColor)
+
+                if !list.items.isEmpty { paletteStepper(list) }
 
                 if list.isComplete {
                     Text("ヨシ！ 全部そろいました")
@@ -167,6 +148,35 @@ struct ListView: View {
                                          : "二本指でダブルタップすると持った印を付けます")
     }
 
+    /// 配色を送る矢印。**設定画面を開かせない。**
+    /// リストを見たまま送れないと、どの色が合うかを比べられない。
+    private func paletteStepper(_ list: PackingList) -> some View {
+        HStack(spacing: 0) {
+            Button { model.cyclePalette(forward: false, for: listID) } label: {
+                Image(systemName: "arrowtriangle.left.fill")
+                    .frame(width: 60, height: 32)
+                    .contentShape(.rect)          // 余白も押せるようにする（引き継ぎ書 4-44）
+            }
+            .accessibilityIdentifier("paletteBack")
+            .accessibilityLabel("前の配色")
+            Spacer(minLength: 0)
+            Text("\(list.palette.number) / \(Palette.count)")
+                .monospacedDigit()
+                .accessibilityIdentifier("paletteNumber")
+            Spacer(minLength: 0)
+            Button { model.cyclePalette(forward: true, for: listID) } label: {
+                Image(systemName: "arrowtriangle.right.fill")
+                    .frame(width: 60, height: 32)
+                    .contentShape(.rect)
+            }
+            .accessibilityIdentifier("paletteForward")
+            .accessibilityLabel("次の配色")
+        }
+        .font(.system(.footnote, weight: .bold))
+        .foregroundStyle(.secondary)
+        .buttonStyle(.plain)
+    }
+
     private func baseFontSize(_ columns: Columns) -> CGFloat {
         switch columns {
         case .two: 21
@@ -182,12 +192,29 @@ struct ListView: View {
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("clearAll")
+                // 破壊的な操作は、何が起きるかを具体的に書いて確認を通す。
+                .alert("チェックを全部外しますか？", isPresented: $askingReset) {
+                    Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
+                    Button("やめる", role: .cancel) {}
+                } message: {
+                    if let list {
+                        Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
+                    }
+                }
             Button { addingItem = true } label: {
                 Image(systemName: "plus").fontWeight(.semibold)
             }
             .buttonStyle(.bordered)
             .accessibilityLabel("持ち物を足す")
             .accessibilityIdentifier("quickAdd")
+            // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
+            .alert("持ち物を足す", isPresented: $addingItem) {
+                TextField("例：充電器", text: $newItem)
+                Button("足す") { model.append(newItem, to: listID); newItem = "" }
+                Button("やめる", role: .cancel) { newItem = "" }
+            } message: {
+                Text("いちばん最後のグループに入ります。")
+            }
             Button("編集", action: edit)
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)

@@ -15,21 +15,21 @@ final class MochimonoUITests: XCTestCase {
     /// 持ち物をタップすると持った印が付き、数が増える。
     func testタップで持った印が付く() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
         XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 5))
 
-        app.buttons["item-財布"].tap()
+        app.buttons["item-財布"].tapWhenReady()
         XCTAssertTrue(app.staticTexts["1/20"].waitForExistence(timeout: 3))
 
-        app.buttons["item-財布"].tap()      // もう一度で外れる
+        app.buttons["item-財布"].tapWhenReady()      // もう一度で外れる
         XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
     }
 
     /// 列数のセグメント。合成タップでは動かなかったので、ここで確かめる。
     func test列数を変えられる() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["openSettings"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["openSettings"].tapWhenReady()
 
         let columns = app.segmentedControls["columns"]
         XCTAssertTrue(columns.waitForExistence(timeout: 5))
@@ -41,8 +41,8 @@ final class MochimonoUITests: XCTestCase {
     /// 明るさのセグメント。アプリ全体に効く。
     func test明るさを変えられる() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["openSettings"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["openSettings"].tapWhenReady()
 
         let appearance = app.segmentedControls["appearance"]
         XCTAssertTrue(appearance.waitForExistence(timeout: 5))
@@ -51,39 +51,63 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertTrue(appearance.buttons["ダーク"].isSelected)
     }
 
-    /// 配色はリストごと。野球を変えても街中は変わらない。
+    /// 配色は矢印で送る。**設定画面を開かずに、リストを見たまま変えられること。**
+    func test矢印で配色を送れる() {
+        let app = launch()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        let number = app.staticTexts["paletteNumber"]
+        XCTAssertTrue(number.waitForExistence(timeout: 5))
+        let before = number.label
+
+        app.buttons["paletteForward"].tapWhenReady()
+        XCTAssertNotEqual(number.label, before)
+
+        app.buttons["paletteBack"].tapWhenReady()
+        XCTAssertEqual(number.label, before)
+    }
+
+    /// 配色はリストごと。片方を送っても、もう片方は変わらない。
     func test配色はリストごとに保たれる() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["openSettings"].tap()
-        app.buttons["palette-mono"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()   // 戻る
-        app.navigationBars.buttons.element(boundBy: 0).tap()   // 一覧へ
+        app.buttons["list-国内旅行"].tapWhenReady()
+        let number = app.staticTexts["paletteNumber"]
+        XCTAssertTrue(number.waitForExistence(timeout: 5))
+        app.buttons["paletteForward"].tapWhenReady()
+        let changed = number.label
+        app.navigationBars.buttons.element(boundBy: 0).tapWhenReady()
 
-        app.buttons["list-街中"].tap()
-        app.buttons["openSettings"].tap()
-        // 街中はカラフルのまま
-        XCTAssertTrue(app.buttons["palette-colorful"].waitForExistence(timeout: 5))
+        app.buttons["list-街中"].tapWhenReady()
+        XCTAssertTrue(number.waitForExistence(timeout: 5))
+        XCTAssertNotEqual(number.label, changed, "別のリストの配色まで動いている")
+    }
+
+    /// 設定画面からは配色を触らせない。
+    func test設定画面に配色は無い() {
+        let app = launch()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["openSettings"].tapWhenReady()
+        XCTAssertTrue(app.segmentedControls["columns"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["paletteNumber"].exists)
     }
 
     /// 破壊的な操作は確認を通る。**やめれば何も起きない。**
     func test全部外すは確認を通る() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["item-財布"].tap()
-        app.buttons["item-常備薬"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["item-財布"].tapWhenReady()
+        app.buttons["item-常備薬"].tapWhenReady()
         XCTAssertTrue(app.staticTexts["2/20"].waitForExistence(timeout: 3))
 
         // 確認ダイアログの中を指す。
         // ・画面本体にも「全部外す」ボタンがあるので、app.buttons[...] だとそちらに当たる
         // ・添字は identifier しか見ない。ダイアログのボタンには identifier が無いので label で引く
-        app.buttons["clearAll"].tap()
+        app.buttons["clearAll"].tapWhenReady()
         let dialog = app.alerts.firstMatch
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "やめる").tap()
         XCTAssertTrue(app.staticTexts["2/20"].waitForExistence(timeout: 3))   // 消えていない
 
-        app.buttons["clearAll"].tap()
+        app.buttons["clearAll"].tapWhenReady()
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "全部外す").tap()
         XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
@@ -92,18 +116,18 @@ final class MochimonoUITests: XCTestCase {
     /// 編集してもチェックが飛ばない。Coreのテストと同じことを、画面越しにも見ておく。
     func test編集してもチェックが残る() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["item-財布"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["item-財布"].tapWhenReady()
         XCTAssertTrue(app.staticTexts["1/20"].waitForExistence(timeout: 3))
 
-        app.buttons["openEdit"].tap()
+        app.buttons["openEdit"].tapWhenReady()
         let editor = app.textViews["listText"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         // ただ tap すると触れた位置にカーソルが入り、既にある行の途中に割り込む。
         // 末尾より下を押して、文末に置く。
         editor.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.97)).tap()
         editor.typeText("\nスパイク2")
-        app.buttons["save"].tap()
+        app.buttons["save"].tapWhenReady()
 
         XCTAssertTrue(app.staticTexts["1/21"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["item-スパイク2"].exists)
@@ -111,7 +135,7 @@ final class MochimonoUITests: XCTestCase {
     /// 雛形を選ぶと、中身の入ったリストがそのまま開く。
     func test雛形からリストを追加できる() {
         let app = launch()
-        app.buttons["addList"].tap()
+        app.buttons["addList"].tapWhenReady()
         let camp = app.buttons["preset-camp"]
         XCTAssertTrue(camp.waitForExistence(timeout: 5))
         camp.tap()
@@ -121,14 +145,14 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["openEdit"].exists)
 
         // 一覧にも増えている
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.navigationBars.buttons.element(boundBy: 0).tapWhenReady()
         XCTAssertTrue(app.buttons["list-キャンプ・BBQ"].waitForExistence(timeout: 3))
     }
 
     /// 白紙から作ると、すぐ書ける状態になる。
     func test白紙から作ると編集画面が開く() {
         let app = launch()
-        app.buttons["addList"].tap()
+        app.buttons["addList"].tapWhenReady()
         // 雛形が先に並ぶので、下まで送らないと存在しない（Listは見えていない行を作らない）
         let blank = app.buttons["startBlank"]
         for _ in 0..<8 where !blank.exists { app.swipeUp() }
@@ -143,7 +167,7 @@ final class MochimonoUITests: XCTestCase {
         let row = app.buttons["list-街中"]
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.swipeLeft()
-        app.buttons["swipeDelete"].tap()
+        app.buttons["swipeDelete"].tapWhenReady()
 
         let dialog = app.alerts.firstMatch
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
@@ -151,7 +175,7 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["list-街中"].waitForExistence(timeout: 3))   // 消えていない
 
         app.buttons["list-街中"].swipeLeft()
-        app.buttons["swipeDelete"].tap()
+        app.buttons["swipeDelete"].tapWhenReady()
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "削除する").tap()
         XCTAssertFalse(app.buttons["list-街中"].waitForExistence(timeout: 3))
@@ -160,10 +184,10 @@ final class MochimonoUITests: XCTestCase {
     /// 編集画面を開かずに1つ足せる。
     func testクイック追加で1つ足せる() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
         XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 5))
 
-        app.buttons["quickAdd"].tap()
+        app.buttons["quickAdd"].tapWhenReady()
         let field = app.textFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 3))
         field.typeText("虫除け")
@@ -176,8 +200,8 @@ final class MochimonoUITests: XCTestCase {
     /// やめれば何も足さない。
     func testクイック追加をやめれば増えない() {
         let app = launch()
-        app.buttons["list-国内旅行"].tap()
-        app.buttons["quickAdd"].tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["quickAdd"].tapWhenReady()
         let dialog = app.alerts.firstMatch
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "やめる").tap()
@@ -191,7 +215,7 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertTrue(first.waitForExistence(timeout: 5))
         XCTAssertLessThan(first.frame.minY, app.buttons["list-国内旅行"].frame.minY)
 
-        app.buttons["reorder"].tap()          // EditButton
+        app.buttons["reorder"].tapWhenReady()          // EditButton
         // **行の本体ではなく、右端の掴む部分を引く。** 本体を引いても並べ替えは始まらない。
         let window = app.windows.firstMatch
         let target = app.buttons["list-国内旅行"]
@@ -201,7 +225,7 @@ final class MochimonoUITests: XCTestCase {
         let to = window.coordinate(withNormalizedOffset:
             CGVector(dx: handleX, dy: (target.frame.maxY + 8) / window.frame.height))
         from.press(forDuration: 1.0, thenDragTo: to)
-        app.buttons["reorder"].tap()          // 完了
+        app.buttons["reorder"].tapWhenReady()          // 完了
 
         // 街中が国内旅行より下に来ていること
         XCTAssertGreaterThan(app.buttons["list-街中"].frame.minY,
@@ -235,6 +259,16 @@ final class MochimonoUITests: XCTestCase {
 }
 
 extension XCUIElement {
+    /// **出てくるのを待ってから押す。**
+    /// 押してすぐ次を触ると、画面の切り替わりが終わっておらず、
+    /// 実装は正しいのにテストだけが落ちる（落ちる場所が毎回変わるのが目印）。
+    func tapWhenReady(_ timeout: TimeInterval = 15,
+                      file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(waitForExistence(timeout: timeout),
+                      "出てきませんでした: \(self)", file: file, line: line)
+        tap()
+    }
+
     /// 表示文字で引く。確認ダイアログのボタンには identifier が付かない。
     func button(labeled label: String) -> XCUIElement {
         buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
