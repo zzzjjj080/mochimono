@@ -19,6 +19,11 @@ App ID を登録したあとに名前が「モチモノ」で押さえられて�
   くすみ / ビビッド / パステル / モノクロ。違いは「グループの色をどう選ぶか」。
 - ライト/ダークはアプリ全体（自動・ライト・ダーク）。同じ設定画面に置く。
 - ジェスチャーには触覚を付ける（全アプリ共通の方針）。
+- **文字サイズの設定に追従する。** 大きくすると文字もマスも大きくなり、
+  文字を大きくする設定のときは**列を減らす**（減らさないと自動縮小がかかって元に戻る）。
+- 読み上げでは色が伝わらないので、「持った／まだ」を言葉で持たせている。
+- リストは**並べ替えられる**（一覧の「編集」）。
+- **1つだけ足すのに編集画面を開かなくてよい**（リスト画面の「＋」）。最後のグループに入る。
 - 通信しない。データは端末内だけ。
 
 ## 構成
@@ -54,15 +59,15 @@ HSLの明度で白黒を振り分けると、黄や緑で必ず読めなくな�
 ## テスト
 
 ```bash
-cd MochimonoCore && swift test                      # 37本
+cd MochimonoCore && swift test                      # 50本
 cd Mochimono && xcodebuild -scheme Mochimono \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # AppModel 10本 + UI 9本
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # AppModel 14本 + UI 13本
 ```
 
 ## 状態
 
 - [x] ① HTMLプロトタイプ
-- [x] ② MochimonoCore（37テスト）
+- [x] ② MochimonoCore（50テスト）
 - [x] ③ SwiftUI
 - [x] ④ シミュレータで実際にタップして確認
 - [ ] ⑤ 実機（iPhone Air）← **触覚は実機でしか確認できない**
