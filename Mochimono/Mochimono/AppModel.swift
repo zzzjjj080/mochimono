@@ -170,11 +170,11 @@ final class AppModel {
     private static func demoStore() -> Store {
         var lists: [PackingList] = ["trip-domestic", "commute", "camp", "town", "gym"]
             .compactMap { Preset.preset(id: $0)?.makeList() }
-        lists[0].palette = Palette(13)
-        lists[1].palette = Palette(15)
+        lists[0].palette = Palette(1)
+        lists[1].palette = Palette(4)
         lists[2].palette = Palette(7)
         lists[3].palette = Palette(10)
-        lists[4].palette = Palette(18)
+        lists[4].palette = Palette(12)
         // 名前で指してチェックする。添字だと雛形を直したときに別のものが付く。
         let packed: [Int: [String]] = [
             0: ["財布", "スマホ", "鍵", "免許証", "着替え", "下着", "歯ブラシ", "充電器", "常備薬"],

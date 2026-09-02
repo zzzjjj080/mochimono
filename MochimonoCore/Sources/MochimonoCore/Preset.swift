@@ -61,7 +61,7 @@ extension Preset {
                 """),
 
         Preset(id: "commute", name: "通勤・通学", detail: "毎日のかばんの中身",
-               palette: Palette(15), text: """
+               palette: Palette(2), text: """
                 財布
                 スマホ
                 鍵
@@ -81,7 +81,7 @@ extension Preset {
                 """),
 
         Preset(id: "trip-domestic", name: "国内旅行", detail: "1〜2泊のふつうの旅行",
-               palette: Palette(13), text: """
+               palette: Palette(3), text: """
                 財布
                 スマホ
                 鍵
@@ -110,7 +110,7 @@ extension Preset {
                 """),
 
         Preset(id: "trip-abroad", name: "海外旅行", detail: "現地で買えないものを先に",
-               palette: Palette(7), text: """
+               palette: Palette(4), text: """
                 パスポート
                 航空券
                 財布
@@ -143,7 +143,7 @@ extension Preset {
                 """),
 
         Preset(id: "business", name: "出張", detail: "1泊の仕事の遠出",
-               palette: Palette(3), text: """
+               palette: Palette(5), text: """
                 財布
                 スマホ
                 社員証
@@ -169,7 +169,7 @@ extension Preset {
                 """),
 
         Preset(id: "gym", name: "ジム・運動", detail: "運動しに行くとき",
-               palette: Palette(18), text: """
+               palette: Palette(6), text: """
                 ウェア
                 短パン
                 靴下
@@ -189,7 +189,7 @@ extension Preset {
                 """),
 
         Preset(id: "camp", name: "キャンプ・BBQ", detail: "外で火を使うとき",
-               palette: Palette(14), text: """
+               palette: Palette(7), text: """
                 テント
                 ペグ
                 ハンマー
@@ -217,7 +217,7 @@ extension Preset {
                 """),
 
         Preset(id: "onsen", name: "温泉・銭湯", detail: "お風呂に行くとき",
-               palette: Palette(5), text: """
+               palette: Palette(8), text: """
                 タオル
                 バスタオル
                 着替え
@@ -235,7 +235,7 @@ extension Preset {
                 """),
 
         Preset(id: "kids", name: "子どもとおでかけ", detail: "小さい子を連れて出るとき",
-               palette: Palette(10), text: """
+               palette: Palette(9), text: """
                 おむつ
                 おしりふき
                 ビニール袋
@@ -262,7 +262,7 @@ extension Preset {
                 """),
 
         Preset(id: "hospital", name: "通院", detail: "病院へ行くとき",
-               palette: Palette(8), text: """
+               palette: Palette(10), text: """
                 保険証
                 診察券
                 お薬手帳
@@ -279,7 +279,7 @@ extension Preset {
                 """),
 
         Preset(id: "ceremony", name: "冠婚葬祭", detail: "急に必要になるもの",
-               palette: Palette(20), text: """
+               palette: Palette(11), text: """
                 礼服
                 ネクタイ
                 黒靴下
@@ -297,7 +297,7 @@ extension Preset {
                 """),
 
         Preset(id: "disaster", name: "防災", detail: "持ち出し袋の中身",
-               palette: Palette(19), text: """
+               palette: Palette(12), text: """
                 水
                 非常食
                 携帯ラジオ

@@ -15,19 +15,28 @@ struct PaletteTests {
     static let schemes: [Scheme] = [.light, .dark]
     static let groups = Array(0..<10)
 
-    @Test func 番号は1から20まで() {
-        #expect(Palette.count == 20)
-        #expect(Palette.all.map(\.number) == Array(1...20))
-        #expect(Palette.recipes.count == Palette.count)
+    @Test func 番号は1から一周ぶん() {
+        #expect(Palette.count == 12)
+        #expect(Palette.all.map(\.number) == Array(1...Palette.count))
+    }
+
+    /// 一周すると元の色に戻る。送り続けても迷子にならない。
+    @Test func 一周すると戻る() {
+        var p = Palette(1)
+        for _ in 0..<Palette.count { p = p.next() }
+        #expect(p == Palette(1))
+        for g in 0..<6 {
+            #expect(abs(Palette(1).hue(group: g) - p.hue(group: g)) < 0.001)
+        }
     }
 
     /// 端まで送ったら反対の端へ回る。行き止まると送り続けられない。
     @Test func 端で折り返す() {
-        #expect(Palette(1).previous() == Palette(20))
-        #expect(Palette(20).next() == Palette(1))
-        #expect(Palette(0) == Palette(20))
-        #expect(Palette(21) == Palette(1))
-        #expect(Palette(-1) == Palette(19))
+        #expect(Palette(1).previous() == Palette(Palette.count))
+        #expect(Palette(Palette.count).next() == Palette(1))
+        #expect(Palette(0) == Palette(Palette.count))
+        #expect(Palette(Palette.count + 1) == Palette(1))
+        #expect(Palette(-1) == Palette(Palette.count - 1))
     }
 
     @Test(arguments: Palette.all)
@@ -70,7 +79,7 @@ struct PaletteTests {
     /// どの配色も、6グループ使ったときに色相が十分に散っていること。
     @Test(arguments: Palette.all)
     func 色相が散っている(_ palette: Palette) {
-        #expect(palette.recipe.hues.count >= 6, "配色\(palette.number) の色数が足りない")
+        #expect(Palette.baseHues.count >= 6, "色数が足りない")
         let hues = (0..<6).map { palette.hue(group: $0) }
         let spread = hues.max()! - hues.min()!
         #expect(spread >= 90, "配色\(palette.number) の色相の広がりが \(spread) しかない")
@@ -79,7 +88,7 @@ struct PaletteTests {
     /// **無彩色は置かない。** 持ったものだけが目立つ代わりに、グループが読めなくなる。
     @Test(arguments: Palette.all)
     func 無彩色ではない(_ palette: Palette) {
-        #expect(palette.recipe.saturation >= 0.4, "配色\(palette.number) の彩度が低すぎる")
+        #expect(palette.saturation >= 0.6, "配色\(palette.number) の彩度が低すぎる")
         for scheme in Self.schemes {
             let t = palette.tone(group: 0, isPacked: true, scheme: scheme)
             #expect(t.fill.saturation > 0, "配色\(palette.number)/\(scheme)")
@@ -98,10 +107,11 @@ struct PaletteTests {
         }
     }
 
-    /// **隣り合う番号は、はっきり違って見えること。**
-    /// 矢印で1つ送ったのに「変わった気がしない」のでは、送って選ぶ意味がない。
-    /// 端から端へ回るので、20番と1番の間も見る。
-    @Test func 隣の番号とはっきり違う() {
+    /// **隣り合う番号は「少しずつ」違うこと。**
+    /// 押すたびに全然違う色になると、目当ての色を通り過ぎて選べない。
+    /// かといって同じでは押す意味がない。**上と下の両方を見る。**
+    /// 端から端へ回るので、最後と最初の間も見る。
+    @Test func 隣の番号は少しずつ変わる() {
         func hueDistance(_ a: Double, _ b: Double) -> Double {
             let d = abs(a - b).truncatingRemainder(dividingBy: 360)
             return min(d, 360 - d)
@@ -110,14 +120,23 @@ struct PaletteTests {
         func distance(_ a: Palette, _ b: Palette) -> Double {
             let hue = (0..<6).map { hueDistance(a.hue(group: $0), b.hue(group: $0)) }
                 .reduce(0, +) / 6
-            let sat = abs(log(a.recipe.saturation / b.recipe.saturation)) * 60
-            let light = abs(a.recipe.offLight - b.recipe.offLight) * 1.2
+            let sat = abs(log(a.saturation / b.saturation)) * 60
+            let light = abs(a.offLight - b.offLight) * 1.2
             return hue + sat + light
         }
         for i in 0..<Palette.count {
             let a = Palette(i + 1), b = a.next()
             let d = distance(a, b)
-            #expect(d >= 50, "配色\(a.number)と配色\(b.number)が近すぎる（\(d)）")
+            #expect(d >= 20, "配色\(a.number)と配色\(b.number)が同じすぎる（\(d)）")
+            #expect(d <= 60, "配色\(a.number)と配色\(b.number)が離れすぎ。1歩で変わりすぎる（\(d)）")
+        }
+
+        // どの2つも、同じには見えないこと（意味のない番号を作らない）
+        for i in 1..<Palette.count {          // 最後の番号から始めると範囲が逆になる
+            for j in (i + 1)...Palette.count {
+                let d = distance(Palette(i), Palette(j))
+                #expect(d >= 20, "配色\(i)と配色\(j)が同じすぎる（\(d)）")
+            }
         }
     }
 
@@ -127,9 +146,9 @@ struct PaletteTests {
         #expect(String(data: data, encoding: .utf8) == "7")
         #expect(try JSONDecoder().decode(Palette.self, from: data) == Palette(7))
 
-        // 番号は並べ替えたので、昔の名前は「近い性格の配色」へ寄せてある
-        for (old, expected) in [("colorful", 1), ("vivid", 7), ("pastel", 5), ("muted", 3),
-                                ("rainbow", 13), ("warmCool", 18), ("tonal", 1), ("mono", 1)] {
+        // 昔の名前は「近い性格の番号」へ寄せてある
+        for (old, expected) in [("colorful", 1), ("rainbow", 1), ("tonal", 1), ("mono", 1),
+                                ("vivid", 4), ("pastel", 10), ("muted", 10), ("warmCool", 7)] {
             let json = Data("\"\(old)\"".utf8)
             #expect(try JSONDecoder().decode(Palette.self, from: json) == Palette(expected),
                     "古い値 \(old)")

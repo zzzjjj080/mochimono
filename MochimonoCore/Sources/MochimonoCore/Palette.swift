@@ -4,13 +4,20 @@ import Foundation
 ///
 /// 設定画面を開かずに、リストを見ながら矢印で送って決められるようにするため、
 /// 「どれがどれか」を言葉で覚えさせない作りにしてある。
-/// 同系色の濃淡と無彩色は、グループの切れ目が読み取りにくいので置いていない。
+///
+/// **1つ送るごとに、色相が少しずつ回る。** 押すたびに全然違う色になると、
+/// 目当ての色を通り過ぎてしまって選べない。
+/// 一周（\(count)回）すると元に戻る。
+///
+/// 同系色の濃淡と無彩色は置いていない。グループの切れ目が読み取りにくいため。
 /// **どの番号も、色相の違うカラフルな組み合わせ。**
 public struct Palette: Equatable, Hashable, Sendable {
     /// 1...count。範囲外を渡しても端で折り返す。
     public let number: Int
 
-    public static let count = 20
+    /// 一周の数。30度ずつ回して12で元に戻る。
+    /// 数を増やせば1歩は細かくなるが、送り切るのに時間がかかる。
+    public static let count = 12
     public static let first = Palette(1)
 
     public init(_ number: Int) {
@@ -26,75 +33,27 @@ public struct Palette: Equatable, Hashable, Sendable {
 
     // MARK: - 調合
 
-    /// 1つの配色の中身。色相の並びと、彩度・明度の性格だけを持つ。
-    struct Recipe {
-        let hues: [Double]
-        let saturation: Double
-        let offLight: Double
-        let onLight: Double
-        let offDark: Double
-        let onDark: Double
+    /// もとになる色の並び。**グループどうしが十分に離れるように選んである。**
+    /// これを回すだけなので、どの番号でも「隣のグループと紛らわしい」は起きない。
+    static let baseHues: [Double] = [210, 145, 28, 340, 265, 190, 55, 8, 300, 168]
 
-        init(_ hues: [Double], _ saturation: Double,
-             offLight: Double = 92, onLight: Double = 44,
-             offDark: Double = 19, onDark: Double = 56) {
-            self.hues = hues
-            self.saturation = saturation
-            self.offLight = offLight
-            self.onLight = onLight
-            self.offDark = offDark
-            self.onDark = onDark
-        }
-    }
+    /// 何度回すか。
+    var rotation: Double { Double(number - 1) * (360 / Double(Self.count)) }
 
-    /// 濃いめ・淡めの性格。数字を散らかさないよう、ここでまとめて持つ。
-    private static let deep = (offLight: 89.0, onLight: 42.0, offDark: 17.0, onDark: 58.0)
-    private static let soft = (offLight: 95.0, onLight: 60.0, offDark: 28.0, onDark: 74.0)
+    /// 一周のどこにいるか（-1...1）。彩度をなだらかに変えるのに使う。
+    private var phase: Double { sin(2 * .pi * Double(number - 1) / Double(Self.count)) }
 
-    static let recipes: [Recipe] = [
-        /*  1 */ Recipe([210, 145, 28, 340, 265, 190, 55, 8, 300, 168], 1.00),
-        /*  2 */ Recipe([262, 330, 192, 148, 44, 0, 220], 1.25,
-                        offLight: deep.offLight, onLight: deep.onLight,
-                        offDark: deep.offDark, onDark: deep.onDark),
-        /*  3 */ Recipe([206, 148, 32, 344, 264, 188, 52, 12], 0.45),
-        /*  4 */ Recipe([322, 344, 286, 204, 46, 14, 168], 1.10),
-        /*  5 */ Recipe([212, 152, 34, 342, 268, 190, 54, 10], 0.80,
-                        offLight: soft.offLight, onLight: soft.onLight,
-                        offDark: soft.offDark, onDark: soft.onDark),
-        /*  6 */ Recipe([86, 112, 142, 168, 56, 34, 196], 1.00),
-        /*  7 */ Recipe([222, 150, 36, 338, 276, 192, 58, 0], 1.40,
-                        offLight: deep.offLight, onLight: deep.onLight,
-                        offDark: deep.offDark, onDark: deep.onDark),
-        /*  8 */ Recipe([216, 242, 194, 286, 20, 340, 160], 0.70,
-                        offLight: soft.offLight, onLight: soft.onLight,
-                        offDark: soft.offDark, onDark: soft.onDark),
-        /*  9 */ Recipe([300, 180, 60, 340, 200, 120, 20], 1.45,
-                        offLight: deep.offLight, onLight: deep.onLight,
-                        offDark: deep.offDark, onDark: deep.onDark),
-        /* 10 */ Recipe([330, 20, 50, 160, 200, 280, 110], 0.95,
-                        offLight: soft.offLight, onLight: soft.onLight,
-                        offDark: soft.offDark, onDark: soft.onDark),
-        /* 11 */ Recipe([196, 224, 272, 318, 352, 40, 16, 162], 1.00),
-        /* 12 */ Recipe([340, 20, 60, 100, 190, 270, 150], 0.90,
-                        offLight: soft.offLight, onLight: soft.onLight,
-                        offDark: soft.offDark, onDark: soft.onDark),
-        /* 13 */ Recipe([206, 246, 286, 326, 6, 46, 86, 126, 166], 1.00),
-        /* 14 */ Recipe([348, 18, 45, 92, 300, 262, 200], 1.15),
-        /* 15 */ Recipe([196, 214, 236, 172, 254, 158, 190], 1.05),
-        /* 16 */ Recipe([28, 10, 45, 350, 300, 80, 190], 0.95),
-        /* 17 */ Recipe([165, 186, 42, 14, 300, 256, 120], 1.30,
-                        offLight: deep.offLight, onLight: deep.onLight,
-                        offDark: deep.offDark, onDark: deep.onDark),
-        /* 18 */ Recipe([16, 40, 352, 318, 272, 224, 196, 162], 1.00),
-        /* 19 */ Recipe([100, 140, 62, 32, 16, 178, 208], 0.85),
-        /* 20 */ Recipe([14, 34, 350, 320, 274, 238, 50], 1.20),
-    ]
+    /// 彩度。回転だけだと単調なので、一周のあいだで濃い側と淡い側をゆっくり往復する。
+    var saturation: Double { 1.0 + 0.32 * phase }
 
-    var recipe: Recipe { Self.recipes[number - 1] }
+    var offLight: Double { 92 - 2.5 * phase }
+    var onLight: Double { 44 - 2.5 * phase }
+    var offDark: Double { 19 + 2.0 * phase }
+    var onDark: Double { 56 + 2.0 * phase }
 
     func hue(group g: Int) -> Double {
-        let hues = recipe.hues
-        return hues[((g % hues.count) + hues.count) % hues.count]
+        let base = Self.baseHues[((g % Self.baseHues.count) + Self.baseHues.count) % Self.baseHues.count]
+        return (base + rotation).truncatingRemainder(dividingBy: 360)
     }
 }
 
@@ -106,9 +65,10 @@ extension Palette: Codable {
     /// **昔は `"colorful"` のような文字列で保存していた。**
     /// 読めないまま落とすとリストごと失うので、古い値は近い番号に読み替える（引き継ぎ書 4-21）。
     private static let legacy: [String: Int] = [
-        "colorful": 1, "vivid": 7, "pastel": 5, "muted": 3,
-        "rainbow": 13, "warmCool": 18,
-        "tonal": 1, "mono": 1,          // 廃止した2つは標準へ寄せる
+        "colorful": 1, "rainbow": 1, "tonal": 1, "mono": 1,
+        "vivid": 4,          // 彩度が高いあたり
+        "pastel": 10, "muted": 10,   // 彩度が低いあたり
+        "warmCool": 7,
     ]
 
     public init(from decoder: any Decoder) throws {
@@ -135,12 +95,11 @@ extension Palette {
     /// **「読めるまで動かす」と「まだと離すまで動かす」を順に走らせてはいけない。**
     /// 互いに押し戻して振動する。候補を走査して一度に決める。
     public func tone(group g: Int, isPacked: Bool, scheme: Scheme) -> Tone {
-        let r = recipe
         let hue = hue(group: g)
-        let unpackedSaturation = 58 * r.saturation
-        let packedSaturation = 64 * r.saturation
-        let wantOff = scheme == .dark ? r.offDark : r.offLight
-        let wantOn = scheme == .dark ? r.onDark : r.onLight
+        let unpackedSaturation = 58 * saturation
+        let packedSaturation = 64 * saturation
+        let wantOff = scheme == .dark ? offDark : offLight
+        let wantOn = scheme == .dark ? onDark : onLight
 
         let offL = pickLightness(hue: hue, saturation: unpackedSaturation, wanted: wantOff) {
             label(hue: hue, saturation: unpackedSaturation, lightness: $0).ratio >= Contrast.text
