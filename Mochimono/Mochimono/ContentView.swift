@@ -28,6 +28,12 @@ struct ContentView: View {
                             startBlank: {
                                 let id = model.addBlankList()
                                 path = [.list(id), .edit(id)]
+                            },
+                            paste: { text in
+                                // 中身が無ければ何もしない。空のリストが増えるだけなので
+                                if let id = model.addList(fromPastedText: text) {
+                                    path = [.list(id)]
+                                }
                             })
                     case .list(let id):
                         ListView(listID: id,

@@ -9,9 +9,32 @@ struct AddListView: View {
     @Environment(\.colorScheme) private var colorScheme
     let pickPreset: (Preset) -> Void
     let startBlank: () -> Void
+    let paste: (String) -> Void
 
     var body: some View {
         List {
+            // **書いたテキストを、そのまま盤面にできること**がこの道具の芯。
+            // 雛形より先に置いて、最初に目に入るようにする。
+            Section {
+                PasteButton(payloadType: String.self) { strings in
+                    guard let text = strings.first else { return }
+                    paste(text)
+                }
+                .labelStyle(.titleAndIcon)
+                .buttonBorderShape(.capsule)
+                .accessibilityIdentifier("pasteFromClipboard")
+                Button {
+                    startBlank()
+                } label: {
+                    Label("白紙から書く", systemImage: "square.and.pencil")
+                }
+                .accessibilityIdentifier("startBlank")
+            } header: {
+                Text("テキストから作る")
+            } footer: {
+                Text("1行に1つ、空行でグループが分かれます。ほかのアプリで書いた箇条書きを貼っても、そのまま盤面になります。")
+            }
+
             Section {
                 ForEach(Preset.all) { preset in
                     Button { pickPreset(preset) } label: { row(preset) }
@@ -24,14 +47,6 @@ struct AddListView: View {
                 Text("選ぶとコピーが作られます。要らない行を消して、自分用に書き換えてください。")
             }
 
-            Section {
-                Button {
-                    startBlank()
-                } label: {
-                    Label("白紙から作る", systemImage: "square.and.pencil")
-                }
-                .accessibilityIdentifier("startBlank")
-            }
         }
         .navigationTitle("リストを追加")
         .navigationBarTitleDisplayMode(.inline)

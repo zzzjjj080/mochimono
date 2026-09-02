@@ -137,6 +137,16 @@ final class AppModel {
         return l.id
     }
 
+    /// 貼り付けたテキストから作る。中身が無ければ作らない。
+    @discardableResult
+    func addList(fromPastedText text: String) -> PackingList.ID? {
+        guard let l = PackingList.fromPastedText(text) else { return nil }
+        store.lists.append(l)
+        Haptics.done()
+        save()
+        return l.id
+    }
+
     @discardableResult
     func addBlankList() -> PackingList.ID {
         let l = PackingList(name: "新しいリスト", text: "")

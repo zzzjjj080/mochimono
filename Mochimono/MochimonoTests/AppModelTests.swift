@@ -173,6 +173,33 @@ struct AppModelTests {
                 == ["国内旅行", "街中", "通勤・通学"])
     }
 
+    /// 貼り付けたテキストから盤面になること。**この道具の芯なので落とせない。**
+    @Test func 貼り付けたテキストからリストを作れる() {
+        let model = AppModel(defaults: freshDefaults())
+        let before = model.store.lists.count
+        let id = model.addList(fromPastedText: "財布\nスマホ\n\n充電器")
+        #expect(id != nil)
+        #expect(model.store.lists.count == before + 1)
+        #expect(model.list(id!)?.items.map(\.text) == ["財布", "スマホ", "充電器"])
+        #expect(model.list(id!)?.items.map(\.group) == [0, 0, 1])
+    }
+
+    /// 書き出したテキストを読み戻すと、同じ盤面になること。
+    @Test func 書き出して読み戻すと同じ盤面になる() {
+        let model = AppModel(defaults: freshDefaults())
+        let source = model.store.lists[2]                 // 国内旅行
+        let id = model.addList(fromPastedText: source.text)
+        #expect(model.list(id!)?.items.map(\.text) == source.items.map(\.text))
+        #expect(model.list(id!)?.items.map(\.group) == source.items.map(\.group))
+    }
+
+    @Test func 中身の無いテキストでは作らない() {
+        let model = AppModel(defaults: freshDefaults())
+        let before = model.store.lists.count
+        #expect(model.addList(fromPastedText: "   \n\n ") == nil)
+        #expect(model.store.lists.count == before)
+    }
+
     @Test func 白紙の追加と削除() {
         let model = AppModel(defaults: freshDefaults())
         let before = model.store.lists.count

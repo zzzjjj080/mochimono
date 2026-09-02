@@ -97,6 +97,23 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         for i in items.indices { items[i].isPacked = false }
     }
 
+    /// 貼り付けたテキストから作る。
+    ///
+    /// **書き出したものをそのまま読み戻せること**が、この道具の芯。
+    /// 独自の書式を足すと、他のアプリで書いたテキストが使えなくなる。
+    /// だから**受け取るのは、ただのテキストだけ**にしてある。
+    public static func fromPastedText(_ text: String, name: String? = nil) -> PackingList? {
+        let items = parse(text, preserving: [])
+        guard !items.isEmpty else { return nil }
+        return PackingList(name: name ?? suggestedName(for: items), text: text)
+    }
+
+    /// 名前が無いときは、最初の項目から借りる。「新しいリスト」が並ぶより探しやすい。
+    static func suggestedName(for items: [Item]) -> String {
+        guard let first = items.first?.text else { return "新しいリスト" }
+        return first.count <= 10 ? first : String(first.prefix(10))
+    }
+
     /// 1つだけ足す。編集画面を開かずに書き足すための道。
     ///
     /// **末尾の空行を落としてから足す。** 落とさずに足すと、
