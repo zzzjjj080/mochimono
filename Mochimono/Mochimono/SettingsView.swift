@@ -51,6 +51,20 @@ struct SettingsView: View {
                 // **同じビューに .alert を2つ重ねると、片方が出なくなる。**
                 // 出ないほうは「押しても無反応」に見えるだけで、警告もエラーも出ない。
                 // それぞれの押しボタンに付ける。
+                // 書き出したものが、そのまま読み戻せること。独自の書式は足さない。
+                Section {
+                    ShareLink(item: list.text,
+                              subject: Text(list.name),
+                              message: Text(list.name)) {
+                        Label("テキストで書き出す", systemImage: "square.and.arrow.up")
+                    }
+                    .accessibilityIdentifier("exportText")
+                } header: {
+                    Text("盤面をテキストに戻す")
+                } footer: {
+                    Text("そのまま貼り付けられる普通のテキストとして渡します。受け取った側は「リストを追加」から貼るだけで、同じ盤面になります。")
+                }
+
                 Section("このリスト") {
                     Button("チェックを全部外す") { askingReset = true }
                         .accessibilityIdentifier("clearAllFromSettings")

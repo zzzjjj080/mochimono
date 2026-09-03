@@ -1,0 +1,52 @@
+Hello,
+
+Thank you for the review and for pointing us to guideline 4.3(a). We understand
+the concern: on the surface Tilecheck looked like one more checklist app, and our
+metadata described it that way. That was our mistake in presentation, and we have
+changed both the app and the listing.
+
+WHAT MAKES THIS APP DIFFERENT
+
+Tilecheck is not a list app with an "add item" form. Plain text is the document,
+and the app renders that text as a colour-coded board.
+
+1. There is no entry form. The user types lines in a plain text editor, the same
+   way they would in Notes.
+2. A blank line is the only piece of syntax. It starts a new group, and the group
+   is automatically given a different colour. Groups have no names and no UI of
+   their own - the separator is a blank line and the distinction is colour.
+3. The result is shown as a grid of tiles, not a vertical list, so the whole set
+   is visible at once. The user chooses 2-5 columns.
+4. The board can be turned back into plain text at any time and shared. There is
+   no proprietary format, so the text can be pasted into mail, notes or chat, and
+   anyone can paste it back into the app to get the same board. Bulleted text
+   written in any other app can be pasted in and becomes a board.
+
+That round trip - plain text in, plain text out, colour grouping derived purely
+from blank lines - is the concept of the app. It is not a repackaged template.
+
+WHAT WE CHANGED SINCE THE REVIEWED BUILD
+
+- Added text export (share sheet) and paste-to-create, so the text <-> board
+  round trip is a real, visible feature rather than an internal detail.
+- Rewrote the App Store name, subtitle, description, keywords and screenshots so
+  they describe this mechanism instead of generic checklist wording. We removed
+  the generic terms we had used before.
+- The first screenshot now shows the text and the resulting board side by side.
+
+ABOUT THE CODE
+
+All source code was written by us for this app. We did not use an app template,
+purchased source, or a generator, and we do not share assets or code with any
+other developer's app. The app has no third-party SDK, no analytics, no
+advertising, and makes no network connections of any kind. All data stays on the
+device in UserDefaults.
+
+We also publish other apps under this account, but they are unrelated in concept
+and code (a mahjong scoring app, a health calendar, a facility-availability
+notifier). None of them is a checklist app and none shares code with Tilecheck.
+
+If any part of this is still unclear, please tell us which aspect you would like
+us to change, and we will address it.
+
+Thank you for your time.
