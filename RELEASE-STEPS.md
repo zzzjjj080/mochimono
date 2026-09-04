@@ -46,6 +46,21 @@ App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / バージョン
 
 **順番は「ビルド差し替え → 返信 → 再提出」。**（6節）返信だけでは審査は再開しない。
 
+### 2026-09-05 に再提出した
+
+```
+reviewSubmission: c6425193-e421-41c9-a98a-ae066453da03   （1.0 (2)）
+旧:               397190ad-c52f-4a6f-8a31-6af1dd8b56f4   （1.0 (1) 4.3(a)で却下）
+```
+
+**却下されたバージョンは、古い提出枠に紐づいたまま残る。**
+新しい提出枠にアイテムを足そうとすると
+`was already added to another reviewSubmission` で 409 になる。
+`DELETE /v1/reviewSubmissionItems/<id>` も 409 で外せない。
+
+**古い提出枠を `canceled: true` で取り消すと外れる。**（`PATCH /v1/reviewSubmissions/<id>`）
+取り消したあと状態は `COMPLETE` になり、バージョンを新しい枠に足せるようになる。
+
 ## 旧：1.0 (1) の提出
 
 **2026-08-30 22:56（JST）に審査へ提出した。** `WAITING_FOR_REVIEW`。
