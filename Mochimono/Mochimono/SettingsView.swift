@@ -92,7 +92,7 @@ struct SettingsView: View {
 
             // リストが1つも無いときでも出す（if let list の外）
             FeedbackSection()
-            CoffeeTipSection(tipJar: tipJar)
+            if AppFeature.showsTipJar { CoffeeTipSection(tipJar: tipJar) }
         }
         .navigationTitle("設定")
         .navigationBarTitleDisplayMode(.inline)

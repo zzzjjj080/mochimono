@@ -1,47 +1,60 @@
-No account, login, or credentials are required. No in-app purchases, no
-subscriptions, no user-generated content shared with anyone, and no network
-connections of any kind.
+No account, login, or credentials are required. No in-app purchases are offered
+in this version, no subscriptions, no user-generated content shared with anyone,
+and no network connections of any kind.
 
 WHAT THE APP DOES
-Tilecheck is a reusable checklist. The user writes the items as plain text, one
-per line. A blank line starts a new group, and each group is automatically given
-a different colour. The items are shown as a grid of tiles; tapping one marks it
-as done (the tile fills with a stronger colour). Checks stay until the user
-clears them, so the same list can be used again and again - packing for a trip,
-the morning commute, a shopping run, or a pre-departure safety check.
 
-The bundle identifier is com.zzzjjj080.Mochimono. This was registered before the
-app was named, and is intentionally left unchanged; it is internal only and is
-not shown to users.
+Tilecheck turns plain text into a colour-coded board.
+
+There is no "add item" form. The user types lines in a plain text editor, one
+item per line. A blank line is the only piece of syntax: it starts a new group,
+and each group is automatically given a different colour. Groups have no names -
+the separator is a blank line and the distinction is colour. The result is shown
+as a grid of tiles rather than a vertical list, so the whole set is visible at
+once. Tapping a tile marks it done. Checks stay until the user clears them, so
+the same board is reused.
+
+The board can be turned back into plain text and shared at any time, and text
+from any other app can be pasted in to become a board. There is no proprietary
+format.
+
+This submission is 1.0 (2). It follows a 4.3(a) rejection of 1.0 (1). Since then
+we added the text export and paste-to-create features so that the text <-> board
+round trip is explicit, and we rewrote the name, subtitle, description, keywords
+and screenshots to describe this mechanism rather than generic checklist wording.
+Our detailed reply is in Resolution Center.
 
 HOW TO EXERCISE THE APP
-1. On launch, three lists are already present (Town / Commute / Domestic trip).
-   Tap any of them.
+
+1. On launch, three boards are already present. Tap any of them.
 2. Tap any tile. It turns a stronger colour and the counter at the top right
    increases. Tap again to undo.
-3. Tap "全部外す" (Clear all) at the bottom left. A confirmation alert appears
-   stating how many checks will be removed. This is the only destructive action
-   on the check state.
-4. Tap "編集" (Edit) at the bottom right to see the plain-text editor. Adding a
-   blank line splits the items into another colour group. Existing checks are
-   preserved by item name when the text is edited.
-5. Tap "設定" (Settings) in the navigation bar to choose one of eight colour
-   schemes for that list, the number of columns (2-5), and light/dark appearance
-   for the whole app.
-6. Tap "+" on the first screen to add a list. Twelve templates are offered
-   (travel, commute, gym, camping, disaster kit, and so on). Choosing one copies
-   it into an editable list. A blank list can also be created.
-7. Swipe a row left on the first screen to delete a list. A confirmation alert
-   appears naming the list and how many items will be lost.
+3. Tap the left/right triangles above the tiles to cycle the colour scheme
+   (12 schemes, the hues rotate one step at a time). Each board keeps its own.
+4. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
+   of. Adding a blank line splits the items into another colour group. Existing
+   checks are preserved by item name when the text is edited.
+5. Tap "設定" (Settings) in the navigation bar, then "テキストで書き出す"
+   (Export as text) to open the share sheet. What is shared is ordinary text.
+6. Go back to the first screen and tap "+". The first section is "テキストから作る"
+   (Create from text) with a paste button. Paste any bulleted text and it becomes
+   a board.
+7. Settings also has the number of columns (2-5) and light/dark appearance.
+8. Swipe a row left on the first screen to delete a board. A confirmation alert
+   appears naming the board and how many items will be lost.
 
 DATA AND PRIVACY
+
 All data is stored on the device using UserDefaults. Nothing is transmitted.
 The app does not use any third-party SDK, analytics, or advertising.
+All source code was written by us for this app; no template or purchased source
+was used.
 
 External services: none. Only Apple frameworks (SwiftUI, UIKit for haptics).
 Regional differences: none. The app is Japanese only and is distributed in Japan.
 The app name is in Latin script but the interface is entirely in Japanese.
 Not a medical app. No diagnosis, treatment, or health claims.
-Accessibility: text scales down to fit tiles; colour contrast between the tile
-fill and its label is verified to meet WCAG AA (4.5:1) by automated tests for
-every colour scheme in both light and dark appearance.
+Accessibility: the app follows the system text size setting and reduces the
+number of columns at accessibility sizes. Colour contrast between each tile and
+its label is verified to meet WCAG AA (4.5:1) by automated tests for every colour
+scheme in both light and dark appearance.
