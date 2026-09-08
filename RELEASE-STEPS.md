@@ -13,7 +13,8 @@ App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **いま `1.0 (
 - [x] 暗号化の申告（`Info.plist` の `ITSAppUsesNonExemptEncryption = NO` で自動的に済む）
 - [x] サブタイトル／プライバシーポリシーURL
 - [x] 概要／キーワード／プロモーション文／サポートURL／マーケティングURL
-- [x] 著作権 `2026 Jin Nakamura`、リリース方法は**手動**
+- [x] 著作権 `2026 Jin Nakamura`、リリース方法は **`AFTER_APPROVAL`（自動）**
+      （2026-09-09 に手動から直した。引き継ぎ書5節の恒久ルール。承認から公開までの一手間を残さない）
 - [x] 審査の連絡先とメモ（連絡先は前作からAPIで引いた）、**サインイン不要**
 - [x] スクリーンショット 6.5インチ・6.9インチ 各5枚（10枚とも `COMPLETE`・エラー0）
 - [x] 年齢制限の申告（すべて該当なし）
@@ -101,7 +102,7 @@ sed -i '' 's/MARKETING_VERSION = 1.0;/MARKETING_VERSION = 1.1;/g' Mochimono/Moch
 
 # 2. アーカイブ → アップロード（5節の手順）。ビルドが VALID になるまで待つ
 # 3. バージョンの枠を作る
-./Tools-ASC.py post /v1/appStoreVersions '{"data":{"type":"appStoreVersions","attributes":{"platform":"IOS","versionString":"1.1","releaseType":"MANUAL","copyright":"2026 Jin Nakamura"},"relationships":{"app":{"data":{"type":"apps","id":"6806789668"}}}}}'
+./Tools-ASC.py post /v1/appStoreVersions '{"data":{"type":"appStoreVersions","attributes":{"platform":"IOS","versionString":"1.1","releaseType":"AFTER_APPROVAL","copyright":"2026 Jin Nakamura"},"relationships":{"app":{"data":{"type":"apps","id":"6806789668"}}}}}'
 
 # 4. ja のローカライズに whatsNew / description を入れる（PATCH appStoreVersionLocalizations）
 # 5. 審査メモを入れる（appStoreReviewDetails）
@@ -122,7 +123,8 @@ reviewSubmission: 397190ad-c52f-4a6f-8a31-6af1dd8b56f4
 appStoreVersion:  9b6b0e24-0ba6-47b5-92c4-5cae5ab19afc
 ```
 
-リリースは**手動**にしてあるので、審査が通っても勝手には公開されない。
+リリースは当初**手動**だったが、2026-09-09 に `AFTER_APPROVAL` へ直した。
+**承認されたらそのまま公開される。**（審査待ちの間でも `PATCH` で変えられる）
 
 ### 結果が出るまで、ビルドを上げない
 
