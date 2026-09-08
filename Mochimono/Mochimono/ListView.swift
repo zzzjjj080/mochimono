@@ -11,6 +11,9 @@ struct ListView: View {
     let settings: () -> Void
 
     @State private var askingReset = false
+    /// 残りだけを見る。**保存しない。** 出かける直前だけの見かたなので、
+    /// 次に開いたときは全部見えているほうが、書いた内容を確かめられる。
+    @State private var showsRemainingOnly = false
     @State private var addingItem = false
     @State private var newItem = ""
 
@@ -72,7 +75,13 @@ struct ListView: View {
                                   : Double(list.packedCount) / Double(list.items.count))
                     .tint(list.isComplete ? .green : .accentColor)
 
-                if !list.items.isEmpty { paletteStepper(list) }
+                if !list.items.isEmpty {
+                    HStack(spacing: 8) {
+                        paletteStepper(list)
+                        Spacer(minLength: 0)
+                        remainingToggle(list)
+                    }
+                }
 
                 if list.isComplete {
                     Text("ヨシ！ 全部そろいました")
@@ -93,7 +102,7 @@ struct ListView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 3),
                                              count: columns(list).rawValue),
                               spacing: 3) {
-                        ForEach(list.items) { item in     // 添字ではなく要素を回す
+                        ForEach(shown(list)) { item in     // 添字ではなく要素を回す
                             cell(item, list: list, table: table)
                         }
                     }
@@ -148,25 +157,49 @@ struct ListView: View {
                                          : "二本指でダブルタップすると持った印を付けます")
     }
 
+    /// いま並べるもの。残りだけの表示は、持った瞬間にその1つが消える。
+    private func shown(_ list: PackingList) -> [Item] {
+        showsRemainingOnly ? list.remainingItems : list.items
+    }
+
+    /// 「残りだけ」の入り切り。出かける直前は、まだ持っていないものしか見ない。
+    private func remainingToggle(_ list: PackingList) -> some View {
+        Button {
+            showsRemainingOnly.toggle()
+            Haptics.select()
+        } label: {
+            Label("残りだけ", systemImage: showsRemainingOnly ? "line.3.horizontal.decrease.circle.fill"
+                                                          : "line.3.horizontal.decrease.circle")
+                .labelStyle(.titleAndIcon)
+                .padding(.horizontal, 10)
+                .frame(height: 32)
+                .background(showsRemainingOnly ? Color.accentColor.opacity(0.18) : .clear,
+                            in: .capsule)
+                .contentShape(.capsule)          // 余白も押せるようにする（引き継ぎ書 4-44）
+        }
+        .foregroundStyle(showsRemainingOnly ? Color.accentColor : .secondary)
+        .accessibilityIdentifier("remainingOnly")
+        .accessibilityValue(showsRemainingOnly ? "オン" : "オフ")
+        .accessibilityHint("まだ持っていないものだけを並べます")
+    }
+
     /// 配色を送る矢印。**設定画面を開かせない。**
     /// リストを見たまま送れないと、どの色が合うかを比べられない。
     private func paletteStepper(_ list: PackingList) -> some View {
         HStack(spacing: 0) {
             Button { model.cyclePalette(forward: false, for: listID) } label: {
                 Image(systemName: "arrowtriangle.left.fill")
-                    .frame(width: 60, height: 32)
+                    .frame(width: 44, height: 32)
                     .contentShape(.rect)          // 余白も押せるようにする（引き継ぎ書 4-44）
             }
             .accessibilityIdentifier("paletteBack")
             .accessibilityLabel("前の配色")
-            Spacer(minLength: 0)
             Text("\(list.palette.number) / \(Palette.count)")
                 .monospacedDigit()
                 .accessibilityIdentifier("paletteNumber")
-            Spacer(minLength: 0)
             Button { model.cyclePalette(forward: true, for: listID) } label: {
                 Image(systemName: "arrowtriangle.right.fill")
-                    .frame(width: 60, height: 32)
+                    .frame(width: 44, height: 32)
                     .contentShape(.rect)
             }
             .accessibilityIdentifier("paletteForward")

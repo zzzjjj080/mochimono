@@ -84,6 +84,15 @@ final class AppModel {
         save()
     }
 
+    /// 1本を丸ごと写す。**雛形より、自分が書いたリストのほうが出発点として近い。**
+    @discardableResult
+    func duplicate(_ listID: PackingList.ID) -> PackingList.ID? {
+        guard let newID = store.duplicate(id: listID) else { return nil }
+        Haptics.done()
+        save()
+        return newID
+    }
+
     /// リストの並べ替え。使う順に並べられないと、増えたときに探すことになる。
     func moveLists(from source: IndexSet, to destination: Int) {
         store.moveLists(fromOffsets: source, toOffset: destination)

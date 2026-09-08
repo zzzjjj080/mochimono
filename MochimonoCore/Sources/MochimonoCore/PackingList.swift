@@ -48,6 +48,9 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     public var columns: Columns
     public var palette: Palette
     public private(set) var items: [Item]
+    /// 前に全部そろった日時。**使い回すリストは、いつ使ったかが次の判断材料になる。**
+    /// チェックを外しても消さない。「前回そろったのはいつか」の記録だから。
+    public private(set) var lastCompletedAt: Date?
 
     public init(id: UUID = UUID(), name: String, text: String,
                 columns: Columns = .four, palette: Palette = .first) {
@@ -57,6 +60,7 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         self.columns = columns
         self.palette = palette
         self.items = Self.parse(text, preserving: [])
+        self.lastCompletedAt = nil
     }
 
     // 保存済みのJSONに項目が足りなくても読めるようにする。
@@ -70,11 +74,14 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         palette = try c.decodeIfPresent(Palette.self, forKey: .palette) ?? .first
         let saved = try c.decodeIfPresent([Item].self, forKey: .items)
         items = saved ?? Self.parse(text, preserving: [])
+        lastCompletedAt = try c.decodeIfPresent(Date.self, forKey: .lastCompletedAt)
     }
 
     // MARK: - 集計
 
     public var packedCount: Int { items.filter(\.isPacked).count }
+    /// まだ持っていないもの。出かける直前は、ここしか見ない。
+    public var remainingItems: [Item] { items.filter { !$0.isPacked } }
     public var isComplete: Bool { !items.isEmpty && packedCount == items.count }
     /// 使われているグループ番号。順番どおり。
     public var groups: [Int] {
@@ -86,15 +93,27 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
 
     /// 1つだけ入り切りする。**消えたIDへの操作は黙って無視する。**
     /// 取りこぼしがあっても落ちないようにしておく（引き継ぎ書 4-10）。
-    public mutating func toggle(_ id: Item.ID) {
+    /// 時計は外から渡す。`Date()` を中で呼ぶと、テストが実行時刻に左右される。
+    public mutating func toggle(_ id: Item.ID, now: Date = Date()) {
         guard let i = items.firstIndex(where: { $0.id == id }) else { return }
         items[i].isPacked.toggle()
+        if isComplete { lastCompletedAt = now }
     }
 
     /// チェックを全部外す。**破壊的な操作はこの1本に集約する。**
     /// 経路を増やすと、確認ダイアログを迂回する道ができる（引き継ぎ書 4-12）。
+    /// **`lastCompletedAt` は消さない。** 消すと、次に開いたとき
+    /// 「前に使ったのはいつか」が分からなくなる。外したのはチェックであって記録ではない。
     public mutating func clearAllPacked() {
         for i in items.indices { items[i].isPacked = false }
+    }
+
+    /// 丸ごと写して新しい1本を作る。
+    ///
+    /// **チェックと日時は持ち越さない。** 写すのは「何を書いたか」であって、
+    /// 前の回の進み具合ではない。雛形より、自分のリストのほうが出発点として近い。
+    public func duplicated(name: String) -> PackingList {
+        PackingList(name: name, text: text, columns: columns, palette: palette)
     }
 
     /// 貼り付けたテキストから作る。

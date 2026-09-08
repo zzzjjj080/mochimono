@@ -4,7 +4,7 @@
 本人に頼むのは、人間でなければ物理的に無理なものだけ。
 （`~/.claude/CLAUDE.md`「作業の分担」／`~/.claude/iOS-DEVLOG.md` 5-0、4-49〜4-51）
 
-App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / バージョン `1.0 (1)`
+App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **いま `1.0 (2)` 審査中、次は `(3)`**
 
 ## 済んでいること（すべてClaude側）
 
@@ -60,6 +60,58 @@ reviewSubmission: c6425193-e421-41c9-a98a-ae066453da03   （1.0 (2)）
 
 **古い提出枠を `canceled: true` で取り消すと外れる。**（`PATCH /v1/reviewSubmissions/<id>`）
 取り消したあと状態は `COMPLETE` になり、バージョンを新しい枠に足せるようになる。
+
+## 1.1 の準備（2026-09-09・審査待ちの間にできることは全部やった）
+
+**審査中は ASC 側でバージョンの枠すら作れない。** 実際に叩いて確定させた。
+
+```
+POST /v1/appStoreVersions  versionString=1.1
+→ 409 ENTITY_ERROR.RELATIONSHIP.INVALID
+  "You cannot create a new version of the App in the current state."
+```
+
+だから 1.1 は「**中身は完成、ASC 側は結果待ち**」で止めてある。
+
+### 済ませたこと
+
+- [x] 投げ銭を戻した（`AppFeature.showsTipJar = true`）
+- [x] **App内課金を `READY_TO_SUBMIT` にした。** 足りなかったのは審査用スクリーンショット1枚だけ。
+      `./Tools-UploadIAPScreenshot.py 6806882746 store/iap/coffee-review.png`
+- [x] 残りだけ表示／リストの複製／前回そろった日
+- [x] `CURRENT_PROJECT_VERSION = 3`（`MARKETING_VERSION` は 1.0 のまま。理由は下）
+- [x] 掲載文・審査メモ・リリースノートを課金ありに書き直した
+      （`store/description.txt` / `store/review-notes.txt` / `store/whats-new.txt`）
+- [x] Core 76本・UI 23本のテストが通る。実機 iPhone Air に投入済み
+
+### `MARKETING_VERSION` を 1.0 のままにしてある理由
+
+**1.0 の結果で行き先が変わる。** どちらでもビルド番号は 3 で合っている。
+
+| 1.0 (2) の結果 | やること |
+|---|---|
+| 承認 | `MARKETING_VERSION` を 1.1 にして、下の手順で 1.1 として出す |
+| 4.3 で再却下 | 1.0 のまま build 3 を上げる。**足した機能が 4.3 への答えそのものになる**（複製・残りだけ・前回の記録は他に無い） |
+
+### 承認されたら叩く順番
+
+```bash
+# 1. 版数を上げる
+sed -i '' 's/MARKETING_VERSION = 1.0;/MARKETING_VERSION = 1.1;/g' Mochimono/Mochimono.xcodeproj/project.pbxproj
+
+# 2. アーカイブ → アップロード（5節の手順）。ビルドが VALID になるまで待つ
+# 3. バージョンの枠を作る
+./Tools-ASC.py post /v1/appStoreVersions '{"data":{"type":"appStoreVersions","attributes":{"platform":"IOS","versionString":"1.1","releaseType":"MANUAL","copyright":"2026 Jin Nakamura"},"relationships":{"app":{"data":{"type":"apps","id":"6806789668"}}}}}'
+
+# 4. ja のローカライズに whatsNew / description を入れる（PATCH appStoreVersionLocalizations）
+# 5. 審査メモを入れる（appStoreReviewDetails）
+# 6. スクリーンショットが引き継がれているか確認。無ければ Tools-UploadScreenshots.py で入れ直す
+# 7. ビルドを紐づける（→ 4-40。紐づけ忘れが一番多い）
+# 8. reviewSubmission を作り、**バージョンと課金の2つ**をアイテムに足して submit
+```
+
+**課金はバージョンとは別のアイテムとして足す。** `APP_STORE_VERSION` だけ足すと、
+課金は審査に含まれないまま公開され、アプリ側に出ている購入行が動かない。
 
 ## 旧：1.0 (1) の提出
 
@@ -125,6 +177,8 @@ https://github.com/zzzjjj080/mochimono/settings/pages
 ```bash
 ./Tools-ASC.py get /v1/apps                        # App Store Connect API
 ./Tools-UploadScreenshots.py <locId> APP_IPHONE_65 store/screenshots-65
+./Tools-UploadIAPScreenshot.py 6806882746 store/iap/coffee-review.png   # 課金の審査用画像
+./Tools-ReviewStatus.py                            # 出す前にアカウント全体を見る
 ./install-device.sh                                # 接続中のiPhoneに入れる
 swiftc -O Tools-MakeIcon.swift -o /tmp/makeicon && /tmp/makeicon <出力先>
 swiftc -O store/MakeScreenshots.swift -o /tmp/makeshots

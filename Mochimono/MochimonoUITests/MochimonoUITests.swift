@@ -256,6 +256,103 @@ final class MochimonoUITests: XCTestCase {
                              "文字を大きくしても1マスの幅が変わっていない（列が減っていない）")
     }
 
+    /// 複製は左からのスワイプ。**削除と同じ側に置かない。**
+    func testスワイプで複製できる() {
+        let app = launch()
+        let row = app.buttons["list-街中"]
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.swipeRight()
+        app.buttons["swipeDuplicate"].tapWhenReady()
+
+        let copy = app.buttons["list-街中のコピー"]
+        XCTAssertTrue(copy.waitForExistence(timeout: 3))
+
+        // 中身がそのまま写っていること
+        copy.tap()
+        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["item-モバイル充電"].exists)
+    }
+
+    /// 写すのは書いた内容だけ。前の回の進み具合は持ち越さない。
+    func test複製にチェックは持ち越さない() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["item-財布"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        let row = app.buttons["list-街中"]
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.swipeRight()
+        app.buttons["swipeDuplicate"].tapWhenReady()
+
+        app.buttons["list-街中のコピー"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 5))
+    }
+
+    /// 「残りだけ」で、持ったものが盤面から消える。出かける直前の見かた。
+    func test残りだけにすると持ったものが消える() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        let 財布 = app.buttons["item-財布"]
+        財布.tapWhenReady()
+        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
+
+        app.buttons["remainingOnly"].tapWhenReady()
+        XCTAssertFalse(財布.waitForExistence(timeout: 2), "持ったものが残りだけの表示に出ている")
+        XCTAssertTrue(app.buttons["item-スマホ"].exists, "まだのものまで消えている")
+
+        app.buttons["remainingOnly"].tapWhenReady()      // 戻す
+        XCTAssertTrue(財布.waitForExistence(timeout: 3))
+    }
+
+    /// 残りだけの表示は保存しない。開き直したら全部見えていること。
+    func test残りだけは開き直すと戻る() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["item-財布"].tapWhenReady()
+        app.buttons["remainingOnly"].tapWhenReady()
+        XCTAssertFalse(app.buttons["item-財布"].waitForExistence(timeout: 2))
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["list-街中"].tapWhenReady()
+        XCTAssertTrue(app.buttons["item-財布"].waitForExistence(timeout: 5))
+    }
+
+    /// 全部そろうと、一覧に「前回」が出る。使い回すリストは、いつ使ったかが手がかりになる。
+    func test全部そろうと前回の記録が残る() {
+        let app = launch()
+        XCTAssertFalse(app.staticTexts["lastCompleted-街中"].exists)
+
+        app.buttons["list-街中"].tapWhenReady()
+        for name in ["財布", "スマホ", "鍵", "ハンカチ", "イヤホン",
+                     "充電器", "モバイル充電", "目薬", "リップ", "マスク"] {
+            app.buttons["item-\(name)"].tapWhenReady()
+        }
+        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        let last = app.staticTexts["lastCompleted-街中"]
+        XCTAssertTrue(last.waitForExistence(timeout: 5))
+        XCTAssertEqual(last.label, "前回 今日そろった")
+    }
+
+    /// 外したのはチェックであって記録ではない。全部外しても「前回」は消えない。
+    func test全部外しても前回の記録は消えない() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        for name in ["財布", "スマホ", "鍵", "ハンカチ", "イヤホン",
+                     "充電器", "モバイル充電", "目薬", "リップ", "マスク"] {
+            app.buttons["item-\(name)"].tapWhenReady()
+        }
+        app.buttons["clearAll"].tapWhenReady()
+        app.alerts.firstMatch.button(labeled: "全部外す").tap()
+        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 3))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        XCTAssertTrue(app.staticTexts["lastCompleted-街中"].waitForExistence(timeout: 5))
+    }
+
 }
 
 extension XCUIElement {

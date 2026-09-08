@@ -25,6 +25,12 @@ struct HomeView: View {
                         Button("削除", role: .destructive) { pendingDelete = list }
                             .accessibilityIdentifier("swipeDelete")
                     }
+                    // 複製は左から。削除と同じ側に並べると、押し間違いが消去になる。
+                    .swipeActions(edge: .leading) {
+                        Button("複製") { model.duplicate(list.id) }
+                            .tint(.indigo)
+                            .accessibilityIdentifier("swipeDuplicate")
+                    }
             }
             // 並べ替えは編集モードの中だけ。ふだんは行のタップを邪魔しない
             .onMove { model.moveLists(from: $0, to: $1) }
@@ -69,6 +75,19 @@ struct HomeView: View {
         }
     }
 
+    /// 「今日」「昨日」だけ言葉にする。日付だけだと、直近かどうかが一目で分からない。
+    static func completedLabel(_ date: Date, now: Date = Date(),
+                               calendar: Calendar = .current) -> String {
+        if calendar.isDateInToday(date) { return "今日そろった" }
+        if calendar.isDateInYesterday(date) { return "昨日そろった" }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ja_JP")
+        // 年をまたいだら年も出す。「1/4」だけでは去年のものと区別が付かない。
+        let sameYear = calendar.component(.year, from: date) == calendar.component(.year, from: now)
+        f.dateFormat = sameYear ? "M月d日" : "yyyy年M月d日"
+        return f.string(from: date) + "にそろった"
+    }
+
     private func row(_ list: PackingList) -> some View {
         let table = ToneTable(palette: list.palette,
                               groups: list.groups,
@@ -84,6 +103,13 @@ struct HomeView: View {
                             .fill(table.tone(group: g, isPacked: true).fill.color)
                             .frame(width: 16, height: 7)
                     }
+                }
+                // 使い回すリストは、前に使ったのがいつかが次の判断材料になる。
+                if let last = list.lastCompletedAt {
+                    Text("前回 \(Self.completedLabel(last))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("lastCompleted-\(list.name)")
                 }
             }
             Spacer(minLength: 8)

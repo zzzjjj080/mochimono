@@ -40,6 +40,28 @@ public struct Store: Equatable, Codable, Sendable {
         lists.insert(contentsOf: moving, at: at)
     }
 
+    /// 1本を丸ごと写して、**元のすぐ下に**入れる。
+    ///
+    /// 末尾に足すと、本数が増えたときに元と離れて見比べられない。
+    /// 名前は重ならないようにする。同じ名前が並ぶと、どちらを開いたのか分からなくなる。
+    @discardableResult
+    public mutating func duplicate(id: PackingList.ID) -> PackingList.ID? {
+        guard let i = lists.firstIndex(where: { $0.id == id }) else { return nil }
+        let copy = lists[i].duplicated(name: unusedName(basedOn: lists[i].name))
+        lists.insert(copy, at: i + 1)
+        return copy.id
+    }
+
+    /// 「◯◯のコピー」。既にあれば 2, 3 … と数字を足す。
+    func unusedName(basedOn name: String) -> String {
+        let base = name + "のコピー"
+        let taken = Set(lists.map(\.name))
+        guard taken.contains(base) else { return base }
+        var n = 2
+        while taken.contains("\(base)\(n)") { n += 1 }
+        return "\(base)\(n)"
+    }
+
     public mutating func remove(id: PackingList.ID) {
         lists.removeAll { $0.id == id }
     }

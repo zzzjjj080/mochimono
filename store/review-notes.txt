@@ -1,6 +1,10 @@
-No account, login, or credentials are required. No in-app purchases are offered
-in this version, no subscriptions, no user-generated content shared with anyone,
-and no network connections of any kind.
+No account, login, or credentials are required. No subscriptions, no
+user-generated content shared with anyone, and no advertising or analytics.
+
+This version adds ONE consumable in-app purchase: a voluntary tip
+("com.zzzjjj080.Mochimono.coffee"). It unlocks nothing. Nothing in the app is
+gated, hidden, or changed by purchasing it. The app shows a thank-you message
+and a count of tips sent from this device. The purchase row is in Settings.
 
 WHAT THE APP DOES
 
@@ -18,39 +22,47 @@ The board can be turned back into plain text and shared at any time, and text
 from any other app can be pasted in to become a board. There is no proprietary
 format.
 
-This submission is 1.0 (2). It follows a 4.3(a) rejection of 1.0 (1). Since then
-we added the text export and paste-to-create features so that the text <-> board
-round trip is explicit, and we rewrote the name, subtitle, description, keywords
-and screenshots to describe this mechanism rather than generic checklist wording.
-Our detailed reply is in Resolution Center.
+WHAT IS NEW IN THIS VERSION
+
+- "残りだけ" (remaining only): hides tiles already marked done, so only what is
+  still missing is shown.
+- Duplicating a board: swipe a row right on the first screen. The text, columns
+  and colour scheme are copied; checks and the completion date are not.
+- The date a board was last completed is shown on the first screen.
+- The voluntary tip described above.
 
 HOW TO EXERCISE THE APP
 
 1. On launch, three boards are already present. Tap any of them.
 2. Tap any tile. It turns a stronger colour and the counter at the top right
    increases. Tap again to undo.
-3. Tap the left/right triangles above the tiles to cycle the colour scheme
+3. Tap "残りだけ" above the tiles. Tiles already marked done disappear; tap it
+   again to show them. This is a view setting only and is not saved.
+4. Tap the left/right triangles above the tiles to cycle the colour scheme
    (12 schemes, the hues rotate one step at a time). Each board keeps its own.
-4. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
+5. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
    of. Adding a blank line splits the items into another colour group. Existing
    checks are preserved by item name when the text is edited.
-5. Tap "設定" (Settings) in the navigation bar, then "テキストで書き出す"
+6. Tap "設定" (Settings) in the navigation bar, then "テキストで書き出す"
    (Export as text) to open the share sheet. What is shared is ordinary text.
-6. Go back to the first screen and tap "+". The first section is "テキストから作る"
+   The tip row ("開発者にコーヒーを奢る") is on the same screen.
+7. Go back to the first screen and tap "+". The first section is "テキストから作る"
    (Create from text) with a paste button. Paste any bulleted text and it becomes
    a board.
-7. Settings also has the number of columns (2-5) and light/dark appearance.
-8. Swipe a row left on the first screen to delete a board. A confirmation alert
-   appears naming the board and how many items will be lost.
+8. Swipe a row right on the first screen to duplicate it; swipe left to delete
+   it. Deleting shows a confirmation alert naming the board and how many items
+   will be lost.
 
 DATA AND PRIVACY
 
-All data is stored on the device using UserDefaults. Nothing is transmitted.
-The app does not use any third-party SDK, analytics, or advertising.
-All source code was written by us for this app; no template or purchased source
-was used.
+All data is stored on the device using UserDefaults. Nothing the user writes is
+transmitted. The app does not use any third-party SDK, analytics, or
+advertising. The only network use is StoreKit, to show the tip price and to
+process the tip; that traffic goes to Apple. All source code was written by us
+for this app; no template or purchased source was used.
 
-External services: none. Only Apple frameworks (SwiftUI, UIKit for haptics).
+External services: none. Only Apple frameworks (SwiftUI, StoreKit, UIKit for
+haptics).
 Regional differences: none. The app is Japanese only and is distributed in Japan.
 The app name is in Latin script but the interface is entirely in Japanese.
 Not a medical app. No diagnosis, treatment, or health claims.

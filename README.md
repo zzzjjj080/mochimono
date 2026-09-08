@@ -27,7 +27,15 @@ App ID を登録したあとに名前が「モチモノ」で押さえられて�
 - 読み上げでは色が伝わらないので、「持った／まだ」を言葉で持たせている。
 - リストは**並べ替えられる**（一覧の「編集」）。
 - **1つだけ足すのに編集画面を開かなくてよい**（リスト画面の「＋」）。最後のグループに入る。
-- 通信しない。データは端末内だけ。
+- **「残りだけ」で、持ったものを盤面から外せる**（リスト画面）。**保存しない**
+  ——出かける直前だけの見かたで、次に開いたときは全部見えているほうが内容を確かめられる。
+- **リストを複製できる**（一覧の行を右に払う）。写るのは書いた内容・列数・配色だけで、
+  **チェックとそろった日時は持ち越さない。** 雛形より自分の盤面のほうが近い出発点。
+- **全部そろった日時を残す**（`lastCompletedAt`）。一覧に「前回 今日そろった」と出る。
+  **「全部外す」では消さない。** 外したのはチェックであって記録ではない。
+- 盤面はテキストに書き出せる（設定の共有シート）。貼り付けからも作れる。**独自の書式は使わない。**
+- 投げ銭「開発者にコーヒーを奢る」は設定の中。**1.0 では出さず、1.1 で出す**（`AppFeature.showsTipJar`）。
+- 書いた内容は端末内だけ。通信するのは投げ銭のときだけで、相手は Apple。
 
 ## 構成
 
@@ -64,20 +72,20 @@ HSLの明度で白黒を振り分けると、黄や緑で必ず読めなくな�
 ## テスト
 
 ```bash
-cd MochimonoCore && swift test                      # 55本
-cd Mochimono && xcodebuild -scheme Mochimono \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # AppModel 16本 + UI 15本
+cd MochimonoCore && swift test                      # 76本
+xcodebuild -project Mochimono/Mochimono.xcodeproj -scheme Mochimono \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test   # UI 23本を含む
 ```
 
 ## 状態
 
-- [x] ① HTMLプロトタイプ
-- [x] ② MochimonoCore（55テスト）
-- [x] ③ SwiftUI
-- [x] ④ シミュレータで実際にタップして確認
-- [ ] ⑤ 実機（iPhone Air）← **触覚は実機でしか確認できない**
-- [ ] Explicit App ID の登録 / App Store Connect でのアプリ登録
-- [ ] アイコンの見直し・スクリーンショット・掲載情報
+- [x] ①HTMLプロトタイプ →②Core →③SwiftUI →④シミュレータ →⑤実機（iPhone Air）
+- [x] Explicit App ID・アプリ登録・掲載情報・スクリーンショット・GitHub Pages
+- [x] **1.0 (1) は Guideline 4.3(a)（Design - Spam）で却下**（2026-09-02）
+- [x] テキスト⇄盤面を双方向にして立て直し、**1.0 (2) を再提出**（2026-09-05）
+- [ ] **1.0 (2) の審査結果待ち**
+- [x] 1.1 の中身は完成（残りだけ／複製／前回そろった日／投げ銭）。**ビルド番号は 3**
+- [x] App内課金「コーヒー1杯」は `READY_TO_SUBMIT`
+- [ ] 1.1 の提出 ← **1.0 の結果が出るまで ASC 側でバージョンの枠が作れない**（引き継ぎ書 4-103）
 
-進め方と踏んだ罠は `~/.claude/iOS-DEVLOG.md` が正本。
-今回の分は 4-37〜4-40 として追記済み。
+手順は `RELEASE-STEPS.md`。進め方と踏んだ罠は `~/.claude/iOS-DEVLOG.md` が正本。
