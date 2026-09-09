@@ -70,15 +70,15 @@ def main():
 
     print()
     print(f"審査待ち {len(waiting)}本 / 要対応 {len(trouble)}本")
-    if len(waiting) >= 3:
-        print("★ 同時に3本以上が審査待ち。**いま新しく出すのは見送る。**")
-        print("  同じアカウントから短期間に何本も出すと、4.3（スパム）の判断材料になる。")
+    # 「3本以上なら見送る」は 2026-09-09 に撤回した。
+    # 実際に並行で出しても審査で問題は起きていない（CLAUDE.md「審査は、揃ったものから出す」）。
+    # 本数は目安として出すだけで、**見送りの判断には使わない。**
     if trouble:
         print("★ 却下されたままのものがある。**先にそれを片付ける。**")
         for name, latest, _ in trouble:
             print(f"    - {name}（{latest[0]}）")
-    if not waiting and not trouble:
-        print("いま出しても、ほかとぶつからない。")
+    else:
+        print("止める理由は無い。**揃ったものから出してよい。**")
 
 
 if __name__ == "__main__":
