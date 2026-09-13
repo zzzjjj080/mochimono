@@ -80,10 +80,15 @@ POST /v1/appStoreVersions  versionString=1.1
 - [x] **App内課金を `READY_TO_SUBMIT` にした。** 足りなかったのは審査用スクリーンショット1枚だけ。
       `./Tools-UploadIAPScreenshot.py 6806882746 store/iap/coffee-review.png`
 - [x] 残りだけ表示／リストの複製／前回そろった日
+- [x] **配色を12→10種類に減らし、カラーモード（オンで色分け／オフで全部1色）を足した**（2026-09-13 本人の依頼）。
+      切り替えは配色の矢印の隣の「カラー」。リストごとに保存。既定はオン
+- [x] **掲載用スクリーンショットを撮り直した**（盤面の上の段が変わったため。`store/screenshots{,-65}`）。
+      **1.1 の枠を作ったら、6.5・6.9インチとも入れ直すこと。** 1.0 の画像は「1 / 12」のまま
+- [x] サポートページ（`docs/index.html`）の「配色は8種類・設定から選ぶ」という古い説明を直した
 - [x] `CURRENT_PROJECT_VERSION = 3`（`MARKETING_VERSION` は 1.0 のまま。理由は下）
 - [x] 掲載文・審査メモ・リリースノートを課金ありに書き直した
       （`store/description.txt` / `store/review-notes.txt` / `store/whats-new.txt`）
-- [x] Core 76本・UI 23本のテストが通る。実機 iPhone Air に投入済み
+- [x] Core 86本・UI 25本のテストが通る。実機 iPhone Air に投入済み（2026-09-13）
 
 ### `MARKETING_VERSION` を 1.0 のままにしてある理由
 
@@ -106,7 +111,7 @@ sed -i '' 's/MARKETING_VERSION = 1.0;/MARKETING_VERSION = 1.1;/g' Mochimono/Moch
 
 # 4. ja のローカライズに whatsNew / description を入れる（PATCH appStoreVersionLocalizations）
 # 5. 審査メモを入れる（appStoreReviewDetails）
-# 6. スクリーンショットが引き継がれているか確認。無ければ Tools-UploadScreenshots.py で入れ直す
+# 6. スクリーンショットは必ず入れ直す（1.0 のものは古い）。Tools-UploadScreenshots.py で 6.5 と 6.9 の両方
 # 7. ビルドを紐づける（→ 4-40。紐づけ忘れが一番多い）
 # 8. reviewSubmission を作り、**バージョンと課金の2つ**をアイテムに足して submit
 ```

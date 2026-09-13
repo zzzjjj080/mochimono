@@ -353,6 +353,51 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["lastCompleted-街中"].waitForExistence(timeout: 5))
     }
 
+    /// カラーモードは配色の矢印の隣。**リストを見たまま切り替えられて、リストごとに保たれる。**
+    func testカラーモードを切り替えられる() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        let mode = app.buttons["colorMode"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        XCTAssertEqual(mode.value as? String, "オン", "既定はオンのはず")
+
+        mode.tap()
+        XCTAssertEqual(mode.value as? String, "オフ")
+        // 1色にしても、タイルは今までどおり押せる
+        app.buttons["item-財布"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
+        // 1色の盤面を残す。色は XCUITest では測れないので、目で確かめる材料にする。
+        // **切り替えた直後に撮ると札のアニメーションの途中が写る**ので、1つ押して落ち着いてから撮る
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "color-off"
+        shot.lifetime = .keepAlways
+        add(shot)
+
+        // 別のリストには効かない
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        XCTAssertEqual(mode.value as? String, "オン", "別のリストまでオフになっている")
+
+        // 戻ると、オフのまま残っている
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["list-街中"].tapWhenReady()
+        XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        XCTAssertEqual(mode.value as? String, "オフ", "開き直したらオンに戻っている")
+    }
+
+    /// 配色は10種類。**送り切ったら1に戻る。**
+    func test配色は10種類で一周する() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        let number = app.staticTexts["paletteNumber"]
+        XCTAssertTrue(number.waitForExistence(timeout: 5))
+        XCTAssertTrue(number.label.hasSuffix("/ 10"), "総数が10になっていない: \(number.label)")
+        let start = number.label
+        for _ in 0..<10 { app.buttons["paletteForward"].tap() }
+        XCTAssertEqual(number.label, start)
+    }
+
 }
 
 extension XCUIElement {

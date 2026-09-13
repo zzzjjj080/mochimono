@@ -47,18 +47,25 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     public private(set) var text: String
     public var columns: Columns
     public var palette: Palette
+    /// カラーモード。**オンならグループごとに色が変わり、オフなら全部が同じ1色になる。**
+    ///
+    /// 色分けは空行で区切った意味を見せるためのものだが、区切りを気にしないリストでは
+    /// 色が多いぶん落ち着かない。オフのときも配色の番号は効き、その番号の1色目で塗る。
+    /// **既定はオン。** 空行で色が変わるのがこのアプリの芯なので、最初からそれが見えるようにする。
+    public var isColorful: Bool
     public private(set) var items: [Item]
     /// 前に全部そろった日時。**使い回すリストは、いつ使ったかが次の判断材料になる。**
     /// チェックを外しても消さない。「前回そろったのはいつか」の記録だから。
     public private(set) var lastCompletedAt: Date?
 
     public init(id: UUID = UUID(), name: String, text: String,
-                columns: Columns = .four, palette: Palette = .first) {
+                columns: Columns = .four, palette: Palette = .first, isColorful: Bool = true) {
         self.id = id
         self.name = name
         self.text = text
         self.columns = columns
         self.palette = palette
+        self.isColorful = isColorful
         self.items = Self.parse(text, preserving: [])
         self.lastCompletedAt = nil
     }
@@ -72,6 +79,7 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         text = try c.decodeIfPresent(String.self, forKey: .text) ?? ""
         columns = try c.decodeIfPresent(Columns.self, forKey: .columns) ?? .four
         palette = try c.decodeIfPresent(Palette.self, forKey: .palette) ?? .first
+        isColorful = try c.decodeIfPresent(Bool.self, forKey: .isColorful) ?? true
         let saved = try c.decodeIfPresent([Item].self, forKey: .items)
         items = saved ?? Self.parse(text, preserving: [])
         lastCompletedAt = try c.decodeIfPresent(Date.self, forKey: .lastCompletedAt)
@@ -87,6 +95,18 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     public var groups: [Int] {
         var seen = Set<Int>()
         return items.map(\.group).filter { seen.insert($0).inserted }
+    }
+
+    /// 塗るときに使うグループ番号。**カラーモードがオフなら、どのグループも0番の色で塗る。**
+    ///
+    /// グループそのもの（`Item.group`）は書き換えない。オンに戻したときに、
+    /// 空行で分けたとおりの色へそのまま戻れるようにするため。
+    public func toneGroup(_ group: Int) -> Int { isColorful ? group : 0 }
+
+    /// 色を用意しておくグループ番号の一覧。
+    public var toneGroups: [Int] {
+        guard !isColorful else { return groups }
+        return items.isEmpty ? [] : [0]
     }
 
     // MARK: - 操作（すべてIDで指す）
@@ -108,12 +128,13 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         for i in items.indices { items[i].isPacked = false }
     }
 
-    /// 丸ごと写して新しい1本を作る。
+    /// 丸ごと写して新しい1本を作る。見た目（列数・配色・カラーモード）も写す。
     ///
     /// **チェックと日時は持ち越さない。** 写すのは「何を書いたか」であって、
     /// 前の回の進み具合ではない。雛形より、自分のリストのほうが出発点として近い。
     public func duplicated(name: String) -> PackingList {
-        PackingList(name: name, text: text, columns: columns, palette: palette)
+        PackingList(name: name, text: text, columns: columns, palette: palette,
+                    isColorful: isColorful)
     }
 
     /// 貼り付けたテキストから作る。

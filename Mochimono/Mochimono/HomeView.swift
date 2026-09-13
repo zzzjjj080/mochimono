@@ -90,7 +90,7 @@ struct HomeView: View {
 
     private func row(_ list: PackingList) -> some View {
         let table = ToneTable(palette: list.palette,
-                              groups: list.groups,
+                              groups: list.toneGroups,
                               scheme: colorScheme.scheme)
         return HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 7) {
@@ -100,7 +100,7 @@ struct HomeView: View {
                 HStack(spacing: 3) {
                     ForEach(list.groups.prefix(6), id: \.self) { g in
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(table.tone(group: g, isPacked: true).fill.color)
+                            .fill(table.tone(group: list.toneGroup(g), isPacked: true).fill.color)
                             .frame(width: 16, height: 7)
                     }
                 }

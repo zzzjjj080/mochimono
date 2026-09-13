@@ -29,6 +29,7 @@ WHAT IS NEW IN THIS VERSION
 - Duplicating a board: swipe a row right on the first screen. The text, columns
   and colour scheme are copied; checks and the completion date are not.
 - The date a board was last completed is shown on the first screen.
+- Colour mode on/off, and 10 colour schemes instead of 12.
 - The voluntary tip described above.
 
 HOW TO EXERCISE THE APP
@@ -39,7 +40,8 @@ HOW TO EXERCISE THE APP
 3. Tap "残りだけ" above the tiles. Tiles already marked done disappear; tap it
    again to show them. This is a view setting only and is not saved.
 4. Tap the left/right triangles above the tiles to cycle the colour scheme
-   (12 schemes, the hues rotate one step at a time). Each board keeps its own.
+   (10 schemes, the hues rotate one step at a time). "カラー" next to them turns
+   colour mode off: every tile then uses one colour. Each board keeps its own.
 5. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
    of. Adding a blank line splits the items into another colour group. Existing
    checks are preserved by item name when the text is edited.
@@ -64,7 +66,6 @@ for this app; no template or purchased source was used.
 External services: none. Only Apple frameworks (SwiftUI, StoreKit, UIKit for
 haptics).
 Regional differences: none. The app is Japanese only and is distributed in Japan.
-The app name is in Latin script but the interface is entirely in Japanese.
 Not a medical app. No diagnosis, treatment, or health claims.
 Accessibility: the app follows the system text size setting and reduces the
 number of columns at accessibility sizes. Colour contrast between each tile and

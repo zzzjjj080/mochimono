@@ -15,9 +15,11 @@ public struct Palette: Equatable, Hashable, Sendable {
     /// 1...count。範囲外を渡しても端で折り返す。
     public let number: Int
 
-    /// 一周の数。30度ずつ回して12で元に戻る。
+    /// 一周の数。36度ずつ回して10で元に戻る。
     /// 数を増やせば1歩は細かくなるが、送り切るのに時間がかかる。
-    public static let count = 12
+    /// **12から10に減らした（2026-09-13 本人の判断）。** 12では送り切るまでが長く、
+    /// 隣どうしの差も小さくて押した手応えが薄かった。
+    public static let count = 10
     public static let first = Palette(1)
 
     public init(_ number: Int) {

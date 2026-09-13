@@ -2,3 +2,6 @@
 .build/
 xcuserdata/
 *.xcworkspace/xcuserdata/
+
+# このMacのシミュレータのUDID。機械ごとに違うので共有しない
+.sim

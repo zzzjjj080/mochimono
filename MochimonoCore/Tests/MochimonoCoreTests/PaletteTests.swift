@@ -16,7 +16,7 @@ struct PaletteTests {
     static let groups = Array(0..<10)
 
     @Test func 番号は1から一周ぶん() {
-        #expect(Palette.count == 12)
+        #expect(Palette.count == 10)
         #expect(Palette.all.map(\.number) == Array(1...Palette.count))
     }
 

@@ -279,7 +279,7 @@ extension Preset {
                 """),
 
         Preset(id: "ceremony", name: "冠婚葬祭", detail: "急に必要になるもの",
-               palette: Palette(11), text: """
+               palette: Palette(4), text: """
                 礼服
                 ネクタイ
                 黒靴下
@@ -297,7 +297,7 @@ extension Preset {
                 """),
 
         Preset(id: "disaster", name: "防災", detail: "持ち出し袋の中身",
-               palette: Palette(12), text: """
+               palette: Palette(8), text: """
                 水
                 非常食
                 携帯ラジオ

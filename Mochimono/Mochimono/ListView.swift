@@ -67,7 +67,7 @@ struct ListView: View {
     @ViewBuilder
     private func content(_ list: PackingList) -> some View {
         let table = ToneTable(palette: list.palette,
-                              groups: list.groups,
+                              groups: list.toneGroups,
                               scheme: colorScheme.scheme)
         ScrollView {
             VStack(spacing: 12) {
@@ -76,10 +76,10 @@ struct ListView: View {
                     .tint(list.isComplete ? .green : .accentColor)
 
                 if !list.items.isEmpty {
-                    HStack(spacing: 8) {
-                        paletteStepper(list)
-                        Spacer(minLength: 0)
-                        remainingToggle(list)
+                    // 文字を大きくする設定では1行に収まらないので、記号だけの並びに切り替える
+                    ViewThatFits(in: .horizontal) {
+                        controlRow(list, showsTitles: true)
+                        controlRow(list, showsTitles: false)
                     }
                 }
 
@@ -120,7 +120,7 @@ struct ListView: View {
     }
 
     private func cell(_ item: Item, list: PackingList, table: ToneTable) -> some View {
-        let tone = table.tone(group: item.group, isPacked: item.isPacked)
+        let tone = table.tone(group: list.toneGroup(item.group), isPacked: item.isPacked)
         let cols = columns(list)
         return Button {
             model.toggle(item.id, in: listID)
@@ -162,25 +162,63 @@ struct ListView: View {
         showsRemainingOnly ? list.remainingItems : list.items
     }
 
+    private func controlRow(_ list: PackingList, showsTitles: Bool) -> some View {
+        HStack(spacing: 6) {
+            paletteStepper(list)
+            colorModeToggle(list, showsTitle: showsTitles)
+            Spacer(minLength: 0)
+            remainingToggle(showsTitle: showsTitles)
+        }
+    }
+
+    /// カラーモード。**配色の矢印の隣に置く。** 色に関わる操作を1か所にまとめ、
+    /// 設定画面を開かずに、盤面を見たまま切り替えて比べられるようにする。
+    private func colorModeToggle(_ list: PackingList, showsTitle: Bool) -> some View {
+        chip(title: "カラー",
+             symbol: list.isColorful ? "paintpalette.fill" : "paintpalette",
+             isOn: list.isColorful, showsTitle: showsTitle) {
+            model.toggleColorMode(for: listID)
+        }
+        .accessibilityLabel("カラーモード")
+        .accessibilityIdentifier("colorMode")
+        .accessibilityHint("オンはグループごとに色が変わり、オフは全部が同じ色になります")
+    }
+
     /// 「残りだけ」の入り切り。出かける直前は、まだ持っていないものしか見ない。
-    private func remainingToggle(_ list: PackingList) -> some View {
-        Button {
+    private func remainingToggle(showsTitle: Bool) -> some View {
+        chip(title: "残りだけ",
+             symbol: showsRemainingOnly ? "line.3.horizontal.decrease.circle.fill"
+                                        : "line.3.horizontal.decrease.circle",
+             isOn: showsRemainingOnly, showsTitle: showsTitle) {
             showsRemainingOnly.toggle()
             Haptics.select()
-        } label: {
-            Label("残りだけ", systemImage: showsRemainingOnly ? "line.3.horizontal.decrease.circle.fill"
-                                                          : "line.3.horizontal.decrease.circle")
-                .labelStyle(.titleAndIcon)
-                .padding(.horizontal, 10)
-                .frame(height: 32)
-                .background(showsRemainingOnly ? Color.accentColor.opacity(0.18) : .clear,
-                            in: .capsule)
-                .contentShape(.capsule)          // 余白も押せるようにする（引き継ぎ書 4-44）
         }
-        .foregroundStyle(showsRemainingOnly ? Color.accentColor : .secondary)
+        .accessibilityLabel("残りだけ")
         .accessibilityIdentifier("remainingOnly")
-        .accessibilityValue(showsRemainingOnly ? "オン" : "オフ")
         .accessibilityHint("まだ持っていないものだけを並べます")
+    }
+
+    /// 入り切りの札。**オンは塗り、オフは線だけ。** 2つとも同じ形にして、状態の読み方を揃える。
+    private func chip(title: String, symbol: String, isOn: Bool, showsTitle: Bool,
+                      action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Group {
+                if showsTitle {
+                    Label(title, systemImage: symbol).labelStyle(.titleAndIcon)
+                } else {
+                    Image(systemName: symbol)
+                }
+            }
+            .lineLimit(1)
+            // 窮屈でも文字を「…」に潰させない。収まらなければ ViewThatFits が記号だけの並びに落とす
+            .fixedSize(horizontal: true, vertical: false)
+            .padding(.horizontal, showsTitle ? 10 : 8)
+            .frame(minWidth: 32, minHeight: 32)
+            .background(isOn ? Color.accentColor.opacity(0.18) : .clear, in: .capsule)
+            .contentShape(.capsule)          // 余白も押せるようにする（引き継ぎ書 4-44）
+        }
+        .foregroundStyle(isOn ? Color.accentColor : .secondary)
+        .accessibilityValue(isOn ? "オン" : "オフ")
     }
 
     /// 配色を送る矢印。**設定画面を開かせない。**

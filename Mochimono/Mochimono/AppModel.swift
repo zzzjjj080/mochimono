@@ -121,6 +121,15 @@ final class AppModel {
         save()
     }
 
+    /// カラーモードの入り切り。配色の矢印と同じく、リストを見たまま切り替える。
+    func toggleColorMode(for listID: PackingList.ID) {
+        guard var l = store[listID] else { return }
+        l.isColorful.toggle()
+        store[listID] = l
+        Haptics.select()
+        save()
+    }
+
     func setColumns(_ columns: Columns, for listID: PackingList.ID) {
         guard var l = store[listID], l.columns != columns else { return }
         l.columns = columns
@@ -190,10 +199,10 @@ final class AppModel {
         var lists: [PackingList] = ["trip-domestic", "commute", "camp", "town", "gym"]
             .compactMap { Preset.preset(id: $0)?.makeList() }
         lists[0].palette = Palette(1)
-        lists[1].palette = Palette(4)
-        lists[2].palette = Palette(7)
-        lists[3].palette = Palette(10)
-        lists[4].palette = Palette(12)
+        lists[1].palette = Palette(3)
+        lists[2].palette = Palette(5)
+        lists[3].palette = Palette(7)
+        lists[4].palette = Palette(9)
         // 名前で指してチェックする。添字だと雛形を直したときに別のものが付く。
         let packed: [Int: [String]] = [
             0: ["財布", "スマホ", "鍵", "免許証", "着替え", "下着", "歯ブラシ", "充電器", "常備薬"],
