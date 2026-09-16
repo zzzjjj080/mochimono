@@ -4,7 +4,7 @@
 本人に頼むのは、人間でなければ物理的に無理なものだけ。
 （`~/.claude/CLAUDE.md`「作業の分担」／`~/.claude/iOS-DEVLOG.md` 5-0、4-49〜4-51）
 
-App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **いま `1.0 (2)` 審査中、次は `(3)`**
+App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **1.0 公開済み（2026-09-17）。いま `1.1 (3)` を提出中**
 
 ## 済んでいること（すべてClaude側）
 
@@ -61,6 +61,48 @@ reviewSubmission: c6425193-e421-41c9-a98a-ae066453da03   （1.0 (2)）
 
 **古い提出枠を `canceled: true` で取り消すと外れる。**（`PATCH /v1/reviewSubmissions/<id>`）
 取り消したあと状態は `COMPLETE` になり、バージョンを新しい枠に足せるようになる。
+
+## 1.0 は 2026-09-17 に公開された
+
+4.3(a) で却下 → テキスト⇄盤面を双方向にして再提出 → **承認・自動公開**（`READY_FOR_SALE`）。
+提出から結果まで**12日**かかった（通常は1〜2日）。スパム指摘のあとの再審査は長い、と見ておく。
+
+## 1.1 の提出（2026-09-17）
+
+```
+appStoreVersion: 2822df6e-39c3-44fd-808c-aa8fa105d543   （1.1・AFTER_APPROVAL）
+ローカライズ(ja): c467dd26-1857-4627-88f1-4658eb0cc99d
+スクショのセット:  APP_IPHONE_67 a503b152-…  /  APP_IPHONE_65 d82fc6f6-…
+課金:             6806882746（コーヒー1杯・READY_TO_SUBMIT）
+```
+
+叩いた順番。**枠を作る前にビルドを上げてもよい**が、紐づけは枠ができてから。
+
+1. `MARKETING_VERSION` を 1.1 に（ビルド番号は 3 のまま）
+2. アーカイブ → 出す前の確認（版・`.storekit` 0件・`screenshot-demo` 0件・暗号化の申告）→ `-exportArchive` で `destination: upload`
+3. `POST /v1/appStoreVersions`（`releaseType: AFTER_APPROVAL`）
+4. ローカライズに 概要・キーワード・プロモーション・**新機能**（`store/whats-new.txt`）を `PATCH`
+5. `appStoreReviewDetail` に審査メモを `PATCH`（**枠と一緒に作られている**ので POST は要らなかった）
+6. スクリーンショットを 6.9 と 6.5 の両方に入れ直す（`Tools-UploadScreenshots.py`）
+7. ビルドが `VALID` になるのを待って、バージョンに紐づける
+8. `reviewSubmission` を作り、**バージョンと課金の2つ**をアイテムに足して提出
+
+**課金のリレーション名は `inAppPurchaseVersion`。**（引き継ぎ書 11-8b）
+`inAppPurchaseV2` で足すと 409 `unknown relationship` になる（今回も1回踏んだ）。
+渡すのは課金のidではなく、**その「バージョン」のid**。
+
+```bash
+./Tools-ASC.py get /v2/inAppPurchases/6806882746/versions   # → inAppPurchaseVersions の id
+```
+
+```
+reviewSubmission: 88f83b8a-87d5-4906-a0b7-33da0bdecc2f   （1.1 + 課金）
+build:            eb86226a-2c54-4217-bcdd-4a4ea39785f9   （1.1 (3)・VALID）
+課金のバージョン:   e137ff62-4674-4f6e-8d27-b7ff162dc04b
+```
+
+**2026-09-17 08:09（JST）に提出した。** 1.1 と課金がどちらも `WAITING_FOR_REVIEW`。
+リリース方法は自動なので、承認されればそのまま公開される。
 
 ## 1.1 の準備（2026-09-09・審査待ちの間にできることは全部やった）
 
