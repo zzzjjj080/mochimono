@@ -11,9 +11,6 @@ struct ListView: View {
     let settings: () -> Void
 
     @State private var askingReset = false
-    /// 残りだけを見る。**保存しない。** 出かける直前だけの見かたなので、
-    /// 次に開いたときは全部見えているほうが、書いた内容を確かめられる。
-    @State private var showsRemainingOnly = false
     @State private var addingItem = false
     @State private var newItem = ""
 
@@ -22,8 +19,9 @@ struct ListView: View {
     @ScaledMetric(relativeTo: .body) private var typeScale: CGFloat = 100
     /// 「そろった」の触覚は、そろった瞬間に1回だけ。毎回の描画で鳴らさない。
     @State private var wasComplete = false
-    /// そろったボタンが出たときに跳ねさせるための札。**中身に意味は無く、変わることだけが合図。**
-    @State private var celebrate = false
+    /// そろった回数。**増えたことが合図**で、紙吹雪と帯の演出をやり直す。
+    @State private var burst = 0
+    @State private var celebrating = false
 
     private var list: PackingList? { model.list(listID) }
 
@@ -52,20 +50,14 @@ struct ListView: View {
         .toolbar {
             if let list {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Text("\(list.packedCount)/\(list.items.count)")
-                        .font(.system(.footnote, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Button("設定", action: settings)
                         .accessibilityIdentifier("openSettings")
                 }
             }
         }
         .safeAreaInset(edge: .bottom) { bottomBar }
-        // 戻せるのはこの画面にいる間だけ。離れたあとに帯が生き返ると、何が戻るのか分からない
-        .onDisappear { model.dismissClearUndo() }
+        // 祝いは**画面全体**に出す。盤面の中だけだと、そろった手応えが小さい
+        .overlay { if celebrating { CompleteFlash().id(burst) } }
     }
 
     @ViewBuilder
@@ -75,26 +67,7 @@ struct ListView: View {
                               scheme: colorScheme.scheme)
         ScrollView {
             VStack(spacing: 12) {
-                ProgressView(value: list.items.isEmpty ? 0
-                                  : Double(list.packedCount) / Double(list.items.count))
-                    .tint(list.isComplete ? .green : .accentColor)
-
-                if !list.items.isEmpty {
-                    // 文字を大きくする設定では1行に収まらないので、記号だけの並びに切り替える
-                    ViewThatFits(in: .horizontal) {
-                        controlRow(list, showsTitles: true)
-                        controlRow(list, showsTitles: false)
-                    }
-                }
-
-                if list.isComplete {
-                    Text("ヨシ！ 全部そろいました")
-                        .font(.system(.subheadline, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.green, in: .rect(cornerRadius: 8))
-                }
+                if !list.items.isEmpty { gauge(list, table: table) }
 
                 if list.items.isEmpty {
                     Text("まだ何も入っていません。\n下の「編集」から書けます。")
@@ -106,7 +79,7 @@ struct ListView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 3),
                                              count: columns(list).rawValue),
                               spacing: 3) {
-                        ForEach(shown(list)) { item in     // 添字ではなく要素を回す
+                        ForEach(list.items) { item in     // 添字ではなく要素を回す
                             cell(item, list: list, table: table)
                         }
                     }
@@ -117,8 +90,18 @@ struct ListView: View {
             .padding(.bottom, 24)
         }
         .onChange(of: list.isComplete) { _, complete in
-            if complete && !wasComplete { Haptics.complete() }
+            // **そろった瞬間だけ。** 開き直すたびに祝われると煩わしい
+            if complete && !wasComplete {
+                Haptics.complete()
+                burst += 1
+                celebrating = true
+            }
             wasComplete = complete
+        }
+        .task(id: burst) {
+            guard burst > 0 else { return }
+            try? await Task.sleep(for: .seconds(0.75))   // **短く。** 長いと邪魔になる
+            celebrating = false
         }
         .onAppear { wasComplete = list.isComplete }
     }
@@ -161,21 +144,106 @@ struct ListView: View {
                                          : "二本指でダブルタップすると持った印を付けます")
     }
 
-    /// いま並べるもの。残りだけの表示は、持った瞬間にその1つが消える。
-    private func shown(_ list: PackingList) -> [Item] {
-        showsRemainingOnly ? list.remainingItems : list.items
-    }
-
-    private func controlRow(_ list: PackingList, showsTitles: Bool) -> some View {
-        HStack(spacing: 6) {
-            paletteStepper(list)
-            colorModeToggle(list, showsTitle: showsTitles)
-            Spacer(minLength: 0)
-            remainingToggle(showsTitle: showsTitles)
+    /// 盤面の上の1本。**進み具合と数と知らせを、1つにまとめてある。**
+    ///
+    /// 細い棒と数字と知らせを別々に積むと、そろった時に段が増えて**盤面が下へずれる。**
+    /// 出かける直前に見ている場所が動くと、押すつもりのマスを押し損ねる。
+    /// 高さの変わらない1本にして、中身だけを差し替える。
+    ///
+    /// 塗りはそのリストの配色そのもの。盤面と同じ色が伸びていくので、
+    /// どのリストを見ているのかが棒だけでも分かる。
+    @ViewBuilder
+    private func gauge(_ list: PackingList, table: ToneTable) -> some View {
+        if list.isComplete {
+            Button { model.clearAllPacked(in: listID) } label: { gaugeBar(list, table: table) }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("completeBanner")
+                .accessibilityLabel("ヨシ！ 全部そろいました")
+                .accessibilityHint("押すとチェックを全部外します")
+        } else {
+            gaugeBar(list, table: table)
         }
     }
 
-    /// カラーモード。**配色の矢印の隣に置く。** 色に関わる操作を1か所にまとめ、
+    private func gaugeBar(_ list: PackingList, table: ToneTable) -> some View {
+        let done = list.isComplete
+        let ratio = list.items.isEmpty ? 0
+            : Double(list.packedCount) / Double(list.items.count)
+        // 塗りの上の文字色は、配色が測って決めた読める色をそのまま使う
+        // 塗りは**そのリストの1色目の濃淡**。
+        // 色相をまたぐグラデーション（青→緑など）は、混ざるあたりが濁って見える。
+        let first = list.groups.first ?? 0
+        let head = table.tone(group: list.toneGroup(first), isPacked: true)
+        let fills = done ? Self.shade(HSL(hue: 145, saturation: 68, lightness: 42))
+                         : Self.shade(head.fill)
+        let onFill = done ? Color.white : head.label.color
+        let words = done ? "ヨシ！ 全部そろいました"
+                         : "\(list.packedCount) / \(list.items.count)"
+
+        return GeometryReader { geo in
+            let filled = geo.size.width * (done ? 1 : ratio)
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.tertiarySystemFill))
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(LinearGradient(colors: fills, startPoint: .top, endPoint: .bottom))
+                    .frame(width: filled)
+                // 文字は2枚重ねる。**塗りの上と外とで読める色が違う**ので、
+                // 塗った幅ぶんだけ上の1枚を出す。1枚だと境目で必ず読めなくなる。
+                gaugeWords(words, color: .primary, done: done)   // 薄い灰の上では薄い字は読めない
+                gaugeWords(words, color: onFill, done: done)
+                    .mask(alignment: .leading) { Rectangle().frame(width: filled) }
+                    .accessibilityHidden(true)          // 読み上げは下の1枚だけでよい
+            }
+            .overlay {
+                // そろったら、光が1度だけ斜めに走る
+                if done { Sheen().id(burst) }
+            }
+            .clipShape(.rect(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(done ? Color.white.opacity(0.55)
+                                       : Color.primary.opacity(0.07), lineWidth: done ? 2 : 1)
+            }
+        }
+        .frame(height: 46)
+        // **高さは変えない。** 変えると盤面が下へずれて、押すつもりのマスを押し損ねる。
+        // 膨らませるのは見た目だけ（scaleEffect は場所を取らない）
+        .scaleEffect(done ? 1.035 : 1)
+        .shadow(color: done ? Color.green.opacity(0.5) : .clear, radius: 12, y: 4)
+        .animation(.snappy, value: list.packedCount)
+        .animation(.bouncy, value: done)
+    }
+
+    /// 同じ色相のまま、上を少し明るく・下を少し暗くする。
+    /// **明度だけを動かす。** 色相や彩度まで動かすと、配色が測って決めた文字色が合わなくなる。
+    private static func shade(_ base: HSL) -> [Color] {
+        [HSL(hue: base.hue, saturation: base.saturation,
+             lightness: min(base.lightness + 6, 96)).color,
+         HSL(hue: base.hue, saturation: base.saturation,
+             lightness: max(base.lightness - 7, 6)).color]
+    }
+
+    @ViewBuilder
+    private func gaugeWords(_ words: String, color: Color, done: Bool) -> some View {
+        Group {
+            if done {
+                Label(words, systemImage: "checkmark.seal.fill")
+                    .font(.system(.headline, weight: .black))
+                    .symbolEffect(.bounce, options: .repeat(2), value: burst)
+            } else {
+                Text(words)
+                    .font(.system(.subheadline, weight: .heavy))
+                    .monospacedDigit()
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.6)
+        .foregroundStyle(color)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// カラーモード。**配色の矢印の隣に置く。**    /// カラーモード。**配色の矢印の隣に置く。** 色に関わる操作を1か所にまとめ、
     /// 設定画面を開かずに、盤面を見たまま切り替えて比べられるようにする。
     private func colorModeToggle(_ list: PackingList, showsTitle: Bool) -> some View {
         chip(title: "カラー",
@@ -186,20 +254,6 @@ struct ListView: View {
         .accessibilityLabel("カラーモード")
         .accessibilityIdentifier("colorMode")
         .accessibilityHint("オンはグループごとに色が変わり、オフは全部が同じ色になります")
-    }
-
-    /// 「残りだけ」の入り切り。出かける直前は、まだ持っていないものしか見ない。
-    private func remainingToggle(showsTitle: Bool) -> some View {
-        chip(title: "残りだけ",
-             symbol: showsRemainingOnly ? "line.3.horizontal.decrease.circle.fill"
-                                        : "line.3.horizontal.decrease.circle",
-             isOn: showsRemainingOnly, showsTitle: showsTitle) {
-            showsRemainingOnly.toggle()
-            Haptics.select()
-        }
-        .accessibilityLabel("残りだけ")
-        .accessibilityIdentifier("remainingOnly")
-        .accessibilityHint("まだ持っていないものだけを並べます")
     }
 
     /// 入り切りの札。**オンは塗り、オフは線だけ。** 2つとも同じ形にして、状態の読み方を揃える。
@@ -218,38 +272,12 @@ struct ListView: View {
             .fixedSize(horizontal: true, vertical: false)
             .padding(.horizontal, showsTitle ? 10 : 8)
             .frame(minWidth: 32, minHeight: 32)
-            .background(isOn ? Color.accentColor.opacity(0.18) : .clear, in: .capsule)
-            .contentShape(.capsule)          // 余白も押せるようにする（引き継ぎ書 4-44）
+            // 角丸は下の段のボタンと揃える。丸すぎると四角いマスと並んだときに締まらない
+            .background(isOn ? Color.accentColor.opacity(0.18) : .clear, in: .rect(cornerRadius: 7))
+            .contentShape(.rect)             // 余白も押せるようにする（引き継ぎ書 4-44）
         }
         .foregroundStyle(isOn ? Color.accentColor : .secondary)
         .accessibilityValue(isOn ? "オン" : "オフ")
-    }
-
-    /// 配色を送る矢印。**設定画面を開かせない。**
-    /// リストを見たまま送れないと、どの色が合うかを比べられない。
-    private func paletteStepper(_ list: PackingList) -> some View {
-        HStack(spacing: 0) {
-            Button { model.cyclePalette(forward: false, for: listID) } label: {
-                Image(systemName: "arrowtriangle.left.fill")
-                    .frame(width: 44, height: 32)
-                    .contentShape(.rect)          // 余白も押せるようにする（引き継ぎ書 4-44）
-            }
-            .accessibilityIdentifier("paletteBack")
-            .accessibilityLabel("前の配色")
-            Text("\(list.palette.number) / \(Palette.count)")
-                .monospacedDigit()
-                .accessibilityIdentifier("paletteNumber")
-            Button { model.cyclePalette(forward: true, for: listID) } label: {
-                Image(systemName: "arrowtriangle.right.fill")
-                    .frame(width: 44, height: 32)
-                    .contentShape(.rect)
-            }
-            .accessibilityIdentifier("paletteForward")
-            .accessibilityLabel("次の配色")
-        }
-        .font(.system(.footnote, weight: .bold))
-        .foregroundStyle(.secondary)
-        .buttonStyle(.plain)
     }
 
     private func baseFontSize(_ columns: Columns) -> CGFloat {
@@ -263,14 +291,31 @@ struct ListView: View {
 
     private var bottomBar: some View {
         VStack(spacing: 8) {
-            if let undo = model.clearUndo, undo.listID == listID { undoBar(undo) }
-            HStack(spacing: 8) {
-                clearButton
-                Button { addingItem = true } label: {
-                    Image(systemName: "plus").fontWeight(.semibold)
+            // 色の段。**番号だけでは何色か分からない**ので、実際の色を並べて見せる
+            if let list, !list.items.isEmpty {
+                ViewThatFits(in: .horizontal) {
+                    colorRow(list, showsTitle: true)
+                    colorRow(list, showsTitle: false)
                 }
-                .buttonStyle(.bordered)
-                .accessibilityLabel("持ち物を足す")
+            }
+            HStack(spacing: 8) {
+                Button("全部外す") { askingReset = true }
+                    .buttonStyle(BarButton(fill: .barSecondary))
+                    .accessibilityIdentifier("clearAll")
+                    // 破壊的な操作は、何が起きるかを具体的に書いて確認を通す。
+                    .alert("チェックを全部外しますか？", isPresented: $askingReset) {
+                        Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
+                        Button("やめる", role: .cancel) {}
+                    } message: {
+                        if let list {
+                            Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
+                        }
+                    }
+                // 記号だけだと何が増えるのか分からない。**言葉で書く。**
+                Button { addingItem = true } label: {
+                    Label("1つ足す", systemImage: "plus")
+                }
+                .buttonStyle(BarButton(fill: .barSecondary))
                 .accessibilityIdentifier("quickAdd")
                 // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
                 .alert("持ち物を足す", isPresented: $addingItem) {
@@ -281,101 +326,146 @@ struct ListView: View {
                     Text("いちばん最後のグループに入ります。")
                 }
                 Button("編集", action: edit)
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
+                    .buttonStyle(BarButton(fill: .barPrimary))
                     .accessibilityIdentifier("openEdit")
             }
         }
-        .controlSize(.large)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(.bar)
-        .animation(.snappy, value: model.clearUndo?.id)
     }
 
-    /// そろったかどうかで見た目と手数が変わるボタン。
-    ///
-    /// **そろったら、押すべき一手はこれしかない。** 目立たせて、確認も省く。
-    /// 途中で押したときは、いままでどおり件数つきの確認を通す。
-    @ViewBuilder
-    private var clearButton: some View {
-        let done = list?.isComplete ?? false
-        Group {
-            if done {
-                Button { model.clearAllPacked(in: listID) } label: {
-                    Label("全部外す", systemImage: "arrow.counterclockwise.circle.fill")
-                        .symbolEffect(.bounce, value: celebrate)
-                        .frame(maxWidth: .infinity)
+    /// 配色の段。矢印・見本・番号・カラーの4つをこの順に並べる。
+    private func colorRow(_ list: PackingList, showsTitle: Bool) -> some View {
+        let table = ToneTable(palette: list.palette,
+                              groups: (0..<5).map(list.toneGroup),
+                              scheme: colorScheme.scheme)
+        return HStack(spacing: 6) {
+            paletteArrow(back: true)
+            // **実際の色を見せる。** 番号だけでは、送った先が何色か分からない
+            HStack(spacing: 3) {
+                ForEach(0..<5, id: \.self) { g in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(table.tone(group: list.toneGroup(g), isPacked: true).fill.color)
+                        .frame(width: 18, height: 12)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
-                .onAppear { celebrate.toggle() }
-                .accessibilityHint("確認なしですぐ外します。あとから元に戻せます")
-            } else {
-                Button("全部外す") { askingReset = true }
-                    .buttonStyle(.bordered)
             }
-        }
-        .frame(maxWidth: .infinity)
-        .accessibilityIdentifier("clearAll")
-        .animation(.snappy, value: done)
-        // 途中で押したときだけ、何が起きるかを具体的に書いて確認を通す。
-        .alert("チェックを全部外しますか？", isPresented: $askingReset) {
-            Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
-            Button("やめる", role: .cancel) {}
-        } message: {
-            if let list {
-                Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。")
-            }
+            .accessibilityHidden(true)          // 読み上げでは色は伝わらない。番号で言う
+            paletteArrow(back: false)
+            Text("\(list.palette.number) / \(Palette.count)")
+                .font(.system(.caption, weight: .bold))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("paletteNumber")
+            Spacer(minLength: 0)
+            colorModeToggle(list, showsTitle: showsTitle)
         }
     }
 
-    /// 戻せる時間。盤面タスクの取り消しと同じく、**残りが目に見える**ようにする。
-    static let undoSeconds = 6.0
-
-    /// 外した直後だけ出る、戻すための帯。**数秒で引っ込める。**
-    /// 出しっぱなしにすると盤面が隠れるうえ、いつまで戻せるのかが分からなくなる。
-    private func undoBar(_ undo: AppModel.ClearUndo) -> some View {
-        HStack(spacing: 10) {
-            Text("チェックを外しました")
-                .font(.system(.footnote, weight: .semibold))
+    private func paletteArrow(back: Bool) -> some View {
+        Button { model.cyclePalette(forward: !back, for: listID) } label: {
+            Image(systemName: back ? "arrowtriangle.left.fill" : "arrowtriangle.right.fill")
+                .font(.system(.footnote, weight: .bold))
                 .foregroundStyle(.secondary)
-            Spacer(minLength: 0)
-            UndoCountdownRing(seconds: Self.undoSeconds)
-                .id(undo.id)                 // 外すたびに数え直す
-            Button("元に戻す") { model.undoClearAllPacked() }
-                .font(.system(.footnote, weight: .heavy))
-                .buttonStyle(.plain)
-                .foregroundStyle(Color.accentColor)
-                .accessibilityIdentifier("undoClear")
+                .frame(width: 34, height: 30)
+                .contentShape(.rect)            // 余白も押せるようにする（引き継ぎ書 4-44）
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
-        .background(Color(.secondarySystemBackground), in: .capsule)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .task(id: undo.id) {
-            try? await Task.sleep(for: .seconds(Self.undoSeconds))
-            model.dismissClearUndo()
-        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(back ? "paletteBack" : "paletteForward")
+        .accessibilityLabel(back ? "前の配色" : "次の配色")
     }
 }
 
-/// 戻せる時間が減っていくのを見せるリング。数字ではなく減り方で伝える。
-private struct UndoCountdownRing: View {
-    let seconds: Double
-    @State private var drained = false
+/// 下の段のボタン。**丸みは控えめに、色は濃く。**
+/// 標準の押しボタンは角が丸すぎて、盤面の四角いマスと並ぶと締まらない。
+private struct BarButton: ButtonStyle {
+    let fill: Color
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(.subheadline, weight: .heavy))
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(fill, in: .rect(cornerRadius: 7))
+            .opacity(configuration.isPressed ? 0.72 : 1)
+            .animation(.easeOut(duration: 0.07), value: configuration.isPressed)
+    }
+}
+
+extension Color {
+    /// 下の段の色。**盤面の色とぶつからないよう彩度を抑えた藍と墨。**
+    /// 明るさの設定で入れ替える。暗いところで濃紺のままだと、背景に沈んで押せるものに見えない。
+    static let barPrimary = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(red: 0.33, green: 0.42, blue: 0.68, alpha: 1)
+                                      : UIColor(red: 0.16, green: 0.22, blue: 0.40, alpha: 1)
+    })
+    static let barSecondary = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(red: 0.36, green: 0.39, blue: 0.44, alpha: 1)
+                                      : UIColor(red: 0.38, green: 0.41, blue: 0.47, alpha: 1)
+    })
+}
+
+/// そろった帯の上を1度だけ走る光。
+private struct Sheen: View {
+    @State private var swept = false
 
     var body: some View {
-        Circle()
-            .trim(from: 0, to: drained ? 0 : 1)
-            .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-            .rotationEffect(.degrees(-90))
-            .frame(width: 15, height: 15)
-            .accessibilityHidden(true)          // 読み上げでは時間より「元に戻す」が先
-            .onAppear {
-                // **出たあとに動かす。** 最初から drained だと、描き終わる前に消える
-                withAnimation(.linear(duration: seconds)) { drained = true }
+        GeometryReader { geo in
+            LinearGradient(colors: [.white.opacity(0), .white.opacity(0.65), .white.opacity(0)],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(width: geo.size.width * 0.28)
+                .rotationEffect(.degrees(22))
+                .offset(x: swept ? geo.size.width * 1.1 : -geo.size.width * 0.4)
+                .onAppear {
+                    // **出てから動かす。** 最初から動いた状態だと、走らずに終わる
+                    withAnimation(.easeInOut(duration: 0.9).delay(0.15)) { swept = true }
+                }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// そろったときの祝い。**画面ぜんぶを一瞬だけ光らせる。**
+///
+/// 紙吹雪も試したが、盤面の中で小さく散るだけで手応えが薄かった。
+/// **短く（0.5秒）、画面いっぱいに。** 長引くと次の操作の邪魔になる。
+private struct CompleteFlash: View {
+    @State private var on = false
+
+    var body: some View {
+        GeometryReader { geo in
+            let side = max(geo.size.width, geo.size.height)
+            let from = CGPoint(x: geo.size.width / 2, y: geo.size.height * 0.13)   // 帯のあたり
+            ZStack {
+                // 画面ぜんぶが、ひと呼吸だけ緑に染まる
+                Color.green.opacity(on ? 0 : 0.24)
+
+                // 帯から光の玉がふくらむ
+                Circle()
+                    .fill(RadialGradient(
+                        colors: [.white.opacity(0.9), Color.green.opacity(0.55), .green.opacity(0)],
+                        center: .center, startRadius: 0, endRadius: side * 0.35))
+                    .frame(width: side * 0.7, height: side * 0.7)
+                    .scaleEffect(on ? 2.6 : 0.15)
+                    .opacity(on ? 0 : 1)
+                    .position(from)
+
+                // 輪が広がって消える
+                Circle()
+                    .strokeBorder(Color.white.opacity(0.95), lineWidth: on ? 1.5 : 26)
+                    .frame(width: on ? side * 2.4 : 60, height: on ? side * 2.4 : 60)
+                    .opacity(on ? 0 : 0.95)
+                    .position(from)
             }
+            .onAppear {
+                // **出てから動かす。** 最初から on だと、広がらずに終わる
+                withAnimation(.easeOut(duration: 0.5)) { on = true }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
     }
 }
 

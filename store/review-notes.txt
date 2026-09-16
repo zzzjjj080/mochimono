@@ -24,14 +24,13 @@ format.
 
 WHAT IS NEW IN THIS VERSION
 
-- "残りだけ" (remaining only): hides tiles already marked done, so only what is
-  still missing is shown.
 - Duplicating a board: swipe a row right on the first screen.
 - The date a board was last completed is shown on the first screen.
 - Colour mode on/off, and 10 colour schemes instead of 12.
-- When every tile is done, the "clear" button turns green and clears in one tap
-  with no confirmation. An undo bar appears for 6 seconds. Clearing part-way
-  through still asks for confirmation.
+- When every tile is done, a green "ヨシ！ 全部そろいました" (all set) bar appears
+  above the board and can be tapped to clear every check in one tap. The bar
+  occupies the same space when the board is not complete, so the tiles never
+  shift. The "clear" button at the bottom still asks for confirmation.
 - The voluntary tip described above.
 
 HOW TO EXERCISE THE APP
@@ -39,11 +38,10 @@ HOW TO EXERCISE THE APP
 1. On launch, three boards are already present. Tap any of them.
 2. Tap any tile. It turns a stronger colour and the counter at the top right
    increases. Tap again to undo.
-3. Tap "残りだけ" above the tiles. Tiles already marked done disappear; tap it
-   again to show them. This is a view setting only and is not saved.
-4. Tap the left/right triangles above the tiles to cycle the colour scheme
+3. Tap the left/right triangles below the tiles to cycle the colour scheme
    (10 schemes, the hues rotate one step at a time). "カラー" next to them turns
    colour mode off: every tile then uses one colour. Each board keeps its own.
+4. Tap every tile. The green bar appears above the board; tapping it clears all.
 5. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
    of. Adding a blank line splits the items into another colour group. Existing
    checks are preserved by item name when the text is edited.

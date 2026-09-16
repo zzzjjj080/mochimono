@@ -64,44 +64,17 @@ final class AppModel {
         save()
     }
 
-    /// 「全部外す」を取り消すための控え。
+    /// チェックを全部外す。**破壊的な操作はこの1本だけ。** 呼ぶ前に必ず確認を通す。
     ///
-    /// **保存には入れない。** 開き直してまで取り消せる必要はなく、
-    /// 保存に入れると「いつまで取り消せるのか」が曖昧になる。
-    struct ClearUndo: Identifiable, Equatable {
-        let id = UUID()
-        let listID: PackingList.ID
-        let snapshot: PackingList.PackedSnapshot
-    }
-    private(set) var clearUndo: ClearUndo?
-
-    /// チェックを全部外す。**破壊的な操作はこの1本だけ。**
-    ///
-    /// 途中まで進んでいるときは確認を通してから呼ぶ。
-    /// **全部そろっているときは確認を出さない**（次に使うための一手なので、
-    /// 毎回止めると煩わしい）。代わりに、外したあと取り消せるようにしてある。
+    /// 例外は「ヨシ！ 全部そろいました」を押したとき。**そろった盤面で次にやることは
+    /// これしかない**ので、そこだけは確認を挟まない。
     func clearAllPacked(in listID: PackingList.ID) {
         guard var l = store[listID] else { return }
-        let before = l.packedSnapshot()
-        guard !before.packed.isEmpty else { return }    // 何も付いていないなら何もしない
         l.clearAllPacked()
         store[listID] = l
-        clearUndo = ClearUndo(listID: listID, snapshot: before)
         Haptics.done()
         save()
     }
-
-    /// 外す前へ戻す。取り消せるのは直前の1回だけ。
-    func undoClearAllPacked() {
-        guard let undo = clearUndo, var l = store[undo.listID] else { return }
-        l.restore(undo.snapshot)
-        store[undo.listID] = l
-        clearUndo = nil
-        Haptics.done()
-        save()
-    }
-
-    func dismissClearUndo() { clearUndo = nil }
 
     /// 編集画面を開かずに1つ足す。
     func append(_ line: String, to listID: PackingList.ID) {

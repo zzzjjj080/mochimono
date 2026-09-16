@@ -8,7 +8,6 @@ struct SettingsView: View {
     let listID: PackingList.ID
     let onDeleted: () -> Void
 
-    @State private var askingReset = false
     @State private var askingDelete = false
     @State private var tipJar = TipJar(productID: TipJar.productID)
 
@@ -47,10 +46,9 @@ struct SettingsView: View {
                     Text("「自動」はiPhoneの設定に合わせます。")
                 }
 
-                // 破壊的な項目は同じ場所に固めない。誤タップの距離を稼ぐ。
-                // **同じビューに .alert を2つ重ねると、片方が出なくなる。**
-                // 出ないほうは「押しても無反応」に見えるだけで、警告もエラーも出ない。
-                // それぞれの押しボタンに付ける。
+                // 「チェックを全部外す」はここに置かない（2026-09-16）。
+                // 盤面の下に同じものがあり、**同じ操作への入口が2つあると、
+                // どちらに確認が付いているのかが分からなくなる。**
                 // 書き出したものが、そのまま読み戻せること。独自の書式は足さない。
                 Section {
                     ShareLink(item: list.text,
@@ -65,16 +63,6 @@ struct SettingsView: View {
                     Text("そのまま貼り付けられる普通のテキストとして渡します。受け取った側は「リストを追加」から貼るだけで、同じ盤面になります。")
                 }
 
-                Section("このリスト") {
-                    Button("チェックを全部外す") { askingReset = true }
-                        .accessibilityIdentifier("clearAllFromSettings")
-                        .alert("チェックを全部外しますか？", isPresented: $askingReset) {
-                            Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
-                            Button("やめる", role: .cancel) {}
-                        } message: {
-                            Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
-                        }
-                }
                 Section {
                     Button("リストを削除", role: .destructive) { askingDelete = true }
                         .accessibilityIdentifier("deleteList")

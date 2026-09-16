@@ -20,13 +20,13 @@ final class MochimonoUITests: XCTestCase {
     func testタップで持った印が付く() {
         let app = launch()
         app.buttons["list-国内旅行"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["0 / 20"].waitForExistence(timeout: 5))
 
         app.buttons["item-財布"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["1/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["1 / 20"].waitForExistence(timeout: 3))
 
         app.buttons["item-財布"].tapWhenReady()      // もう一度で外れる
-        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0 / 20"].waitForExistence(timeout: 3))
     }
 
     /// 列数のセグメント。合成タップでは動かなかったので、ここで確かめる。
@@ -100,7 +100,7 @@ final class MochimonoUITests: XCTestCase {
         app.buttons["list-国内旅行"].tapWhenReady()
         app.buttons["item-財布"].tapWhenReady()
         app.buttons["item-常備薬"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["2/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["2 / 20"].waitForExistence(timeout: 3))
 
         // 確認ダイアログの中を指す。
         // ・画面本体にも「全部外す」ボタンがあるので、app.buttons[...] だとそちらに当たる
@@ -109,12 +109,12 @@ final class MochimonoUITests: XCTestCase {
         let dialog = app.alerts.firstMatch
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "やめる").tap()
-        XCTAssertTrue(app.staticTexts["2/20"].waitForExistence(timeout: 3))   // 消えていない
+        XCTAssertTrue(app.staticTexts["2 / 20"].waitForExistence(timeout: 3))   // 消えていない
 
         app.buttons["clearAll"].tapWhenReady()
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "全部外す").tap()
-        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0 / 20"].waitForExistence(timeout: 3))
     }
 
     /// 編集してもチェックが飛ばない。Coreのテストと同じことを、画面越しにも見ておく。
@@ -122,7 +122,7 @@ final class MochimonoUITests: XCTestCase {
         let app = launch()
         app.buttons["list-国内旅行"].tapWhenReady()
         app.buttons["item-財布"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["1/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["1 / 20"].waitForExistence(timeout: 3))
 
         app.buttons["openEdit"].tapWhenReady()
         let editor = app.textViews["listText"]
@@ -133,7 +133,7 @@ final class MochimonoUITests: XCTestCase {
         editor.typeText("\nスパイク2")
         app.buttons["save"].tapWhenReady()
 
-        XCTAssertTrue(app.staticTexts["1/21"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["1 / 21"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["item-スパイク2"].exists)
     }
     /// 雛形を選ぶと、中身の入ったリストがそのまま開く。
@@ -189,7 +189,7 @@ final class MochimonoUITests: XCTestCase {
     func testクイック追加で1つ足せる() {
         let app = launch()
         app.buttons["list-国内旅行"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["0 / 20"].waitForExistence(timeout: 5))
 
         app.buttons["quickAdd"].tapWhenReady()
         let field = app.textFields.firstMatch
@@ -197,7 +197,7 @@ final class MochimonoUITests: XCTestCase {
         field.typeText("虫除け")
         app.alerts.firstMatch.button(labeled: "足す").tap()
 
-        XCTAssertTrue(app.staticTexts["0/21"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0 / 21"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["item-虫除け"].exists)
     }
 
@@ -209,7 +209,7 @@ final class MochimonoUITests: XCTestCase {
         let dialog = app.alerts.firstMatch
         XCTAssertTrue(dialog.waitForExistence(timeout: 3))
         dialog.button(labeled: "やめる").tap()
-        XCTAssertTrue(app.staticTexts["0/20"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0 / 20"].waitForExistence(timeout: 3))
     }
 
     /// 並べ替え。編集モードに入ってから掴んで動かす。
@@ -273,7 +273,7 @@ final class MochimonoUITests: XCTestCase {
 
         // 中身がそのまま写っていること
         copy.tap()
-        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["0 / 10"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["item-モバイル充電"].exists)
     }
 
@@ -282,7 +282,7 @@ final class MochimonoUITests: XCTestCase {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
         app.buttons["item-財布"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["1 / 10"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         let row = app.buttons["list-街中"]
@@ -291,36 +291,7 @@ final class MochimonoUITests: XCTestCase {
         app.buttons["swipeDuplicate"].tapWhenReady()
 
         app.buttons["list-街中のコピー"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 5))
-    }
-
-    /// 「残りだけ」で、持ったものが盤面から消える。出かける直前の見かた。
-    func test残りだけにすると持ったものが消える() {
-        let app = launch()
-        app.buttons["list-街中"].tapWhenReady()
-        let 財布 = app.buttons["item-財布"]
-        財布.tapWhenReady()
-        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
-
-        app.buttons["remainingOnly"].tapWhenReady()
-        XCTAssertFalse(財布.waitForExistence(timeout: 2), "持ったものが残りだけの表示に出ている")
-        XCTAssertTrue(app.buttons["item-スマホ"].exists, "まだのものまで消えている")
-
-        app.buttons["remainingOnly"].tapWhenReady()      // 戻す
-        XCTAssertTrue(財布.waitForExistence(timeout: 3))
-    }
-
-    /// 残りだけの表示は保存しない。開き直したら全部見えていること。
-    func test残りだけは開き直すと戻る() {
-        let app = launch()
-        app.buttons["list-街中"].tapWhenReady()
-        app.buttons["item-財布"].tapWhenReady()
-        app.buttons["remainingOnly"].tapWhenReady()
-        XCTAssertFalse(app.buttons["item-財布"].waitForExistence(timeout: 2))
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons["list-街中"].tapWhenReady()
-        XCTAssertTrue(app.buttons["item-財布"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["0 / 10"].waitForExistence(timeout: 5))
     }
 
     /// 全部そろうと、一覧に「前回」が出る。使い回すリストは、いつ使ったかが手がかりになる。
@@ -330,7 +301,7 @@ final class MochimonoUITests: XCTestCase {
 
         app.buttons["list-街中"].tapWhenReady()
         for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
-        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["completeBanner"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         let last = app.staticTexts["lastCompleted-街中"]
@@ -343,9 +314,9 @@ final class MochimonoUITests: XCTestCase {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
         for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
-        // そろった状態なので確認は出ない。ワンタップで外れる
-        app.buttons["clearAll"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 3))
+        // そろった知らせを押して外す（確認は出ない）
+        app.buttons["completeBanner"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["0 / 10"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         XCTAssertTrue(app.staticTexts["lastCompleted-街中"].waitForExistence(timeout: 5))
@@ -363,7 +334,7 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertEqual(mode.value as? String, "オフ")
         // 1色にしても、タイルは今までどおり押せる
         app.buttons["item-財布"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["1/10"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["1 / 10"].waitForExistence(timeout: 3))
         // 1色の盤面を残す。色は XCUITest では測れないので、目で確かめる材料にする。
         // **切り替えた直後に撮ると札のアニメーションの途中が写る**ので、1つ押して落ち着いてから撮る
         let shot = XCTAttachment(screenshot: app.screenshot())
@@ -396,43 +367,41 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertEqual(number.label, start)
     }
 
-    /// 全部そろったら、「全部外す」は確認なしのワンタップ。**代わりに取り消せる。**
-    func test全部そろったら確認なしで外せて取り消せる() {
+
+    /// そろった知らせは、そのまま押して外せる。**下の「全部外す」まで手を伸ばさせない。**
+    func testそろった知らせを押すと外れる() {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
         for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
-        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
 
-        // そろった状態のボタンを残す。目立っているかは目で確かめる
+        // **待たずに撮る。** 祝いの光は0.5秒で消えるので、出てくるのを待つと写らない
         let shot = XCTAttachment(screenshot: app.screenshot())
-        shot.name = "clear-highlighted"
+        shot.name = "complete-banner"
         shot.lifetime = .keepAlways
         add(shot)
 
-        app.buttons["clearAll"].tapWhenReady()
+        let banner = app.buttons["completeBanner"]
+        XCTAssertTrue(banner.waitForExistence(timeout: 3))
+
+        banner.tap()
         XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: 2),
-                       "そろっているのに確認が出た")
-        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 3))
-
-        // 戻すための帯。残り時間のリングが出ているかを目で確かめる
-        let bar = XCTAttachment(screenshot: app.screenshot())
-        bar.name = "undo-bar"
-        bar.lifetime = .keepAlways
-        add(bar)
-
-        app.buttons["undoClear"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3), "取り消せていない")
+                       "知らせを押したのに確認が出た")
+        XCTAssertTrue(app.staticTexts["0 / 10"].waitForExistence(timeout: 3))
+        XCTAssertFalse(banner.exists, "そろっていないのに知らせが残っている")
     }
 
-    /// 取り消しは直前の1回だけ。戻したあとに帯が残っていると、二重に戻せるように見える。
-    func test取り消したら帯は消える() {
+    /// **そろっても盤面は動かない。**
+    /// 知らせを差し込んで下へずらすと、押すつもりのマスを押し損ねる。
+    func test盤面はそろっても位置が動かない() {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
+        let tile = app.buttons["item-マスク"]          // いちばん下のマスで見る
+        XCTAssertTrue(tile.waitForExistence(timeout: 5))
+        let before = tile.frame.origin.y
+
         for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
-        app.buttons["clearAll"].tapWhenReady()
-        app.buttons["undoClear"].tapWhenReady()
-        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
-        XCTAssertFalse(app.buttons["undoClear"].waitForExistence(timeout: 2), "帯が残っている")
+        XCTAssertTrue(app.buttons["completeBanner"].waitForExistence(timeout: 3))
+        XCTAssertEqual(tile.frame.origin.y, before, accuracy: 0.5, "そろったら盤面が動いた")
     }
 
 }

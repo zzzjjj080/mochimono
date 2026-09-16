@@ -70,15 +70,4 @@ struct CompletionTests {
         #expect(list.name == "古い")
     }
 
-    @Test func 残りは順番どおりに並ぶ() {
-        var list = PackingList(name: "旅", text: "財布\nスマホ\n鍵")
-        list.toggle(list.items[1].id, now: 基準)
-        #expect(list.remainingItems.map(\.text) == ["財布", "鍵"])
-    }
-
-    @Test func そろったら残りは空になる() {
-        var list = make()
-        for item in list.items { list.toggle(item.id, now: 基準) }
-        #expect(list.remainingItems.isEmpty)
-    }
 }
