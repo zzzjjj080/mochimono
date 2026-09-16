@@ -26,10 +26,12 @@ WHAT IS NEW IN THIS VERSION
 
 - "残りだけ" (remaining only): hides tiles already marked done, so only what is
   still missing is shown.
-- Duplicating a board: swipe a row right on the first screen. The text, columns
-  and colour scheme are copied; checks and the completion date are not.
+- Duplicating a board: swipe a row right on the first screen.
 - The date a board was last completed is shown on the first screen.
 - Colour mode on/off, and 10 colour schemes instead of 12.
+- When every tile is done, the "clear" button turns green and clears in one tap
+  with no confirmation. An undo bar appears for 6 seconds. Clearing part-way
+  through still asks for confirmation.
 - The voluntary tip described above.
 
 HOW TO EXERCISE THE APP

@@ -22,6 +22,8 @@ struct ListView: View {
     @ScaledMetric(relativeTo: .body) private var typeScale: CGFloat = 100
     /// 「そろった」の触覚は、そろった瞬間に1回だけ。毎回の描画で鳴らさない。
     @State private var wasComplete = false
+    /// そろったボタンが出たときに跳ねさせるための札。**中身に意味は無く、変わることだけが合図。**
+    @State private var celebrate = false
 
     private var list: PackingList? { model.list(listID) }
 
@@ -62,6 +64,8 @@ struct ListView: View {
             }
         }
         .safeAreaInset(edge: .bottom) { bottomBar }
+        // 戻せるのはこの画面にいる間だけ。離れたあとに帯が生き返ると、何が戻るのか分からない
+        .onDisappear { model.dismissClearUndo() }
     }
 
     @ViewBuilder
@@ -258,43 +262,120 @@ struct ListView: View {
     }
 
     private var bottomBar: some View {
-        HStack(spacing: 8) {
-            Button("全部外す") { askingReset = true }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("clearAll")
-                // 破壊的な操作は、何が起きるかを具体的に書いて確認を通す。
-                .alert("チェックを全部外しますか？", isPresented: $askingReset) {
-                    Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
-                    Button("やめる", role: .cancel) {}
-                } message: {
-                    if let list {
-                        Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。元に戻せません。")
-                    }
+        VStack(spacing: 8) {
+            if let undo = model.clearUndo, undo.listID == listID { undoBar(undo) }
+            HStack(spacing: 8) {
+                clearButton
+                Button { addingItem = true } label: {
+                    Image(systemName: "plus").fontWeight(.semibold)
                 }
-            Button { addingItem = true } label: {
-                Image(systemName: "plus").fontWeight(.semibold)
+                .buttonStyle(.bordered)
+                .accessibilityLabel("持ち物を足す")
+                .accessibilityIdentifier("quickAdd")
+                // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
+                .alert("持ち物を足す", isPresented: $addingItem) {
+                    TextField("例：充電器", text: $newItem)
+                    Button("足す") { model.append(newItem, to: listID); newItem = "" }
+                    Button("やめる", role: .cancel) { newItem = "" }
+                } message: {
+                    Text("いちばん最後のグループに入ります。")
+                }
+                Button("編集", action: edit)
+                    .buttonStyle(.borderedProminent)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("openEdit")
             }
-            .buttonStyle(.bordered)
-            .accessibilityLabel("持ち物を足す")
-            .accessibilityIdentifier("quickAdd")
-            // 1つ足すために全文の編集画面を開かせない。最後のグループの末尾に入る。
-            .alert("持ち物を足す", isPresented: $addingItem) {
-                TextField("例：充電器", text: $newItem)
-                Button("足す") { model.append(newItem, to: listID); newItem = "" }
-                Button("やめる", role: .cancel) { newItem = "" }
-            } message: {
-                Text("いちばん最後のグループに入ります。")
-            }
-            Button("編集", action: edit)
-                .buttonStyle(.borderedProminent)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("openEdit")
         }
         .controlSize(.large)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(.bar)
+        .animation(.snappy, value: model.clearUndo?.id)
+    }
+
+    /// そろったかどうかで見た目と手数が変わるボタン。
+    ///
+    /// **そろったら、押すべき一手はこれしかない。** 目立たせて、確認も省く。
+    /// 途中で押したときは、いままでどおり件数つきの確認を通す。
+    @ViewBuilder
+    private var clearButton: some View {
+        let done = list?.isComplete ?? false
+        Group {
+            if done {
+                Button { model.clearAllPacked(in: listID) } label: {
+                    Label("全部外す", systemImage: "arrow.counterclockwise.circle.fill")
+                        .symbolEffect(.bounce, value: celebrate)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .onAppear { celebrate.toggle() }
+                .accessibilityHint("確認なしですぐ外します。あとから元に戻せます")
+            } else {
+                Button("全部外す") { askingReset = true }
+                    .buttonStyle(.bordered)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityIdentifier("clearAll")
+        .animation(.snappy, value: done)
+        // 途中で押したときだけ、何が起きるかを具体的に書いて確認を通す。
+        .alert("チェックを全部外しますか？", isPresented: $askingReset) {
+            Button("全部外す", role: .destructive) { model.clearAllPacked(in: listID) }
+            Button("やめる", role: .cancel) {}
+        } message: {
+            if let list {
+                Text("\(list.items.count)個中 \(list.packedCount)個に付いているチェックが、すべて外れます。")
+            }
+        }
+    }
+
+    /// 戻せる時間。盤面タスクの取り消しと同じく、**残りが目に見える**ようにする。
+    static let undoSeconds = 6.0
+
+    /// 外した直後だけ出る、戻すための帯。**数秒で引っ込める。**
+    /// 出しっぱなしにすると盤面が隠れるうえ、いつまで戻せるのかが分からなくなる。
+    private func undoBar(_ undo: AppModel.ClearUndo) -> some View {
+        HStack(spacing: 10) {
+            Text("チェックを外しました")
+                .font(.system(.footnote, weight: .semibold))
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
+            UndoCountdownRing(seconds: Self.undoSeconds)
+                .id(undo.id)                 // 外すたびに数え直す
+            Button("元に戻す") { model.undoClearAllPacked() }
+                .font(.system(.footnote, weight: .heavy))
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.accentColor)
+                .accessibilityIdentifier("undoClear")
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(Color(.secondarySystemBackground), in: .capsule)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .task(id: undo.id) {
+            try? await Task.sleep(for: .seconds(Self.undoSeconds))
+            model.dismissClearUndo()
+        }
+    }
+}
+
+/// 戻せる時間が減っていくのを見せるリング。数字ではなく減り方で伝える。
+private struct UndoCountdownRing: View {
+    let seconds: Double
+    @State private var drained = false
+
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: drained ? 0 : 1)
+            .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+            .rotationEffect(.degrees(-90))
+            .frame(width: 15, height: 15)
+            .accessibilityHidden(true)          // 読み上げでは時間より「元に戻す」が先
+            .onAppear {
+                // **出たあとに動かす。** 最初から drained だと、描き終わる前に消える
+                withAnimation(.linear(duration: seconds)) { drained = true }
+            }
     }
 }
 

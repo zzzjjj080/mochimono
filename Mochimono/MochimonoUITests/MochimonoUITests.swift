@@ -5,6 +5,10 @@ import XCTest
 /// （引き継ぎ書 4-24）
 final class MochimonoUITests: XCTestCase {
 
+    /// 「街中」の全項目。そろった状態を作るのに何度も使う。
+    static let 街中のすべて = ["財布", "スマホ", "鍵", "ハンカチ", "イヤホン",
+                          "充電器", "モバイル充電", "目薬", "リップ", "マスク"]
+
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing"]
@@ -325,10 +329,7 @@ final class MochimonoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["lastCompleted-街中"].exists)
 
         app.buttons["list-街中"].tapWhenReady()
-        for name in ["財布", "スマホ", "鍵", "ハンカチ", "イヤホン",
-                     "充電器", "モバイル充電", "目薬", "リップ", "マスク"] {
-            app.buttons["item-\(name)"].tapWhenReady()
-        }
+        for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
         XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
@@ -341,12 +342,9 @@ final class MochimonoUITests: XCTestCase {
     func test全部外しても前回の記録は消えない() {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
-        for name in ["財布", "スマホ", "鍵", "ハンカチ", "イヤホン",
-                     "充電器", "モバイル充電", "目薬", "リップ", "マスク"] {
-            app.buttons["item-\(name)"].tapWhenReady()
-        }
+        for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
+        // そろった状態なので確認は出ない。ワンタップで外れる
         app.buttons["clearAll"].tapWhenReady()
-        app.alerts.firstMatch.button(labeled: "全部外す").tap()
         XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 3))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
@@ -396,6 +394,45 @@ final class MochimonoUITests: XCTestCase {
         let start = number.label
         for _ in 0..<10 { app.buttons["paletteForward"].tap() }
         XCTAssertEqual(number.label, start)
+    }
+
+    /// 全部そろったら、「全部外す」は確認なしのワンタップ。**代わりに取り消せる。**
+    func test全部そろったら確認なしで外せて取り消せる() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
+        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
+
+        // そろった状態のボタンを残す。目立っているかは目で確かめる
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "clear-highlighted"
+        shot.lifetime = .keepAlways
+        add(shot)
+
+        app.buttons["clearAll"].tapWhenReady()
+        XCTAssertFalse(app.alerts.firstMatch.waitForExistence(timeout: 2),
+                       "そろっているのに確認が出た")
+        XCTAssertTrue(app.staticTexts["0/10"].waitForExistence(timeout: 3))
+
+        // 戻すための帯。残り時間のリングが出ているかを目で確かめる
+        let bar = XCTAttachment(screenshot: app.screenshot())
+        bar.name = "undo-bar"
+        bar.lifetime = .keepAlways
+        add(bar)
+
+        app.buttons["undoClear"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3), "取り消せていない")
+    }
+
+    /// 取り消しは直前の1回だけ。戻したあとに帯が残っていると、二重に戻せるように見える。
+    func test取り消したら帯は消える() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        for name in Self.街中のすべて { app.buttons["item-\(name)"].tapWhenReady() }
+        app.buttons["clearAll"].tapWhenReady()
+        app.buttons["undoClear"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["10/10"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["undoClear"].waitForExistence(timeout: 2), "帯が残っている")
     }
 
 }

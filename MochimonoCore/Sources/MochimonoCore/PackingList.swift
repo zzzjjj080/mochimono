@@ -128,6 +128,29 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
         for i in items.indices { items[i].isPacked = false }
     }
 
+    /// 外す前のチェックの状態。**取り消すためだけに持つ。**
+    ///
+    /// 保存には入れない。アプリを開き直してまで取り消せる必要はなく、
+    /// 保存に入れると「いつまで取り消せるのか」が曖昧になる。
+    public struct PackedSnapshot: Equatable, Sendable {
+        public let packed: Set<Item.ID>
+        public let lastCompletedAt: Date?
+    }
+
+    public func packedSnapshot() -> PackedSnapshot {
+        PackedSnapshot(packed: Set(items.filter(\.isPacked).map(\.id)),
+                       lastCompletedAt: lastCompletedAt)
+    }
+
+    /// 外す前へ戻す。
+    ///
+    /// **無くなったIDは黙って飛ばす。** 取り消すまでの間に編集されていても落ちないようにする
+    /// （引き継ぎ書 4-10）。撮ったときに無かったものは外れた状態になる。
+    public mutating func restore(_ snapshot: PackedSnapshot) {
+        for i in items.indices { items[i].isPacked = snapshot.packed.contains(items[i].id) }
+        lastCompletedAt = snapshot.lastCompletedAt
+    }
+
     /// 丸ごと写して新しい1本を作る。見た目（列数・配色・カラーモード）も写す。
     ///
     /// **チェックと日時は持ち越さない。** 写すのは「何を書いたか」であって、
