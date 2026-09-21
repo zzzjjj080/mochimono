@@ -4,7 +4,7 @@
 本人に頼むのは、人間でなければ物理的に無理なものだけ。
 （`~/.claude/CLAUDE.md`「作業の分担」／`~/.claude/iOS-DEVLOG.md` 5-0、4-49〜4-51）
 
-App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **1.0 公開済み（2026-09-17）。いま `1.1 (3)` を提出中**
+App ID `6806789668` / バンドルID `com.zzzjjj080.Mochimono` / **1.1 公開済み。いま `1.2 (4)`（12言語）を提出中**
 
 ## 済んでいること（すべてClaude側）
 
@@ -61,6 +61,32 @@ reviewSubmission: c6425193-e421-41c9-a98a-ae066453da03   （1.0 (2)）
 
 **古い提出枠を `canceled: true` で取り消すと外れる。**（`PATCH /v1/reviewSubmissions/<id>`）
 取り消したあと状態は `COMPLETE` になり、バージョンを新しい枠に足せるようになる。
+
+## 1.2：12言語で世界へ（2026-09-21）
+
+```
+appStoreVersion: 42bea15b-de97-456c-a7ce-ab3844d5ed17   （1.2・AFTER_APPROVAL）
+課金の版2:        233b6871-1dce-4521-9704-9b0ec7bb1ea2   （言語を足したら生えた。一緒に審査へ）
+build:            7bb2fc1e-e065-4c21-80a4-d7db376defb4   （1.2 (4)・VALID）
+reviewSubmission: 4d648d4e-268e-4b8e-9c71-1170632d1a18   （1.2 + 課金の版2）
+```
+
+**2026-09-21 に提出した。** 1.2 と課金の版2が `WAITING_FOR_REVIEW`。13ロケールすべてに画像5枚×2サイズ。
+
+- 訳の元：画面 `translations/app.json` → `./Tools-GenStrings.py`、雛形 `translations/core.json` → `./Tools-GenCore.py`
+- 掲載の元：`store/locales.json`（13ロケール。es は ES と MX）→ `./Tools-PushListing.py <版>`
+- 画像：日本語は `store/screenshots*`、それ以外は英語の `store/screenshots-en*`
+  （撮影は `TEST_RUNNER_SHOT_LANG=en … -only-testing:MochimonoUITests/StoreShotUITests`、
+  組むのは `SHOT_LANG=en /tmp/makeshots store/raw-en store/screenshots-en`）
+- サポートとプライバシーの英語版：`docs/en/`（非日本語のロケールはこちらを指す）
+- 課金の販売地域：日本だけ → **175地域に広げ済み**（`POST /v1/inAppPurchaseAvailabilities` で置き換わる）
+
+### 公開されたらやること（今はまだできない）
+
+1. **アプリの配信地域を175へ。** 今は日本だけ。先に広げると、公開中の日本語だけの版が世界に出る（4-88b）。
+   `appAvailabilities` は UPDATE 不可なので、`territoryAvailabilities` を1件ずつ `PATCH {"available": true}`
+2. **主言語を en-US へ。** `./Tools-PushListing.py 42bea15b-de97-456c-a7ce-ab3844d5ed17 --primary`
+   公開中の版にも英語の画像が要るので、1.2 が公開されてから（4-160。今は 409）
 
 ## 1.0 は 2026-09-17 に公開された
 
