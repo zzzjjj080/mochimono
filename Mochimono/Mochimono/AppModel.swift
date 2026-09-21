@@ -9,6 +9,10 @@ import MochimonoCore
 final class AppModel {
     private(set) var store: Store
 
+    /// 画面に出している言語。雛形・複製の名前などを、この言語で作る。
+    /// **画面と同じものを見る**（`Locale.current` ではない。理由は `Language.forLocalization`）。
+    let language: Language
+
     /// 保存できなかった理由。握り潰さず画面に出す（引き継ぎ書 4-1）。
     private(set) var saveError: String?
 
@@ -16,6 +20,8 @@ final class AppModel {
     private static let key = "mochimono.store.v1"
 
     init(defaults: UserDefaults = .standard) {
+        let language = Language.forLocalization(Bundle.main.preferredLocalizations.first)
+        self.language = language
         #if DEBUG
         // 掲載用スクリーンショットのための状態。実際に触って作ると毎回ずれる。
         // **リリース構成には残らないこと**を strings で確認すること（引き継ぎ書 4-7）。
@@ -23,7 +29,7 @@ final class AppModel {
             let suite = UserDefaults(suiteName: "mochimono.demo")!
             suite.removePersistentDomain(forName: "mochimono.demo")
             self.defaults = suite
-            store = Self.demoStore()
+            store = Self.demoStore(language: language)
             return
         }
         // UIテストは毎回まっさらから始める。前回の状態が残ると結果が変わる。
@@ -31,7 +37,7 @@ final class AppModel {
             let suite = UserDefaults(suiteName: "mochimono.uitest")!
             suite.removePersistentDomain(forName: "mochimono.uitest")
             self.defaults = suite
-            store = .starter
+            store = .starter(language: language)
             return
         }
         #endif
@@ -41,11 +47,11 @@ final class AppModel {
                 store = try JSONDecoder().decode(Store.self, from: data)
             } catch {
                 // 読めなかったことを黙って初期化で覆い隠さない。
-                store = .starter
-                saveError = "保存の読み込みに失敗しました：\(error.localizedDescription)"
+                store = .starter(language: language)
+                saveError = String(localized: "保存の読み込みに失敗しました：\(error.localizedDescription)")
             }
         } else {
-            store = .starter
+            store = .starter(language: language)
         }
     }
 
@@ -90,7 +96,7 @@ final class AppModel {
     /// 1本を丸ごと写す。**雛形より、自分が書いたリストのほうが出発点として近い。**
     @discardableResult
     func duplicate(_ listID: PackingList.ID) -> PackingList.ID? {
-        guard let newID = store.duplicate(id: listID) else { return nil }
+        guard let newID = store.duplicate(id: listID, language: language) else { return nil }
         Haptics.done()
         save()
         return newID
@@ -106,7 +112,7 @@ final class AppModel {
     func updateContents(of listID: PackingList.ID, name: String, text: String) {
         guard var l = store[listID] else { return }
         l.name = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            ? "名前のないリスト"
+            ? CoreText.get(.untitledList, language)
             : name.trimmingCharacters(in: .whitespacesAndNewlines)
         l.updateText(text)
         store[listID] = l
@@ -161,7 +167,7 @@ final class AppModel {
     /// 貼り付けたテキストから作る。中身が無ければ作らない。
     @discardableResult
     func addList(fromPastedText text: String) -> PackingList.ID? {
-        guard let l = PackingList.fromPastedText(text) else { return nil }
+        guard let l = PackingList.fromPastedText(text, language: language) else { return nil }
         store.lists.append(l)
         Haptics.done()
         save()
@@ -170,7 +176,7 @@ final class AppModel {
 
     @discardableResult
     func addBlankList() -> PackingList.ID {
-        let l = PackingList(name: "新しいリスト", text: "")
+        let l = PackingList(name: CoreText.get(.newList, language), text: "")
         store.lists.append(l)
         Haptics.select()
         save()
@@ -190,7 +196,7 @@ final class AppModel {
             defaults.set(try JSONEncoder().encode(store), forKey: Self.key)
             saveError = nil
         } catch {
-            saveError = "保存できませんでした：\(error.localizedDescription)"
+            saveError = String(localized: "保存できませんでした：\(error.localizedDescription)")
         }
     }
 
@@ -198,15 +204,17 @@ final class AppModel {
 
     #if DEBUG
     /// 掲載用の見本。進み具合が全部同じだと、画面が説明にならない。
-    private static func demoStore() -> Store {
-        var lists: [PackingList] = ["trip-domestic", "commute", "camp", "town", "gym"]
-            .compactMap { Preset.preset(id: $0)?.makeList() }
+    private static func demoStore(language: Language) -> Store {
+        let ids = ["trip-domestic", "commute", "camp", "town", "gym"]
+        var lists: [PackingList] = ids.compactMap { Preset.preset(id: $0, language: language)?.makeList() }
         lists[0].palette = Palette(1)
         lists[1].palette = Palette(3)
         lists[2].palette = Palette(5)
         lists[3].palette = Palette(7)
         lists[4].palette = Palette(9)
-        // 名前で指してチェックする。添字だと雛形を直したときに別のものが付く。
+        // **日本語の名前で指して、何番目かに直してから付ける。**
+        // 添字を直書きすると雛形を直したときに別のものが付き、名前のままだと他の言語で見つからない。
+        // どの言語も雛形の形（グループと項目の数）は日本語と同じ（PresetTests で守っている）。
         let packed: [Int: [String]] = [
             0: ["財布", "スマホ", "鍵", "免許証", "着替え", "下着", "歯ブラシ", "充電器", "常備薬"],
             1: ["財布", "スマホ", "鍵", "社員証", "定期券"],
@@ -215,10 +223,11 @@ final class AppModel {
             4: ["ウェア", "シューズ", "タオル", "水筒"],
         ]
         for (index, names) in packed {
+            guard let ja = Preset.preset(id: ids[index], language: .ja)?.items else { continue }
             for name in names {
-                if let item = lists[index].items.first(where: { $0.text == name }) {
-                    lists[index].toggle(item.id)
-                }
+                guard let at = ja.firstIndex(where: { $0.text == name }),
+                      lists[index].items.indices.contains(at) else { continue }
+                lists[index].toggle(lists[index].items[at].id)
             }
         }
         return Store(appearance: .system, lists: lists)

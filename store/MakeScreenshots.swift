@@ -30,17 +30,26 @@ struct Shot {
     let lines: [String]
     let ground: UInt32
 }
+// 見出しの言語は環境変数で選ぶ。ja 以外の11言語の掲載には英語の画像を使う（引き継ぎ書 4-158）。
+//   SHOT_LANG=en /tmp/makeshots store/raw-en store/screenshots-en
+let lang = ProcessInfo.processInfo.environment["SHOT_LANG"] ?? "ja"
+let captions: [String: [[String]]] = [
+    "ja": [["書いたテキストが、", "そのまま盤面になる"], ["タップで埋める。", "残りがひと目で分かる"],
+           ["ほかのアプリの箇条書きを、", "貼るだけ"], ["盤面はテキストに戻せる。", "渡した相手も同じ盤面に"],
+           ["リストごとに色が違うから、", "見ただけで分かる"]],
+    "en": [["Whatever you type", "becomes a board"], ["Tap to fill.", "See what's left at a glance"],
+           ["Paste a list", "from any app"], ["Turn it back into text.", "Share the same board"],
+           ["Each list has its own colors,", "so you know it at a glance"]],
+]
+guard let lines = captions[lang] else {
+    FileHandle.standardError.write(Data("見出しの無い言語: \(lang)\n".utf8)); exit(1)
+}
 let shots = [
-    Shot(out: "01-concept", files: ["text", "board"],
-         lines: ["書いたテキストが、", "そのまま盤面になる"], ground: 0x2C7BF0),
-    Shot(out: "02-tap", files: ["board"],
-         lines: ["タップで埋める。", "残りがひと目で分かる"], ground: 0x117C46),
-    Shot(out: "03-paste", files: ["paste"],
-         lines: ["ほかのアプリの箇条書きを、", "貼るだけ"], ground: 0x1B2331),
-    Shot(out: "04-export", files: ["export"],
-         lines: ["盤面はテキストに戻せる。", "渡した相手も同じ盤面に"], ground: 0xC97A08),
-    Shot(out: "05-lists", files: ["home"],
-         lines: ["リストごとに色が違うから、", "見ただけで分かる"], ground: 0x6D3FD6),
+    Shot(out: "01-concept", files: ["text", "board"], lines: lines[0], ground: 0x2C7BF0),
+    Shot(out: "02-tap", files: ["board"], lines: lines[1], ground: 0x117C46),
+    Shot(out: "03-paste", files: ["paste"], lines: lines[2], ground: 0x1B2331),
+    Shot(out: "04-export", files: ["export"], lines: lines[3], ground: 0xC97A08),
+    Shot(out: "05-lists", files: ["home"], lines: lines[4], ground: 0x6D3FD6),
 ]
 
 func rgb(_ hex: UInt32) -> CGColor {

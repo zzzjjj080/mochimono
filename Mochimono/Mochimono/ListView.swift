@@ -139,9 +139,10 @@ struct ListView: View {
         .accessibilityAddTraits(item.isPacked ? .isSelected : [])
         // 読み上げでは色が伝わらないので、状態を言葉で持たせる
         .accessibilityLabel(item.text)
-        .accessibilityValue(item.isPacked ? "持った" : "まだ")
-        .accessibilityHint(item.isPacked ? "二本指でダブルタップすると外します"
-                                         : "二本指でダブルタップすると持った印を付けます")
+        // 三項演算子に文字列を2つ書くと String 扱いになり、訳が効かない。Text ごと選ぶ
+        .accessibilityValue(item.isPacked ? Text("持った") : Text("まだ"))
+        .accessibilityHint(item.isPacked ? Text("ダブルタップすると外します")
+                                         : Text("ダブルタップすると持った印を付けます"))
     }
 
     /// 盤面の上の1本。**進み具合と数と知らせを、1つにまとめてある。**
@@ -177,8 +178,10 @@ struct ListView: View {
         let fills = done ? Self.shade(HSL(hue: 145, saturation: 68, lightness: 42))
                          : Self.shade(head.fill)
         let onFill = done ? Color.white : head.label.color
-        let words = done ? "ヨシ！ 全部そろいました"
-                         : "\(list.packedCount) / \(list.items.count)"
+        let words = done ? String(localized: "ヨシ！ 全部そろいました")
+                         // 数字も言語の書き方に合わせる。アラビア語では配色の番号だけアラビア数字になり、
+                         // 帯の数だけ 0-9 のまま混ざっていた
+                         : "\(list.packedCount.formatted()) / \(list.items.count.formatted())"
 
         return GeometryReader { geo in
             let filled = geo.size.width * (done ? 1 : ratio)
@@ -257,7 +260,7 @@ struct ListView: View {
     }
 
     /// 入り切りの札。**オンは塗り、オフは線だけ。** 2つとも同じ形にして、状態の読み方を揃える。
-    private func chip(title: String, symbol: String, isOn: Bool, showsTitle: Bool,
+    private func chip(title: LocalizedStringKey, symbol: String, isOn: Bool, showsTitle: Bool,
                       action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Group {
@@ -277,7 +280,7 @@ struct ListView: View {
             .contentShape(.rect)             // 余白も押せるようにする（引き継ぎ書 4-44）
         }
         .foregroundStyle(isOn ? Color.accentColor : .secondary)
-        .accessibilityValue(isOn ? "オン" : "オフ")
+        .accessibilityValue(isOn ? Text("オン") : Text("オフ"))
     }
 
     private func baseFontSize(_ columns: Columns) -> CGFloat {
@@ -365,6 +368,9 @@ struct ListView: View {
     private func paletteArrow(back: Bool) -> some View {
         Button { model.cyclePalette(forward: !back, for: listID) } label: {
             Image(systemName: back ? "arrowtriangle.left.fill" : "arrowtriangle.right.fill")
+                // 右から左の言語では並びが反転するので、矢印の向きも反転させる。
+                // しないと ▶ 見本 ◀ と内向きになって、送る向きが分からない
+                .flipsForRightToLeftLayoutDirection(true)
                 .font(.system(.footnote, weight: .bold))
                 .foregroundStyle(.secondary)
                 .frame(width: 34, height: 30)
@@ -372,7 +378,7 @@ struct ListView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(back ? "paletteBack" : "paletteForward")
-        .accessibilityLabel(back ? "前の配色" : "次の配色")
+        .accessibilityLabel(back ? Text("前の配色") : Text("次の配色"))
     }
 }
 

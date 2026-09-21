@@ -35,7 +35,7 @@ struct SettingsView: View {
                         set: { model.setAppearance($0) })
                     ) {
                         ForEach(Appearance.allCases, id: \.self) { a in
-                            Text(a.label).tag(a)
+                            Text(a.label(model.language)).tag(a)
                         }
                     }
                     .pickerStyle(.segmented)

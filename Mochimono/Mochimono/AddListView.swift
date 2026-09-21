@@ -6,6 +6,7 @@ import MochimonoCore
 /// 白紙から書き始めるのは難しいので、**雛形を選ぶのを既定の道**にする。
 /// 選んだあとはただのリストなので、要らない行を消せばよい。
 struct AddListView: View {
+    @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var colorScheme
     let pickPreset: (Preset) -> Void
     let startBlank: () -> Void
@@ -36,7 +37,7 @@ struct AddListView: View {
             }
 
             Section {
-                ForEach(Preset.all) { preset in
+                ForEach(Preset.all(model.language)) { preset in
                     Button { pickPreset(preset) } label: { row(preset) }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("preset-\(preset.id)")

@@ -11,7 +11,8 @@ final class MochimonoUITests: XCTestCase {
 
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-ui-testing"]
+        // 雛形の名前（「街中」など）で引くので、日本語に固定する
+        app.launchArguments = ["-ui-testing", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]
         app.launch()
         return app
     }
@@ -240,7 +241,7 @@ final class MochimonoUITests: XCTestCase {
     /// **列が減ることで確かめる。** 減らさないと自動縮小がかかって元の大きさに戻る。
     func test文字を大きくすると列が減る() {
         let normal = XCUIApplication()
-        normal.launchArguments = ["-ui-testing"]
+        normal.launchArguments = ["-ui-testing", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]
         normal.launch()
         normal.buttons["list-国内旅行"].tap()
         let narrow = normal.buttons["item-財布"]
@@ -249,7 +250,7 @@ final class MochimonoUITests: XCTestCase {
         normal.terminate()
 
         let big = XCUIApplication()
-        big.launchArguments = ["-ui-testing",
+        big.launchArguments = ["-ui-testing", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP",
                                "-UIPreferredContentSizeCategoryName",
                                "UICTContentSizeCategoryAccessibilityXL"]
         big.launch()

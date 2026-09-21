@@ -65,7 +65,7 @@ struct ColorModeTests {
     @Test func 複製にも写る() {
         var store = Store(lists: [make()])
         store.lists[0].isColorful = false
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         #expect(store.lists[1].isColorful == false)
     }
 

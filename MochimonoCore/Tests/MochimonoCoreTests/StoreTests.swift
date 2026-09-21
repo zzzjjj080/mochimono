@@ -9,7 +9,7 @@ import Testing
 struct StoreTests {
 
     @Test func 往復しても変わらない() throws {
-        var store = Store.starter
+        var store = Store.starter(language: .ja)
         store.lists[0].toggle(store.lists[0].items[1].id)
         store.appearance = .dark
         let data = try JSONEncoder().encode(store)
@@ -50,7 +50,7 @@ struct StoreTests {
     }
 
     @Test func 添字でリストを差し替えられる() {
-        var store = Store.starter
+        var store = Store.starter(language: .ja)
         let before = store.lists.count
         let id = store.lists[0].id
         var l = store[id]!
@@ -61,7 +61,7 @@ struct StoreTests {
     }
 
     @Test func 削除は該当だけ消す() {
-        var store = Store.starter
+        var store = Store.starter(language: .ja)
         let before = store.lists.count
         let removed = store.lists[0]
         let rest = store.lists.dropFirst().map(\.name)

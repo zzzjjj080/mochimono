@@ -17,7 +17,7 @@ struct DuplicateTests {
 
     @Test func 中身がそのまま写る() {
         var store = make()
-        let newID = store.duplicate(id: store.lists[0].id)
+        let newID = store.duplicate(id: store.lists[0].id, language: .ja)
         let copy = store.lists.first { $0.id == newID }
         #expect(copy?.text == "財布\nスマホ\n\n着替え")
         #expect(copy?.items.map(\.text) == ["財布", "スマホ", "着替え"])
@@ -29,7 +29,7 @@ struct DuplicateTests {
         var store = make()
         store.lists[0].columns = .three
         store.lists[0].palette = Palette(7)
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         #expect(store.lists[1].columns == .three)
         #expect(store.lists[1].palette == Palette(7))
     }
@@ -41,7 +41,7 @@ struct DuplicateTests {
         #expect(store.lists[0].isComplete)
         #expect(store.lists[0].lastCompletedAt != nil)
 
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         #expect(store.lists[1].packedCount == 0)
         #expect(store.lists[1].lastCompletedAt == nil)
     }
@@ -49,15 +49,15 @@ struct DuplicateTests {
     /// 末尾に足すと、本数が増えたときに元と離れて見比べられない。
     @Test func 元のすぐ下に入る() {
         var store = make()
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         #expect(store.lists.map(\.name) == ["国内旅行", "国内旅行のコピー", "通勤"])
     }
 
     @Test func 名前は重ならない() {
         var store = make()
-        store.duplicate(id: store.lists[0].id)
-        store.duplicate(id: store.lists[0].id)
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
+        store.duplicate(id: store.lists[0].id, language: .ja)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         #expect(store.lists.map(\.name)
                 == ["国内旅行", "国内旅行のコピー3", "国内旅行のコピー2", "国内旅行のコピー", "通勤"])
     }
@@ -65,16 +65,29 @@ struct DuplicateTests {
     /// 別のIDになっていないと、片方を触るともう片方まで変わる。
     @Test func 項目のIDまで作り直す() {
         var store = make()
-        store.duplicate(id: store.lists[0].id)
+        store.duplicate(id: store.lists[0].id, language: .ja)
         let original = Set(store.lists[0].items.map(\.id))
         let copy = Set(store.lists[1].items.map(\.id))
         #expect(store.lists[0].id != store.lists[1].id)
         #expect(original.isDisjoint(with: copy))
     }
 
+    /// 「◯◯のコピー」の語順は言語で違う。表の書式で組み立てること。
+    @Test func 複製の名前は言語の語順に従う() {
+        var en = make()
+        en.duplicate(id: en.lists[0].id, language: .en)
+        en.duplicate(id: en.lists[0].id, language: .en)
+        #expect(en.lists[1].name == "国内旅行 copy 2")
+        #expect(en.lists[2].name == "国内旅行 copy")
+
+        var fr = make()
+        fr.duplicate(id: fr.lists[0].id, language: .fr)
+        #expect(fr.lists[1].name == "国内旅行 (copie)")
+    }
+
     @Test func 消えたIDを複製しても落ちない() {
         var store = make()
-        #expect(store.duplicate(id: UUID()) == nil)
+        #expect(store.duplicate(id: UUID(), language: .ja) == nil)
         #expect(store.lists.count == 2)
     }
 }

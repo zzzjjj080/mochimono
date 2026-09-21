@@ -1,73 +1,59 @@
 No account, login, or credentials are required. No subscriptions, no
 user-generated content shared with anyone, and no advertising or analytics.
 
-This version adds ONE consumable in-app purchase: a voluntary tip
-("com.zzzjjj080.Mochimono.coffee"). It unlocks nothing. Nothing in the app is
-gated, hidden, or changed by purchasing it. The app shows a thank-you message
-and a count of tips sent from this device. The purchase row is in Settings.
-
-WHAT THE APP DOES
-
-Tilecheck turns plain text into a colour-coded board.
-
-There is no "add item" form. The user types lines in a plain text editor, one
-item per line. A blank line is the only piece of syntax: it starts a new group,
-and each group is automatically given a different colour. Groups have no names -
-the separator is a blank line and the distinction is colour. The result is shown
-as a grid of tiles rather than a vertical list, so the whole set is visible at
-once. Tapping a tile marks it done. Checks stay until the user clears them, so
-the same board is reused.
-
-The board can be turned back into plain text and shared at any time, and text
-from any other app can be pasted in to become a board. There is no proprietary
-format.
+In-app purchase: one consumable voluntary tip ("com.zzzjjj080.Mochimono.coffee",
+already approved; this submission only adds localizations). It unlocks nothing
+and changes nothing in the app. It is sold in all territories. The purchase row
+is in Settings.
 
 WHAT IS NEW IN THIS VERSION
 
-- Duplicating a board: swipe a row right on the first screen.
-- The date a board was last completed is shown on the first screen.
-- Colour mode on/off, and 10 colour schemes instead of 12.
-- When every tile is done, a green "ヨシ！ 全部そろいました" (all set) bar appears
-  above the board and can be tapped to clear every check in one tap. The bar
-  occupies the same space when the board is not complete, so the tiles never
-  shift. The "clear" button at the bottom still asks for confirmation.
-- The voluntary tip described above.
+The app is now localized into 12 languages: English, Japanese, Simplified and
+Traditional Chinese, Korean, Spanish, French, German, Italian, Brazilian
+Portuguese, Russian and Arabic. The interface follows the device language;
+other languages fall back to English. The starter boards and templates are
+written for each language. Arabic uses a right-to-left layout.
+
+The review device will most likely show English. All steps below use the
+English labels.
+
+WHAT THE APP DOES
+
+Tilecheck turns plain text into a colour-coded board. There is no "add item"
+form. The user types one item per line in a plain text editor. A blank line is
+the only syntax: it starts a new group, and each group gets its own colour.
+The result is a grid of tiles rather than a vertical list. Tapping a tile marks
+it done; checks stay until cleared, so the same board is reused. A board can be
+exported as plain text, and text from any app can be pasted in to become a
+board. There is no proprietary format.
 
 HOW TO EXERCISE THE APP
 
-1. On launch, three boards are already present. Tap any of them.
-2. Tap any tile. It turns a stronger colour and the counter at the top right
-   increases. Tap again to undo.
-3. Tap the left/right triangles below the tiles to cycle the colour scheme
-   (10 schemes, the hues rotate one step at a time). "カラー" next to them turns
-   colour mode off: every tile then uses one colour. Each board keeps its own.
-4. Tap every tile. The green bar appears above the board; tapping it clears all.
-5. Tap "編集" (Edit) at the bottom right to see the plain text this board is made
-   of. Adding a blank line splits the items into another colour group. Existing
-   checks are preserved by item name when the text is edited.
-6. Tap "設定" (Settings) in the navigation bar, then "テキストで書き出す"
-   (Export as text) to open the share sheet. What is shared is ordinary text.
-   The tip row ("開発者にコーヒーを奢る") is on the same screen.
-7. Go back to the first screen and tap "+". The first section is "テキストから作る"
-   (Create from text) with a paste button. Paste any bulleted text and it becomes
-   a board.
-8. Swipe a row right on the first screen to duplicate it; swipe left to delete
-   it. Deleting shows a confirmation alert naming the board and how many items
-   will be lost.
+1. On launch, three boards are present ("Going out", "Commute", "Weekend trip"
+   in English). Tap one.
+2. Tap a tile. It turns a stronger colour and the bar above the board ("0 / 10")
+   fills. Tap again to undo.
+3. Below the board, the triangles cycle 10 colour schemes; the swatches show
+   the colours. "Color" turns colour mode off (every tile one colour).
+4. Tap every tile. The bar turns green and says "All set!". Tapping it clears
+   every check. "Clear all" at the bottom asks for confirmation first.
+5. "Edit" shows the plain text the board is made of. Adding a blank line splits
+   the items into another colour group. Checks are kept by item name.
+6. "Settings" > "Export as text" opens the share sheet with ordinary text.
+   The tip row ("Buy the developer a coffee") is on the same screen.
+7. On the first screen, "+" > "Create from text" pastes any list as a new board.
+8. Swipe a row right to duplicate it, left to delete it (with confirmation).
 
 DATA AND PRIVACY
 
 All data is stored on the device using UserDefaults. Nothing the user writes is
-transmitted. The app does not use any third-party SDK, analytics, or
-advertising. The only network use is StoreKit, to show the tip price and to
-process the tip; that traffic goes to Apple. All source code was written by us
-for this app; no template or purchased source was used.
+transmitted. No third-party SDK, analytics, or advertising. The only network
+use is StoreKit, to show the tip price and process the tip. All source code was
+written by us for this app; no template or purchased source was used.
 
 External services: none. Only Apple frameworks (SwiftUI, StoreKit, UIKit for
 haptics).
-Regional differences: none. The app is Japanese only and is distributed in Japan.
 Not a medical app. No diagnosis, treatment, or health claims.
-Accessibility: the app follows the system text size setting and reduces the
-number of columns at accessibility sizes. Colour contrast between each tile and
-its label is verified to meet WCAG AA (4.5:1) by automated tests for every colour
-scheme in both light and dark appearance.
+Accessibility: follows the system text size and uses fewer columns at
+accessibility sizes. Tile/label contrast meets WCAG AA (4.5:1) for every colour
+scheme in light and dark mode, verified by automated tests.

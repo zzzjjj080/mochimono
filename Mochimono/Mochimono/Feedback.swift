@@ -46,7 +46,12 @@ enum Feedback {
             : "\(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
     }
 
-    static func mailURL(english: Bool = false) -> URL? {
+    /// 画面が日本語でなければ、メールの下書きは英語にする（受け取るのは開発者なので、2つあれば足りる）。
+    static var prefersEnglish: Bool {
+        !(Bundle.main.preferredLocalizations.first ?? "en").hasPrefix("ja")
+    }
+
+    static func mailURL(english: Bool = Feedback.prefersEnglish) -> URL? {
         let subject = english
             ? "\(appName) \(appVersion) — problem or request"
             : "\(appName) \(appVersion) の不具合・要望"

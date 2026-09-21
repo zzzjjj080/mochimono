@@ -14,7 +14,7 @@ final class CoffeeTipUITests: XCTestCase {
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         // 背景が空だと何のアプリか分からないので、見本の状態で起動する
-        app.launchArguments = ["-screenshot-demo"]
+        app.launchArguments = ["-screenshot-demo", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]
         app.launch()
         return app
     }

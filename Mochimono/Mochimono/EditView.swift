@@ -43,6 +43,7 @@ struct EditView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button("キャンセル") { dismiss() }
+                    .accessibilityIdentifier("cancelEdit")   // 表示の言葉は言語で変わるので、名札で引く
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button("保存") {

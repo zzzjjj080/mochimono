@@ -64,11 +64,11 @@ public enum Scheme: Sendable { case light, dark }
 /// 設定としての明暗。`system` は端末の設定に従う。
 public enum Appearance: String, Codable, CaseIterable, Sendable {
     case system, light, dark
-    public var label: String {
+    public func label(_ language: Language) -> String {
         switch self {
-        case .system: "自動"
-        case .light:  "ライト"
-        case .dark:   "ダーク"
+        case .system: CoreText.get(.appearanceSystem, language)
+        case .light:  CoreText.get(.appearanceLight, language)
+        case .dark:   CoreText.get(.appearanceDark, language)
         }
     }
 }

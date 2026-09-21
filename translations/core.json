@@ -1,0 +1,4715 @@
+{
+ "_note": "Tilecheck の Core の訳。手で直したら ./Tools-GenCore.py を流して Swift を作り直す。",
+ "languages": [
+  "ja",
+  "en",
+  "zh-Hans",
+  "zh-Hant",
+  "ko",
+  "es",
+  "fr",
+  "de",
+  "it",
+  "pt-BR",
+  "ru",
+  "ar"
+ ],
+ "strings": {
+  "untitledList": {
+   "ja": "名前のないリスト",
+   "en": "Untitled list",
+   "zh-Hans": "未命名列表",
+   "zh-Hant": "未命名清單",
+   "ko": "이름 없는 목록",
+   "es": "Lista sin nombre",
+   "fr": "Liste sans nom",
+   "de": "Unbenannte Liste",
+   "it": "Elenco senza nome",
+   "pt-BR": "Lista sem nome",
+   "ru": "Список без названия",
+   "ar": "قائمة بلا اسم"
+  },
+  "newList": {
+   "ja": "新しいリスト",
+   "en": "New list",
+   "zh-Hans": "新列表",
+   "zh-Hant": "新清單",
+   "ko": "새 목록",
+   "es": "Lista nueva",
+   "fr": "Nouvelle liste",
+   "de": "Neue Liste",
+   "it": "Nuovo elenco",
+   "pt-BR": "Nova lista",
+   "ru": "Новый список",
+   "ar": "قائمة جديدة"
+  },
+  "copyOf": {
+   "ja": "%@のコピー",
+   "en": "%@ copy",
+   "zh-Hans": "%@ 副本",
+   "zh-Hant": "%@ 副本",
+   "ko": "%@ 사본",
+   "es": "%@ (copia)",
+   "fr": "%@ (copie)",
+   "de": "%@ (Kopie)",
+   "it": "%@ (copia)",
+   "pt-BR": "%@ (cópia)",
+   "ru": "%@ (копия)",
+   "ar": "%@ (نسخة)"
+  },
+  "copyOfNumbered": {
+   "ja": "%@のコピー%lld",
+   "en": "%@ copy %lld",
+   "zh-Hans": "%@ 副本 %lld",
+   "zh-Hant": "%@ 副本 %lld",
+   "ko": "%@ 사본 %lld",
+   "es": "%@ (copia %lld)",
+   "fr": "%@ (copie %lld)",
+   "de": "%@ (Kopie %lld)",
+   "it": "%@ (copia %lld)",
+   "pt-BR": "%@ (cópia %lld)",
+   "ru": "%@ (копия %lld)",
+   "ar": "%@ (نسخة %lld)"
+  },
+  "appearanceSystem": {
+   "ja": "自動",
+   "en": "Automatic",
+   "zh-Hans": "自动",
+   "zh-Hant": "自動",
+   "ko": "자동",
+   "es": "Automático",
+   "fr": "Automatique",
+   "de": "Automatisch",
+   "it": "Automatico",
+   "pt-BR": "Automático",
+   "ru": "Авто",
+   "ar": "تلقائي"
+  },
+  "appearanceLight": {
+   "ja": "ライト",
+   "en": "Light",
+   "zh-Hans": "浅色",
+   "zh-Hant": "淺色",
+   "ko": "라이트",
+   "es": "Claro",
+   "fr": "Clair",
+   "de": "Hell",
+   "it": "Chiaro",
+   "pt-BR": "Claro",
+   "ru": "Светлая",
+   "ar": "فاتح"
+  },
+  "appearanceDark": {
+   "ja": "ダーク",
+   "en": "Dark",
+   "zh-Hans": "深色",
+   "zh-Hant": "深色",
+   "ko": "다크",
+   "es": "Oscuro",
+   "fr": "Sombre",
+   "de": "Dunkel",
+   "it": "Scuro",
+   "pt-BR": "Escuro",
+   "ru": "Тёмная",
+   "ar": "داكن"
+  }
+ },
+ "presets": [
+  {
+   "id": "town",
+   "palette": 1,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "街中",
+     "detail": "ちょっと外出するとき",
+     "groups": [
+      [
+       "財布",
+       "スマホ",
+       "鍵",
+       "ハンカチ"
+      ],
+      [
+       "イヤホン",
+       "充電器",
+       "モバイル充電"
+      ],
+      [
+       "目薬",
+       "リップ",
+       "マスク"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Going out",
+     "detail": "A quick trip out",
+     "groups": [
+      [
+       "Wallet",
+       "Phone",
+       "Keys",
+       "Tissues"
+      ],
+      [
+       "Earbuds",
+       "Charger",
+       "Power bank"
+      ],
+      [
+       "Eye drops",
+       "Lip balm",
+       "Mask"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "日常外出",
+     "detail": "出门办点事",
+     "groups": [
+      [
+       "钱包",
+       "手机",
+       "钥匙",
+       "纸巾"
+      ],
+      [
+       "耳机",
+       "充电器",
+       "充电宝"
+      ],
+      [
+       "眼药水",
+       "润唇膏",
+       "口罩"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "日常外出",
+     "detail": "出門辦點事",
+     "groups": [
+      [
+       "錢包",
+       "手機",
+       "鑰匙",
+       "面紙"
+      ],
+      [
+       "耳機",
+       "充電器",
+       "行動電源"
+      ],
+      [
+       "眼藥水",
+       "護唇膏",
+       "口罩"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "외출",
+     "detail": "잠깐 나갈 때",
+     "groups": [
+      [
+       "지갑",
+       "휴대폰",
+       "열쇠",
+       "손수건"
+      ],
+      [
+       "이어폰",
+       "충전기",
+       "보조배터리"
+      ],
+      [
+       "안약",
+       "립밤",
+       "마스크"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Salir",
+     "detail": "Una salida rápida",
+     "groups": [
+      [
+       "Cartera",
+       "Móvil",
+       "Llaves",
+       "Pañuelos"
+      ],
+      [
+       "Auriculares",
+       "Cargador",
+       "Batería externa"
+      ],
+      [
+       "Colirio",
+       "Bálsamo labial",
+       "Mascarilla"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Sortir",
+     "detail": "Une petite sortie",
+     "groups": [
+      [
+       "Portefeuille",
+       "Téléphone",
+       "Clés",
+       "Mouchoirs"
+      ],
+      [
+       "Écouteurs",
+       "Chargeur",
+       "Batterie externe"
+      ],
+      [
+       "Collyre",
+       "Baume à lèvres",
+       "Masque"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Unterwegs",
+     "detail": "Kurz mal raus",
+     "groups": [
+      [
+       "Geldbörse",
+       "Handy",
+       "Schlüssel",
+       "Taschentücher"
+      ],
+      [
+       "Kopfhörer",
+       "Ladegerät",
+       "Powerbank"
+      ],
+      [
+       "Augentropfen",
+       "Lippenbalsam",
+       "Maske"
+      ]
+     ]
+    },
+    "it": {
+     "name": "In giro",
+     "detail": "Una breve uscita",
+     "groups": [
+      [
+       "Portafoglio",
+       "Telefono",
+       "Chiavi",
+       "Fazzoletti"
+      ],
+      [
+       "Auricolari",
+       "Caricatore",
+       "Power bank"
+      ],
+      [
+       "Collirio",
+       "Burrocacao",
+       "Mascherina"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Saindo",
+     "detail": "Uma saída rápida",
+     "groups": [
+      [
+       "Carteira",
+       "Celular",
+       "Chaves",
+       "Lenços"
+      ],
+      [
+       "Fones",
+       "Carregador",
+       "Power bank"
+      ],
+      [
+       "Colírio",
+       "Protetor labial",
+       "Máscara"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Выйти из дома",
+     "detail": "Ненадолго по делам",
+     "groups": [
+      [
+       "Кошелёк",
+       "Телефон",
+       "Ключи",
+       "Салфетки"
+      ],
+      [
+       "Наушники",
+       "Зарядка",
+       "Пауэрбанк"
+      ],
+      [
+       "Глазные капли",
+       "Гигиеничка",
+       "Маска"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "الخروج",
+     "detail": "مشوار قصير",
+     "groups": [
+      [
+       "المحفظة",
+       "الهاتف",
+       "المفاتيح",
+       "مناديل"
+      ],
+      [
+       "سماعات",
+       "الشاحن",
+       "باور بنك"
+      ],
+      [
+       "قطرة العين",
+       "مرطب شفاه",
+       "كمامة"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "commute",
+   "palette": 2,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "通勤・通学",
+     "detail": "毎日のかばんの中身",
+     "groups": [
+      [
+       "財布",
+       "スマホ",
+       "鍵",
+       "社員証"
+      ],
+      [
+       "定期券",
+       "ICカード"
+      ],
+      [
+       "ノートPC",
+       "充電器",
+       "手帳",
+       "ペン"
+      ],
+      [
+       "弁当",
+       "水筒",
+       "折りたたみ傘"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Commute",
+     "detail": "Your everyday bag",
+     "groups": [
+      [
+       "Wallet",
+       "Phone",
+       "Keys",
+       "Work ID"
+      ],
+      [
+       "Transit pass",
+       "Metro card"
+      ],
+      [
+       "Laptop",
+       "Charger",
+       "Planner",
+       "Pen"
+      ],
+      [
+       "Lunch",
+       "Water bottle",
+       "Umbrella"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "通勤上学",
+     "detail": "每天的包里",
+     "groups": [
+      [
+       "钱包",
+       "手机",
+       "钥匙",
+       "工牌"
+      ],
+      [
+       "月票",
+       "交通卡"
+      ],
+      [
+       "笔记本电脑",
+       "充电器",
+       "记事本",
+       "笔"
+      ],
+      [
+       "便当",
+       "水杯",
+       "折叠伞"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "通勤上學",
+     "detail": "每天的包包裡",
+     "groups": [
+      [
+       "錢包",
+       "手機",
+       "鑰匙",
+       "識別證"
+      ],
+      [
+       "月票",
+       "交通卡"
+      ],
+      [
+       "筆電",
+       "充電器",
+       "手帳",
+       "筆"
+      ],
+      [
+       "便當",
+       "水壺",
+       "折疊傘"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "출근·등교",
+     "detail": "매일 챙기는 가방",
+     "groups": [
+      [
+       "지갑",
+       "휴대폰",
+       "열쇠",
+       "사원증"
+      ],
+      [
+       "정기권",
+       "교통카드"
+      ],
+      [
+       "노트북",
+       "충전기",
+       "수첩",
+       "펜"
+      ],
+      [
+       "도시락",
+       "텀블러",
+       "접이식 우산"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Al trabajo",
+     "detail": "Tu bolso de cada día",
+     "groups": [
+      [
+       "Cartera",
+       "Móvil",
+       "Llaves",
+       "Credencial"
+      ],
+      [
+       "Abono",
+       "Tarjeta de metro"
+      ],
+      [
+       "Portátil",
+       "Cargador",
+       "Agenda",
+       "Bolígrafo"
+      ],
+      [
+       "Almuerzo",
+       "Botella de agua",
+       "Paraguas"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Trajet quotidien",
+     "detail": "Votre sac de tous les jours",
+     "groups": [
+      [
+       "Portefeuille",
+       "Téléphone",
+       "Clés",
+       "Badge"
+      ],
+      [
+       "Abonnement",
+       "Carte de transport"
+      ],
+      [
+       "Ordinateur",
+       "Chargeur",
+       "Agenda",
+       "Stylo"
+      ],
+      [
+       "Déjeuner",
+       "Gourde",
+       "Parapluie"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Pendeln",
+     "detail": "Deine tägliche Tasche",
+     "groups": [
+      [
+       "Geldbörse",
+       "Handy",
+       "Schlüssel",
+       "Dienstausweis"
+      ],
+      [
+       "Monatskarte",
+       "Fahrkarte"
+      ],
+      [
+       "Laptop",
+       "Ladegerät",
+       "Kalender",
+       "Stift"
+      ],
+      [
+       "Mittagessen",
+       "Trinkflasche",
+       "Regenschirm"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Pendolare",
+     "detail": "La borsa di ogni giorno",
+     "groups": [
+      [
+       "Portafoglio",
+       "Telefono",
+       "Chiavi",
+       "Badge"
+      ],
+      [
+       "Abbonamento",
+       "Biglietto"
+      ],
+      [
+       "Portatile",
+       "Caricatore",
+       "Agenda",
+       "Penna"
+      ],
+      [
+       "Pranzo",
+       "Borraccia",
+       "Ombrello"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Trabalho",
+     "detail": "A bolsa do dia a dia",
+     "groups": [
+      [
+       "Carteira",
+       "Celular",
+       "Chaves",
+       "Crachá"
+      ],
+      [
+       "Bilhete único",
+       "Cartão transporte"
+      ],
+      [
+       "Notebook",
+       "Carregador",
+       "Agenda",
+       "Caneta"
+      ],
+      [
+       "Marmita",
+       "Garrafa de água",
+       "Guarda-chuva"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "На работу",
+     "detail": "Сумка на каждый день",
+     "groups": [
+      [
+       "Кошелёк",
+       "Телефон",
+       "Ключи",
+       "Пропуск"
+      ],
+      [
+       "Проездной",
+       "Транспортная карта"
+      ],
+      [
+       "Ноутбук",
+       "Зарядка",
+       "Ежедневник",
+       "Ручка"
+      ],
+      [
+       "Обед",
+       "Бутылка воды",
+       "Зонт"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "الذهاب للعمل",
+     "detail": "حقيبتك اليومية",
+     "groups": [
+      [
+       "المحفظة",
+       "الهاتف",
+       "المفاتيح",
+       "بطاقة العمل"
+      ],
+      [
+       "اشتراك المواصلات",
+       "بطاقة المترو"
+      ],
+      [
+       "لابتوب",
+       "الشاحن",
+       "مفكرة",
+       "قلم"
+      ],
+      [
+       "الغداء",
+       "زجاجة ماء",
+       "مظلة"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "trip-domestic",
+   "palette": 3,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "国内旅行",
+     "detail": "1〜2泊のふつうの旅行",
+     "groups": [
+      [
+       "財布",
+       "スマホ",
+       "鍵",
+       "免許証"
+      ],
+      [
+       "着替え",
+       "下着",
+       "靴下",
+       "パジャマ"
+      ],
+      [
+       "歯ブラシ",
+       "洗顔",
+       "化粧品",
+       "タオル"
+      ],
+      [
+       "充電器",
+       "モバイル充電",
+       "イヤホン"
+      ],
+      [
+       "常備薬",
+       "絆創膏",
+       "マスク"
+      ],
+      [
+       "エコバッグ",
+       "ビニール袋"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Weekend trip",
+     "detail": "One or two nights away",
+     "groups": [
+      [
+       "Wallet",
+       "Phone",
+       "Keys",
+       "Driver's license"
+      ],
+      [
+       "Clothes",
+       "Underwear",
+       "Socks",
+       "Pajamas"
+      ],
+      [
+       "Toothbrush",
+       "Face wash",
+       "Makeup",
+       "Towel"
+      ],
+      [
+       "Charger",
+       "Power bank",
+       "Earbuds"
+      ],
+      [
+       "Medicine",
+       "Band-aids",
+       "Mask"
+      ],
+      [
+       "Tote bag",
+       "Plastic bags"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "短途旅行",
+     "detail": "住一两晚的旅行",
+     "groups": [
+      [
+       "钱包",
+       "手机",
+       "钥匙",
+       "驾照"
+      ],
+      [
+       "换洗衣物",
+       "内衣",
+       "袜子",
+       "睡衣"
+      ],
+      [
+       "牙刷",
+       "洗面奶",
+       "化妆品",
+       "毛巾"
+      ],
+      [
+       "充电器",
+       "充电宝",
+       "耳机"
+      ],
+      [
+       "常备药",
+       "创可贴",
+       "口罩"
+      ],
+      [
+       "环保袋",
+       "塑料袋"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "短程旅行",
+     "detail": "住一兩晚的旅行",
+     "groups": [
+      [
+       "錢包",
+       "手機",
+       "鑰匙",
+       "駕照"
+      ],
+      [
+       "換洗衣物",
+       "內衣",
+       "襪子",
+       "睡衣"
+      ],
+      [
+       "牙刷",
+       "洗面乳",
+       "化妝品",
+       "毛巾"
+      ],
+      [
+       "充電器",
+       "行動電源",
+       "耳機"
+      ],
+      [
+       "常備藥",
+       "OK繃",
+       "口罩"
+      ],
+      [
+       "環保袋",
+       "塑膠袋"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "국내 여행",
+     "detail": "1~2박 여행",
+     "groups": [
+      [
+       "지갑",
+       "휴대폰",
+       "열쇠",
+       "운전면허증"
+      ],
+      [
+       "갈아입을 옷",
+       "속옷",
+       "양말",
+       "잠옷"
+      ],
+      [
+       "칫솔",
+       "폼클렌징",
+       "화장품",
+       "수건"
+      ],
+      [
+       "충전기",
+       "보조배터리",
+       "이어폰"
+      ],
+      [
+       "상비약",
+       "반창고",
+       "마스크"
+      ],
+      [
+       "에코백",
+       "비닐봉지"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Escapada",
+     "detail": "Una o dos noches fuera",
+     "groups": [
+      [
+       "Cartera",
+       "Móvil",
+       "Llaves",
+       "Carné de conducir"
+      ],
+      [
+       "Ropa",
+       "Ropa interior",
+       "Calcetines",
+       "Pijama"
+      ],
+      [
+       "Cepillo de dientes",
+       "Limpiador facial",
+       "Maquillaje",
+       "Toalla"
+      ],
+      [
+       "Cargador",
+       "Batería externa",
+       "Auriculares"
+      ],
+      [
+       "Medicinas",
+       "Tiritas",
+       "Mascarilla"
+      ],
+      [
+       "Bolsa de tela",
+       "Bolsas de plástico"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Week-end",
+     "detail": "Une ou deux nuits",
+     "groups": [
+      [
+       "Portefeuille",
+       "Téléphone",
+       "Clés",
+       "Permis"
+      ],
+      [
+       "Vêtements",
+       "Sous-vêtements",
+       "Chaussettes",
+       "Pyjama"
+      ],
+      [
+       "Brosse à dents",
+       "Nettoyant visage",
+       "Maquillage",
+       "Serviette"
+      ],
+      [
+       "Chargeur",
+       "Batterie externe",
+       "Écouteurs"
+      ],
+      [
+       "Médicaments",
+       "Pansements",
+       "Masque"
+      ],
+      [
+       "Tote bag",
+       "Sacs plastique"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Kurzurlaub",
+     "detail": "Ein, zwei Nächte weg",
+     "groups": [
+      [
+       "Geldbörse",
+       "Handy",
+       "Schlüssel",
+       "Führerschein"
+      ],
+      [
+       "Kleidung",
+       "Unterwäsche",
+       "Socken",
+       "Schlafanzug"
+      ],
+      [
+       "Zahnbürste",
+       "Gesichtsreiniger",
+       "Make-up",
+       "Handtuch"
+      ],
+      [
+       "Ladegerät",
+       "Powerbank",
+       "Kopfhörer"
+      ],
+      [
+       "Medikamente",
+       "Pflaster",
+       "Maske"
+      ],
+      [
+       "Stoffbeutel",
+       "Plastiktüten"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Weekend fuori",
+     "detail": "Una o due notti",
+     "groups": [
+      [
+       "Portafoglio",
+       "Telefono",
+       "Chiavi",
+       "Patente"
+      ],
+      [
+       "Vestiti",
+       "Intimo",
+       "Calzini",
+       "Pigiama"
+      ],
+      [
+       "Spazzolino",
+       "Detergente viso",
+       "Trucchi",
+       "Asciugamano"
+      ],
+      [
+       "Caricatore",
+       "Power bank",
+       "Auricolari"
+      ],
+      [
+       "Medicine",
+       "Cerotti",
+       "Mascherina"
+      ],
+      [
+       "Borsa di tela",
+       "Sacchetti"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Viagem curta",
+     "detail": "Uma ou duas noites fora",
+     "groups": [
+      [
+       "Carteira",
+       "Celular",
+       "Chaves",
+       "CNH"
+      ],
+      [
+       "Roupas",
+       "Roupa íntima",
+       "Meias",
+       "Pijama"
+      ],
+      [
+       "Escova de dentes",
+       "Sabonete facial",
+       "Maquiagem",
+       "Toalha"
+      ],
+      [
+       "Carregador",
+       "Power bank",
+       "Fones"
+      ],
+      [
+       "Remédios",
+       "Curativos",
+       "Máscara"
+      ],
+      [
+       "Ecobag",
+       "Sacolas"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Поездка на выходные",
+     "detail": "На одну-две ночи",
+     "groups": [
+      [
+       "Кошелёк",
+       "Телефон",
+       "Ключи",
+       "Права"
+      ],
+      [
+       "Одежда",
+       "Бельё",
+       "Носки",
+       "Пижама"
+      ],
+      [
+       "Зубная щётка",
+       "Пенка для лица",
+       "Косметика",
+       "Полотенце"
+      ],
+      [
+       "Зарядка",
+       "Пауэрбанк",
+       "Наушники"
+      ],
+      [
+       "Лекарства",
+       "Пластыри",
+       "Маска"
+      ],
+      [
+       "Шопер",
+       "Пакеты"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "رحلة قصيرة",
+     "detail": "ليلة أو ليلتان",
+     "groups": [
+      [
+       "المحفظة",
+       "الهاتف",
+       "المفاتيح",
+       "رخصة القيادة"
+      ],
+      [
+       "ملابس",
+       "ملابس داخلية",
+       "جوارب",
+       "بيجامة"
+      ],
+      [
+       "فرشاة أسنان",
+       "غسول الوجه",
+       "مستحضرات تجميل",
+       "منشفة"
+      ],
+      [
+       "الشاحن",
+       "باور بنك",
+       "سماعات"
+      ],
+      [
+       "أدوية",
+       "لاصقات جروح",
+       "كمامة"
+      ],
+      [
+       "حقيبة قماش",
+       "أكياس بلاستيك"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "trip-abroad",
+   "palette": 4,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "海外旅行",
+     "detail": "現地で買えないものを先に",
+     "groups": [
+      [
+       "パスポート",
+       "航空券",
+       "財布",
+       "現金"
+      ],
+      [
+       "クレカ",
+       "保険証書",
+       "eSIM"
+      ],
+      [
+       "変換プラグ",
+       "充電器",
+       "モバイル充電"
+      ],
+      [
+       "着替え",
+       "下着",
+       "靴下",
+       "上着"
+      ],
+      [
+       "歯ブラシ",
+       "洗面用具",
+       "化粧品"
+      ],
+      [
+       "常備薬",
+       "酔い止め",
+       "マスク"
+      ],
+      [
+       "アイマスク",
+       "耳栓",
+       "ネックピロー"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Trip abroad",
+     "detail": "Things you can't buy there",
+     "groups": [
+      [
+       "Passport",
+       "Tickets",
+       "Wallet",
+       "Cash"
+      ],
+      [
+       "Credit card",
+       "Insurance",
+       "eSIM"
+      ],
+      [
+       "Plug adapter",
+       "Charger",
+       "Power bank"
+      ],
+      [
+       "Clothes",
+       "Underwear",
+       "Socks",
+       "Jacket"
+      ],
+      [
+       "Toothbrush",
+       "Toiletries",
+       "Makeup"
+      ],
+      [
+       "Medicine",
+       "Nausea pills",
+       "Mask"
+      ],
+      [
+       "Eye mask",
+       "Earplugs",
+       "Neck pillow"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "出国旅行",
+     "detail": "当地买不到的先带上",
+     "groups": [
+      [
+       "护照",
+       "机票",
+       "钱包",
+       "现金"
+      ],
+      [
+       "信用卡",
+       "保险单",
+       "eSIM"
+      ],
+      [
+       "转换插头",
+       "充电器",
+       "充电宝"
+      ],
+      [
+       "换洗衣物",
+       "内衣",
+       "袜子",
+       "外套"
+      ],
+      [
+       "牙刷",
+       "洗漱用品",
+       "化妆品"
+      ],
+      [
+       "常备药",
+       "晕车药",
+       "口罩"
+      ],
+      [
+       "眼罩",
+       "耳塞",
+       "颈枕"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "出國旅行",
+     "detail": "當地買不到的先帶",
+     "groups": [
+      [
+       "護照",
+       "機票",
+       "錢包",
+       "現金"
+      ],
+      [
+       "信用卡",
+       "保險單",
+       "eSIM"
+      ],
+      [
+       "轉接插頭",
+       "充電器",
+       "行動電源"
+      ],
+      [
+       "換洗衣物",
+       "內衣",
+       "襪子",
+       "外套"
+      ],
+      [
+       "牙刷",
+       "盥洗用品",
+       "化妝品"
+      ],
+      [
+       "常備藥",
+       "暈車藥",
+       "口罩"
+      ],
+      [
+       "眼罩",
+       "耳塞",
+       "頸枕"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "해외여행",
+     "detail": "현지에서 못 사는 것부터",
+     "groups": [
+      [
+       "여권",
+       "항공권",
+       "지갑",
+       "현금"
+      ],
+      [
+       "신용카드",
+       "여행자보험",
+       "eSIM"
+      ],
+      [
+       "변환 플러그",
+       "충전기",
+       "보조배터리"
+      ],
+      [
+       "갈아입을 옷",
+       "속옷",
+       "양말",
+       "겉옷"
+      ],
+      [
+       "칫솔",
+       "세면도구",
+       "화장품"
+      ],
+      [
+       "상비약",
+       "멀미약",
+       "마스크"
+      ],
+      [
+       "안대",
+       "귀마개",
+       "목베개"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Viaje al extranjero",
+     "detail": "Lo que no podrás comprar allí",
+     "groups": [
+      [
+       "Pasaporte",
+       "Billetes",
+       "Cartera",
+       "Efectivo"
+      ],
+      [
+       "Tarjeta de crédito",
+       "Seguro",
+       "eSIM"
+      ],
+      [
+       "Adaptador",
+       "Cargador",
+       "Batería externa"
+      ],
+      [
+       "Ropa",
+       "Ropa interior",
+       "Calcetines",
+       "Chaqueta"
+      ],
+      [
+       "Cepillo de dientes",
+       "Neceser",
+       "Maquillaje"
+      ],
+      [
+       "Medicinas",
+       "Antimareo",
+       "Mascarilla"
+      ],
+      [
+       "Antifaz",
+       "Tapones",
+       "Almohada cuello"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Voyage à l'étranger",
+     "detail": "Ce qu'on ne trouve pas là-bas",
+     "groups": [
+      [
+       "Passeport",
+       "Billets",
+       "Portefeuille",
+       "Espèces"
+      ],
+      [
+       "Carte bancaire",
+       "Assurance",
+       "eSIM"
+      ],
+      [
+       "Adaptateur",
+       "Chargeur",
+       "Batterie externe"
+      ],
+      [
+       "Vêtements",
+       "Sous-vêtements",
+       "Chaussettes",
+       "Veste"
+      ],
+      [
+       "Brosse à dents",
+       "Trousse toilette",
+       "Maquillage"
+      ],
+      [
+       "Médicaments",
+       "Anti-nausée",
+       "Masque"
+      ],
+      [
+       "Masque de nuit",
+       "Bouchons oreilles",
+       "Coussin de cou"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Auslandsreise",
+     "detail": "Was es dort nicht gibt",
+     "groups": [
+      [
+       "Reisepass",
+       "Tickets",
+       "Geldbörse",
+       "Bargeld"
+      ],
+      [
+       "Kreditkarte",
+       "Versicherung",
+       "eSIM"
+      ],
+      [
+       "Reiseadapter",
+       "Ladegerät",
+       "Powerbank"
+      ],
+      [
+       "Kleidung",
+       "Unterwäsche",
+       "Socken",
+       "Jacke"
+      ],
+      [
+       "Zahnbürste",
+       "Kulturbeutel",
+       "Make-up"
+      ],
+      [
+       "Medikamente",
+       "Reisetabletten",
+       "Maske"
+      ],
+      [
+       "Schlafmaske",
+       "Ohrstöpsel",
+       "Nackenkissen"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Viaggio all'estero",
+     "detail": "Ciò che lì non trovi",
+     "groups": [
+      [
+       "Passaporto",
+       "Biglietti aerei",
+       "Portafoglio",
+       "Contanti"
+      ],
+      [
+       "Carta di credito",
+       "Assicurazione",
+       "eSIM"
+      ],
+      [
+       "Adattatore",
+       "Caricatore",
+       "Power bank"
+      ],
+      [
+       "Vestiti",
+       "Intimo",
+       "Calzini",
+       "Giacca"
+      ],
+      [
+       "Spazzolino",
+       "Beauty case",
+       "Trucchi"
+      ],
+      [
+       "Medicine",
+       "Antinausea",
+       "Mascherina"
+      ],
+      [
+       "Benda occhi",
+       "Tappi orecchie",
+       "Cuscino collo"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Viagem ao exterior",
+     "detail": "O que não dá para comprar lá",
+     "groups": [
+      [
+       "Passaporte",
+       "Passagens",
+       "Carteira",
+       "Dinheiro"
+      ],
+      [
+       "Cartão de crédito",
+       "Seguro viagem",
+       "eSIM"
+      ],
+      [
+       "Adaptador",
+       "Carregador",
+       "Power bank"
+      ],
+      [
+       "Roupas",
+       "Roupa íntima",
+       "Meias",
+       "Casaco"
+      ],
+      [
+       "Escova de dentes",
+       "Nécessaire",
+       "Maquiagem"
+      ],
+      [
+       "Remédios",
+       "Antienjoo",
+       "Máscara"
+      ],
+      [
+       "Tapa-olho",
+       "Protetor auricular",
+       "Travesseiro"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Поездка за границу",
+     "detail": "То, что там не купить",
+     "groups": [
+      [
+       "Паспорт",
+       "Билеты",
+       "Кошелёк",
+       "Наличные"
+      ],
+      [
+       "Кредитка",
+       "Страховка",
+       "eSIM"
+      ],
+      [
+       "Переходник",
+       "Зарядка",
+       "Пауэрбанк"
+      ],
+      [
+       "Одежда",
+       "Бельё",
+       "Носки",
+       "Куртка"
+      ],
+      [
+       "Зубная щётка",
+       "Косметичка",
+       "Косметика"
+      ],
+      [
+       "Лекарства",
+       "От укачивания",
+       "Маска"
+      ],
+      [
+       "Маска для сна",
+       "Беруши",
+       "Подушка для шеи"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "سفر للخارج",
+     "detail": "ما لا تجده هناك",
+     "groups": [
+      [
+       "جواز السفر",
+       "التذاكر",
+       "المحفظة",
+       "نقود"
+      ],
+      [
+       "بطاقة ائتمان",
+       "تأمين السفر",
+       "eSIM"
+      ],
+      [
+       "محول قابس",
+       "الشاحن",
+       "باور بنك"
+      ],
+      [
+       "ملابس",
+       "ملابس داخلية",
+       "جوارب",
+       "سترة"
+      ],
+      [
+       "فرشاة أسنان",
+       "أدوات الحمام",
+       "مستحضرات تجميل"
+      ],
+      [
+       "أدوية",
+       "دواء دوار الحركة",
+       "كمامة"
+      ],
+      [
+       "قناع النوم",
+       "سدادات أذن",
+       "وسادة رقبة"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "business",
+   "palette": 5,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "出張",
+     "detail": "1泊の仕事の遠出",
+     "groups": [
+      [
+       "財布",
+       "スマホ",
+       "社員証",
+       "名刺"
+      ],
+      [
+       "ノートPC",
+       "充電器",
+       "マウス"
+      ],
+      [
+       "資料",
+       "手帳",
+       "ペン"
+      ],
+      [
+       "着替え",
+       "下着",
+       "ワイシャツ"
+      ],
+      [
+       "歯ブラシ",
+       "洗面用具"
+      ],
+      [
+       "常備薬",
+       "折りたたみ傘"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Business trip",
+     "detail": "One night away for work",
+     "groups": [
+      [
+       "Wallet",
+       "Phone",
+       "Work ID",
+       "Business cards"
+      ],
+      [
+       "Laptop",
+       "Charger",
+       "Mouse"
+      ],
+      [
+       "Documents",
+       "Planner",
+       "Pen"
+      ],
+      [
+       "Clothes",
+       "Underwear",
+       "Dress shirt"
+      ],
+      [
+       "Toothbrush",
+       "Toiletries"
+      ],
+      [
+       "Medicine",
+       "Umbrella"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "出差",
+     "detail": "一晚的工作出行",
+     "groups": [
+      [
+       "钱包",
+       "手机",
+       "工牌",
+       "名片"
+      ],
+      [
+       "笔记本电脑",
+       "充电器",
+       "鼠标"
+      ],
+      [
+       "资料",
+       "记事本",
+       "笔"
+      ],
+      [
+       "换洗衣物",
+       "内衣",
+       "衬衫"
+      ],
+      [
+       "牙刷",
+       "洗漱用品"
+      ],
+      [
+       "常备药",
+       "折叠伞"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "出差",
+     "detail": "一晚的工作行程",
+     "groups": [
+      [
+       "錢包",
+       "手機",
+       "識別證",
+       "名片"
+      ],
+      [
+       "筆電",
+       "充電器",
+       "滑鼠"
+      ],
+      [
+       "資料",
+       "手帳",
+       "筆"
+      ],
+      [
+       "換洗衣物",
+       "內衣",
+       "襯衫"
+      ],
+      [
+       "牙刷",
+       "盥洗用品"
+      ],
+      [
+       "常備藥",
+       "折疊傘"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "출장",
+     "detail": "1박 업무 출장",
+     "groups": [
+      [
+       "지갑",
+       "휴대폰",
+       "사원증",
+       "명함"
+      ],
+      [
+       "노트북",
+       "충전기",
+       "마우스"
+      ],
+      [
+       "자료",
+       "수첩",
+       "펜"
+      ],
+      [
+       "갈아입을 옷",
+       "속옷",
+       "와이셔츠"
+      ],
+      [
+       "칫솔",
+       "세면도구"
+      ],
+      [
+       "상비약",
+       "접이식 우산"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Viaje de trabajo",
+     "detail": "Una noche por trabajo",
+     "groups": [
+      [
+       "Cartera",
+       "Móvil",
+       "Credencial",
+       "Tarjetas de visita"
+      ],
+      [
+       "Portátil",
+       "Cargador",
+       "Ratón"
+      ],
+      [
+       "Documentos",
+       "Agenda",
+       "Bolígrafo"
+      ],
+      [
+       "Ropa",
+       "Ropa interior",
+       "Camisa"
+      ],
+      [
+       "Cepillo de dientes",
+       "Neceser"
+      ],
+      [
+       "Medicinas",
+       "Paraguas"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Déplacement pro",
+     "detail": "Une nuit pour le travail",
+     "groups": [
+      [
+       "Portefeuille",
+       "Téléphone",
+       "Badge",
+       "Cartes de visite"
+      ],
+      [
+       "Ordinateur",
+       "Chargeur",
+       "Souris"
+      ],
+      [
+       "Documents",
+       "Agenda",
+       "Stylo"
+      ],
+      [
+       "Vêtements",
+       "Sous-vêtements",
+       "Chemise"
+      ],
+      [
+       "Brosse à dents",
+       "Trousse toilette"
+      ],
+      [
+       "Médicaments",
+       "Parapluie"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Geschäftsreise",
+     "detail": "Eine Nacht beruflich",
+     "groups": [
+      [
+       "Geldbörse",
+       "Handy",
+       "Dienstausweis",
+       "Visitenkarten"
+      ],
+      [
+       "Laptop",
+       "Ladegerät",
+       "Maus"
+      ],
+      [
+       "Unterlagen",
+       "Kalender",
+       "Stift"
+      ],
+      [
+       "Kleidung",
+       "Unterwäsche",
+       "Hemd"
+      ],
+      [
+       "Zahnbürste",
+       "Kulturbeutel"
+      ],
+      [
+       "Medikamente",
+       "Regenschirm"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Trasferta",
+     "detail": "Una notte per lavoro",
+     "groups": [
+      [
+       "Portafoglio",
+       "Telefono",
+       "Badge",
+       "Biglietti visita"
+      ],
+      [
+       "Portatile",
+       "Caricatore",
+       "Mouse"
+      ],
+      [
+       "Documenti",
+       "Agenda",
+       "Penna"
+      ],
+      [
+       "Vestiti",
+       "Intimo",
+       "Camicia"
+      ],
+      [
+       "Spazzolino",
+       "Beauty case"
+      ],
+      [
+       "Medicine",
+       "Ombrello"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Viagem a trabalho",
+     "detail": "Uma noite a trabalho",
+     "groups": [
+      [
+       "Carteira",
+       "Celular",
+       "Crachá",
+       "Cartões de visita"
+      ],
+      [
+       "Notebook",
+       "Carregador",
+       "Mouse"
+      ],
+      [
+       "Documentos",
+       "Agenda",
+       "Caneta"
+      ],
+      [
+       "Roupas",
+       "Roupa íntima",
+       "Camisa social"
+      ],
+      [
+       "Escova de dentes",
+       "Nécessaire"
+      ],
+      [
+       "Remédios",
+       "Guarda-chuva"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Командировка",
+     "detail": "Одна ночь по работе",
+     "groups": [
+      [
+       "Кошелёк",
+       "Телефон",
+       "Пропуск",
+       "Визитки"
+      ],
+      [
+       "Ноутбук",
+       "Зарядка",
+       "Мышь"
+      ],
+      [
+       "Документы",
+       "Ежедневник",
+       "Ручка"
+      ],
+      [
+       "Одежда",
+       "Бельё",
+       "Рубашка"
+      ],
+      [
+       "Зубная щётка",
+       "Косметичка"
+      ],
+      [
+       "Лекарства",
+       "Зонт"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "رحلة عمل",
+     "detail": "ليلة واحدة للعمل",
+     "groups": [
+      [
+       "المحفظة",
+       "الهاتف",
+       "بطاقة العمل",
+       "بطاقات تعريف"
+      ],
+      [
+       "لابتوب",
+       "الشاحن",
+       "فأرة"
+      ],
+      [
+       "مستندات",
+       "مفكرة",
+       "قلم"
+      ],
+      [
+       "ملابس",
+       "ملابس داخلية",
+       "قميص"
+      ],
+      [
+       "فرشاة أسنان",
+       "أدوات الحمام"
+      ],
+      [
+       "أدوية",
+       "مظلة"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "gym",
+   "palette": 6,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "ジム・運動",
+     "detail": "運動しに行くとき",
+     "groups": [
+      [
+       "ウェア",
+       "短パン",
+       "靴下"
+      ],
+      [
+       "シューズ",
+       "タオル",
+       "着替え"
+      ],
+      [
+       "水筒",
+       "プロテイン"
+      ],
+      [
+       "会員証",
+       "ロッカー鍵"
+      ],
+      [
+       "シャンプー",
+       "ボディソープ"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Gym",
+     "detail": "Heading out to work out",
+     "groups": [
+      [
+       "Workout top",
+       "Shorts",
+       "Socks"
+      ],
+      [
+       "Shoes",
+       "Towel",
+       "Spare clothes"
+      ],
+      [
+       "Water bottle",
+       "Protein"
+      ],
+      [
+       "Member card",
+       "Locker key"
+      ],
+      [
+       "Shampoo",
+       "Body wash"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "健身运动",
+     "detail": "去运动的时候",
+     "groups": [
+      [
+       "运动服",
+       "短裤",
+       "袜子"
+      ],
+      [
+       "运动鞋",
+       "毛巾",
+       "换洗衣物"
+      ],
+      [
+       "水杯",
+       "蛋白粉"
+      ],
+      [
+       "会员卡",
+       "柜子钥匙"
+      ],
+      [
+       "洗发水",
+       "沐浴露"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "健身運動",
+     "detail": "去運動的時候",
+     "groups": [
+      [
+       "運動服",
+       "短褲",
+       "襪子"
+      ],
+      [
+       "運動鞋",
+       "毛巾",
+       "換洗衣物"
+      ],
+      [
+       "水壺",
+       "高蛋白"
+      ],
+      [
+       "會員卡",
+       "置物櫃鑰匙"
+      ],
+      [
+       "洗髮精",
+       "沐浴乳"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "헬스·운동",
+     "detail": "운동하러 갈 때",
+     "groups": [
+      [
+       "운동복",
+       "반바지",
+       "양말"
+      ],
+      [
+       "운동화",
+       "수건",
+       "갈아입을 옷"
+      ],
+      [
+       "텀블러",
+       "프로틴"
+      ],
+      [
+       "회원카드",
+       "사물함 열쇠"
+      ],
+      [
+       "샴푸",
+       "바디워시"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Gimnasio",
+     "detail": "Para ir a entrenar",
+     "groups": [
+      [
+       "Camiseta",
+       "Pantalón corto",
+       "Calcetines"
+      ],
+      [
+       "Zapatillas",
+       "Toalla",
+       "Muda de ropa"
+      ],
+      [
+       "Botella de agua",
+       "Proteína"
+      ],
+      [
+       "Tarjeta de socio",
+       "Llave taquilla"
+      ],
+      [
+       "Champú",
+       "Gel de ducha"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Salle de sport",
+     "detail": "Pour aller s'entraîner",
+     "groups": [
+      [
+       "Tenue de sport",
+       "Short",
+       "Chaussettes"
+      ],
+      [
+       "Baskets",
+       "Serviette",
+       "Rechange"
+      ],
+      [
+       "Gourde",
+       "Protéines"
+      ],
+      [
+       "Carte membre",
+       "Clé casier"
+      ],
+      [
+       "Shampooing",
+       "Gel douche"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Fitness",
+     "detail": "Auf zum Training",
+     "groups": [
+      [
+       "Sportshirt",
+       "Shorts",
+       "Socken"
+      ],
+      [
+       "Sportschuhe",
+       "Handtuch",
+       "Wechselkleidung"
+      ],
+      [
+       "Trinkflasche",
+       "Protein"
+      ],
+      [
+       "Mitgliedskarte",
+       "Spindschlüssel"
+      ],
+      [
+       "Shampoo",
+       "Duschgel"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Palestra",
+     "detail": "Per andare ad allenarsi",
+     "groups": [
+      [
+       "Maglietta",
+       "Pantaloncini",
+       "Calzini"
+      ],
+      [
+       "Scarpe",
+       "Asciugamano",
+       "Cambio"
+      ],
+      [
+       "Borraccia",
+       "Proteine"
+      ],
+      [
+       "Tessera",
+       "Chiave armadietto"
+      ],
+      [
+       "Shampoo",
+       "Bagnoschiuma"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Academia",
+     "detail": "Para ir treinar",
+     "groups": [
+      [
+       "Camiseta",
+       "Short",
+       "Meias"
+      ],
+      [
+       "Tênis",
+       "Toalha",
+       "Troca de roupa"
+      ],
+      [
+       "Garrafa de água",
+       "Whey"
+      ],
+      [
+       "Carteirinha",
+       "Chave do armário"
+      ],
+      [
+       "Xampu",
+       "Sabonete líquido"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Спортзал",
+     "detail": "На тренировку",
+     "groups": [
+      [
+       "Футболка",
+       "Шорты",
+       "Носки"
+      ],
+      [
+       "Кроссовки",
+       "Полотенце",
+       "Сменная одежда"
+      ],
+      [
+       "Бутылка воды",
+       "Протеин"
+      ],
+      [
+       "Клубная карта",
+       "Ключ от шкафчика"
+      ],
+      [
+       "Шампунь",
+       "Гель для душа"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "النادي الرياضي",
+     "detail": "للذهاب إلى التمرين",
+     "groups": [
+      [
+       "ملابس رياضية",
+       "شورت",
+       "جوارب"
+      ],
+      [
+       "حذاء رياضي",
+       "منشفة",
+       "ملابس بديلة"
+      ],
+      [
+       "زجاجة ماء",
+       "بروتين"
+      ],
+      [
+       "بطاقة العضوية",
+       "مفتاح الخزانة"
+      ],
+      [
+       "شامبو",
+       "غسول الجسم"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "camp",
+   "palette": 7,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "キャンプ・BBQ",
+     "detail": "外で火を使うとき",
+     "groups": [
+      [
+       "テント",
+       "ペグ",
+       "ハンマー"
+      ],
+      [
+       "寝袋",
+       "マット",
+       "ランタン"
+      ],
+      [
+       "コンロ",
+       "炭",
+       "着火剤",
+       "トング"
+      ],
+      [
+       "クーラー",
+       "食材",
+       "飲み物"
+      ],
+      [
+       "食器",
+       "箸",
+       "調味料"
+      ],
+      [
+       "軍手",
+       "ゴミ袋",
+       "虫除け"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Camping & BBQ",
+     "detail": "Cooking outdoors",
+     "groups": [
+      [
+       "Tent",
+       "Pegs",
+       "Mallet"
+      ],
+      [
+       "Sleeping bag",
+       "Mat",
+       "Lantern"
+      ],
+      [
+       "Stove",
+       "Charcoal",
+       "Fire starter",
+       "Tongs"
+      ],
+      [
+       "Cooler",
+       "Food",
+       "Drinks"
+      ],
+      [
+       "Dishes",
+       "Utensils",
+       "Seasonings"
+      ],
+      [
+       "Work gloves",
+       "Trash bags",
+       "Bug spray"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "露营烧烤",
+     "detail": "在户外生火做饭",
+     "groups": [
+      [
+       "帐篷",
+       "地钉",
+       "锤子"
+      ],
+      [
+       "睡袋",
+       "防潮垫",
+       "营灯"
+      ],
+      [
+       "炉子",
+       "木炭",
+       "引火剂",
+       "夹子"
+      ],
+      [
+       "保温箱",
+       "食材",
+       "饮料"
+      ],
+      [
+       "餐具",
+       "筷子",
+       "调料"
+      ],
+      [
+       "手套",
+       "垃圾袋",
+       "驱蚊液"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "露營烤肉",
+     "detail": "在戶外生火的時候",
+     "groups": [
+      [
+       "帳篷",
+       "營釘",
+       "槌子"
+      ],
+      [
+       "睡袋",
+       "睡墊",
+       "營燈"
+      ],
+      [
+       "爐具",
+       "木炭",
+       "助燃劑",
+       "夾子"
+      ],
+      [
+       "冰桶",
+       "食材",
+       "飲料"
+      ],
+      [
+       "餐具",
+       "筷子",
+       "調味料"
+      ],
+      [
+       "手套",
+       "垃圾袋",
+       "防蚊液"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "캠핑·바비큐",
+     "detail": "밖에서 불을 쓸 때",
+     "groups": [
+      [
+       "텐트",
+       "팩",
+       "망치"
+      ],
+      [
+       "침낭",
+       "매트",
+       "랜턴"
+      ],
+      [
+       "버너",
+       "숯",
+       "착화제",
+       "집게"
+      ],
+      [
+       "아이스박스",
+       "식재료",
+       "음료"
+      ],
+      [
+       "식기",
+       "젓가락",
+       "양념"
+      ],
+      [
+       "목장갑",
+       "쓰레기봉투",
+       "모기 기피제"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Camping y barbacoa",
+     "detail": "Cocinar al aire libre",
+     "groups": [
+      [
+       "Tienda",
+       "Piquetas",
+       "Martillo"
+      ],
+      [
+       "Saco de dormir",
+       "Esterilla",
+       "Farol"
+      ],
+      [
+       "Hornillo",
+       "Carbón",
+       "Pastillas fuego",
+       "Pinzas"
+      ],
+      [
+       "Nevera",
+       "Comida",
+       "Bebidas"
+      ],
+      [
+       "Platos",
+       "Cubiertos",
+       "Condimentos"
+      ],
+      [
+       "Guantes",
+       "Bolsas de basura",
+       "Repelente"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Camping et barbecue",
+     "detail": "Cuisiner en plein air",
+     "groups": [
+      [
+       "Tente",
+       "Sardines",
+       "Maillet"
+      ],
+      [
+       "Sac de couchage",
+       "Tapis",
+       "Lanterne"
+      ],
+      [
+       "Réchaud",
+       "Charbon",
+       "Allume-feu",
+       "Pinces"
+      ],
+      [
+       "Glacière",
+       "Nourriture",
+       "Boissons"
+      ],
+      [
+       "Vaisselle",
+       "Couverts",
+       "Condiments"
+      ],
+      [
+       "Gants",
+       "Sacs poubelle",
+       "Anti-moustique"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Camping & Grillen",
+     "detail": "Draußen kochen",
+     "groups": [
+      [
+       "Zelt",
+       "Heringe",
+       "Hammer"
+      ],
+      [
+       "Schlafsack",
+       "Isomatte",
+       "Laterne"
+      ],
+      [
+       "Kocher",
+       "Holzkohle",
+       "Anzünder",
+       "Grillzange"
+      ],
+      [
+       "Kühlbox",
+       "Lebensmittel",
+       "Getränke"
+      ],
+      [
+       "Geschirr",
+       "Besteck",
+       "Gewürze"
+      ],
+      [
+       "Arbeitshandschuhe",
+       "Müllbeutel",
+       "Mückenspray"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Campeggio e grigliata",
+     "detail": "Cucinare all'aperto",
+     "groups": [
+      [
+       "Tenda",
+       "Picchetti",
+       "Martello"
+      ],
+      [
+       "Sacco a pelo",
+       "Materassino",
+       "Lanterna"
+      ],
+      [
+       "Fornellino",
+       "Carbonella",
+       "Accendifuoco",
+       "Pinze"
+      ],
+      [
+       "Frigo portatile",
+       "Cibo",
+       "Bevande"
+      ],
+      [
+       "Stoviglie",
+       "Posate",
+       "Condimenti"
+      ],
+      [
+       "Guanti",
+       "Sacchi rifiuti",
+       "Antizanzare"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Camping e churrasco",
+     "detail": "Cozinhar ao ar livre",
+     "groups": [
+      [
+       "Barraca",
+       "Estacas",
+       "Martelo"
+      ],
+      [
+       "Saco de dormir",
+       "Isolante",
+       "Lanterna"
+      ],
+      [
+       "Fogareiro",
+       "Carvão",
+       "Acendedor",
+       "Pegador"
+      ],
+      [
+       "Cooler",
+       "Comida",
+       "Bebidas"
+      ],
+      [
+       "Pratos",
+       "Talheres",
+       "Temperos"
+      ],
+      [
+       "Luvas",
+       "Sacos de lixo",
+       "Repelente"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Кемпинг и шашлыки",
+     "detail": "Готовим на природе",
+     "groups": [
+      [
+       "Палатка",
+       "Колышки",
+       "Молоток"
+      ],
+      [
+       "Спальник",
+       "Коврик",
+       "Фонарь"
+      ],
+      [
+       "Горелка",
+       "Уголь",
+       "Розжиг",
+       "Щипцы"
+      ],
+      [
+       "Термосумка",
+       "Продукты",
+       "Напитки"
+      ],
+      [
+       "Посуда",
+       "Приборы",
+       "Специи"
+      ],
+      [
+       "Перчатки",
+       "Мешки для мусора",
+       "Репеллент"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "تخييم وشواء",
+     "detail": "الطبخ في الهواء الطلق",
+     "groups": [
+      [
+       "خيمة",
+       "أوتاد",
+       "مطرقة"
+      ],
+      [
+       "كيس النوم",
+       "حصيرة",
+       "فانوس"
+      ],
+      [
+       "موقد",
+       "فحم",
+       "مشعل النار",
+       "ملقط"
+      ],
+      [
+       "صندوق تبريد",
+       "طعام",
+       "مشروبات"
+      ],
+      [
+       "أطباق",
+       "أدوات المائدة",
+       "توابل"
+      ],
+      [
+       "قفازات",
+       "أكياس قمامة",
+       "طارد الحشرات"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "onsen",
+   "palette": 8,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "温泉・銭湯",
+     "detail": "お風呂に行くとき",
+     "groups": [
+      [
+       "タオル",
+       "バスタオル",
+       "着替え"
+      ],
+      [
+       "下着",
+       "靴下"
+      ],
+      [
+       "シャンプー",
+       "洗顔",
+       "化粧水"
+      ],
+      [
+       "髪ゴム",
+       "小銭",
+       "飲み物"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Bathhouse",
+     "detail": "Going for a soak",
+     "groups": [
+      [
+       "Towel",
+       "Bath towel",
+       "Spare clothes"
+      ],
+      [
+       "Underwear",
+       "Socks"
+      ],
+      [
+       "Shampoo",
+       "Face wash",
+       "Toner"
+      ],
+      [
+       "Hair tie",
+       "Coins",
+       "Drink"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "温泉澡堂",
+     "detail": "去泡澡的时候",
+     "groups": [
+      [
+       "毛巾",
+       "浴巾",
+       "换洗衣物"
+      ],
+      [
+       "内衣",
+       "袜子"
+      ],
+      [
+       "洗发水",
+       "洗面奶",
+       "爽肤水"
+      ],
+      [
+       "发圈",
+       "零钱",
+       "饮料"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "溫泉澡堂",
+     "detail": "去泡湯的時候",
+     "groups": [
+      [
+       "毛巾",
+       "浴巾",
+       "換洗衣物"
+      ],
+      [
+       "內衣",
+       "襪子"
+      ],
+      [
+       "洗髮精",
+       "洗面乳",
+       "化妝水"
+      ],
+      [
+       "髮圈",
+       "零錢",
+       "飲料"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "온천·목욕탕",
+     "detail": "목욕하러 갈 때",
+     "groups": [
+      [
+       "수건",
+       "목욕 타월",
+       "갈아입을 옷"
+      ],
+      [
+       "속옷",
+       "양말"
+      ],
+      [
+       "샴푸",
+       "폼클렌징",
+       "스킨"
+      ],
+      [
+       "머리끈",
+       "동전",
+       "음료"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Baños termales",
+     "detail": "Para ir a darse un baño",
+     "groups": [
+      [
+       "Toalla",
+       "Toalla de baño",
+       "Muda de ropa"
+      ],
+      [
+       "Ropa interior",
+       "Calcetines"
+      ],
+      [
+       "Champú",
+       "Limpiador facial",
+       "Tónico"
+      ],
+      [
+       "Coletero",
+       "Monedas",
+       "Bebida"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Bains publics",
+     "detail": "Pour aller se baigner",
+     "groups": [
+      [
+       "Serviette",
+       "Drap de bain",
+       "Rechange"
+      ],
+      [
+       "Sous-vêtements",
+       "Chaussettes"
+      ],
+      [
+       "Shampooing",
+       "Nettoyant visage",
+       "Lotion tonique"
+      ],
+      [
+       "Élastique",
+       "Monnaie",
+       "Boisson"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Therme & Bad",
+     "detail": "Zum Baden gehen",
+     "groups": [
+      [
+       "Handtuch",
+       "Badetuch",
+       "Wechselkleidung"
+      ],
+      [
+       "Unterwäsche",
+       "Socken"
+      ],
+      [
+       "Shampoo",
+       "Gesichtsreiniger",
+       "Gesichtswasser"
+      ],
+      [
+       "Haargummi",
+       "Kleingeld",
+       "Getränk"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Terme",
+     "detail": "Per andare a fare il bagno",
+     "groups": [
+      [
+       "Asciugamano",
+       "Telo bagno",
+       "Cambio"
+      ],
+      [
+       "Intimo",
+       "Calzini"
+      ],
+      [
+       "Shampoo",
+       "Detergente viso",
+       "Tonico"
+      ],
+      [
+       "Elastico",
+       "Monete",
+       "Bevanda"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Banho termal",
+     "detail": "Para ir tomar banho",
+     "groups": [
+      [
+       "Toalha",
+       "Toalha de banho",
+       "Troca de roupa"
+      ],
+      [
+       "Roupa íntima",
+       "Meias"
+      ],
+      [
+       "Xampu",
+       "Sabonete facial",
+       "Tônico"
+      ],
+      [
+       "Elástico",
+       "Moedas",
+       "Bebida"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Баня и сауна",
+     "detail": "Когда идёшь попариться",
+     "groups": [
+      [
+       "Полотенце",
+       "Банное полотенце",
+       "Сменная одежда"
+      ],
+      [
+       "Бельё",
+       "Носки"
+      ],
+      [
+       "Шампунь",
+       "Пенка для лица",
+       "Тоник"
+      ],
+      [
+       "Резинка",
+       "Мелочь",
+       "Напиток"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "حمام عام",
+     "detail": "للذهاب إلى الاستحمام",
+     "groups": [
+      [
+       "منشفة",
+       "منشفة حمام",
+       "ملابس بديلة"
+      ],
+      [
+       "ملابس داخلية",
+       "جوارب"
+      ],
+      [
+       "شامبو",
+       "غسول الوجه",
+       "تونر"
+      ],
+      [
+       "ربطة شعر",
+       "فكة",
+       "مشروب"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "kids",
+   "palette": 9,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "子どもとおでかけ",
+     "detail": "小さい子を連れて出るとき",
+     "groups": [
+      [
+       "おむつ",
+       "おしりふき",
+       "ビニール袋"
+      ],
+      [
+       "着替え",
+       "スタイ",
+       "タオル"
+      ],
+      [
+       "ミルク",
+       "哺乳瓶",
+       "麦茶"
+      ],
+      [
+       "おやつ",
+       "おもちゃ",
+       "絵本"
+      ],
+      [
+       "母子手帳",
+       "保険証",
+       "診察券"
+      ],
+      [
+       "抱っこ紐",
+       "日焼け止め",
+       "帽子"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Out with kids",
+     "detail": "Taking little ones along",
+     "groups": [
+      [
+       "Diapers",
+       "Wipes",
+       "Plastic bags"
+      ],
+      [
+       "Spare clothes",
+       "Bib",
+       "Towel"
+      ],
+      [
+       "Formula",
+       "Bottle",
+       "Water"
+      ],
+      [
+       "Snacks",
+       "Toys",
+       "Picture book"
+      ],
+      [
+       "Health record",
+       "Insurance card",
+       "Clinic card"
+      ],
+      [
+       "Baby carrier",
+       "Sunscreen",
+       "Hat"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "带娃出门",
+     "detail": "带小孩出去时",
+     "groups": [
+      [
+       "尿布",
+       "湿巾",
+       "塑料袋"
+      ],
+      [
+       "换洗衣物",
+       "围兜",
+       "毛巾"
+      ],
+      [
+       "奶粉",
+       "奶瓶",
+       "温水"
+      ],
+      [
+       "零食",
+       "玩具",
+       "绘本"
+      ],
+      [
+       "母婴手册",
+       "医保卡",
+       "就诊卡"
+      ],
+      [
+       "背带",
+       "防晒霜",
+       "帽子"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "帶小孩出門",
+     "detail": "帶小小孩出去時",
+     "groups": [
+      [
+       "尿布",
+       "濕紙巾",
+       "塑膠袋"
+      ],
+      [
+       "換洗衣物",
+       "圍兜",
+       "毛巾"
+      ],
+      [
+       "奶粉",
+       "奶瓶",
+       "溫水"
+      ],
+      [
+       "零食",
+       "玩具",
+       "繪本"
+      ],
+      [
+       "兒童手冊",
+       "健保卡",
+       "掛號證"
+      ],
+      [
+       "揹帶",
+       "防曬乳",
+       "帽子"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "아이와 외출",
+     "detail": "어린아이와 나갈 때",
+     "groups": [
+      [
+       "기저귀",
+       "물티슈",
+       "비닐봉지"
+      ],
+      [
+       "갈아입을 옷",
+       "턱받이",
+       "수건"
+      ],
+      [
+       "분유",
+       "젖병",
+       "보리차"
+      ],
+      [
+       "간식",
+       "장난감",
+       "그림책"
+      ],
+      [
+       "아기수첩",
+       "건강보험증",
+       "진찰권"
+      ],
+      [
+       "아기띠",
+       "선크림",
+       "모자"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Salir con niños",
+     "detail": "Con los más pequeños",
+     "groups": [
+      [
+       "Pañales",
+       "Toallitas",
+       "Bolsas de plástico"
+      ],
+      [
+       "Muda de ropa",
+       "Babero",
+       "Toalla"
+      ],
+      [
+       "Leche en polvo",
+       "Biberón",
+       "Agua"
+      ],
+      [
+       "Merienda",
+       "Juguetes",
+       "Cuento"
+      ],
+      [
+       "Cartilla de salud",
+       "Tarjeta sanitaria",
+       "Tarjeta clínica"
+      ],
+      [
+       "Portabebés",
+       "Protector solar",
+       "Gorro"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Sortie avec enfants",
+     "detail": "Avec les tout-petits",
+     "groups": [
+      [
+       "Couches",
+       "Lingettes",
+       "Sacs plastique"
+      ],
+      [
+       "Rechange",
+       "Bavoir",
+       "Serviette"
+      ],
+      [
+       "Lait en poudre",
+       "Biberon",
+       "Eau"
+      ],
+      [
+       "Goûter",
+       "Jouets",
+       "Livre d'images"
+      ],
+      [
+       "Carnet de santé",
+       "Carte vitale",
+       "Carte clinique"
+      ],
+      [
+       "Porte-bébé",
+       "Crème solaire",
+       "Chapeau"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Mit Kindern raus",
+     "detail": "Mit den Kleinen unterwegs",
+     "groups": [
+      [
+       "Windeln",
+       "Feuchttücher",
+       "Plastiktüten"
+      ],
+      [
+       "Wechselkleidung",
+       "Lätzchen",
+       "Handtuch"
+      ],
+      [
+       "Milchpulver",
+       "Fläschchen",
+       "Wasser"
+      ],
+      [
+       "Snacks",
+       "Spielzeug",
+       "Bilderbuch"
+      ],
+      [
+       "Impfpass",
+       "Versichertenkarte",
+       "Arztkarte"
+      ],
+      [
+       "Babytrage",
+       "Sonnencreme",
+       "Mütze"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Uscita con i bimbi",
+     "detail": "Con i più piccoli",
+     "groups": [
+      [
+       "Pannolini",
+       "Salviette",
+       "Sacchetti"
+      ],
+      [
+       "Cambio",
+       "Bavaglino",
+       "Asciugamano"
+      ],
+      [
+       "Latte in polvere",
+       "Biberon",
+       "Acqua"
+      ],
+      [
+       "Merenda",
+       "Giocattoli",
+       "Libro illustrato"
+      ],
+      [
+       "Libretto sanitario",
+       "Tessera sanitaria",
+       "Tessera clinica"
+      ],
+      [
+       "Marsupio",
+       "Crema solare",
+       "Cappellino"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Passeio com crianças",
+     "detail": "Levando os pequenos",
+     "groups": [
+      [
+       "Fraldas",
+       "Lenço umedecido",
+       "Sacolas"
+      ],
+      [
+       "Troca de roupa",
+       "Babador",
+       "Toalha"
+      ],
+      [
+       "Leite em pó",
+       "Mamadeira",
+       "Água"
+      ],
+      [
+       "Lanche",
+       "Brinquedos",
+       "Livrinho"
+      ],
+      [
+       "Caderneta",
+       "Carteirinha",
+       "Cartão SUS"
+      ],
+      [
+       "Canguru",
+       "Protetor solar",
+       "Chapéu"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "С детьми",
+     "detail": "Когда берёшь малышей",
+     "groups": [
+      [
+       "Подгузники",
+       "Салфетки",
+       "Пакеты"
+      ],
+      [
+       "Сменная одежда",
+       "Слюнявчик",
+       "Полотенце"
+      ],
+      [
+       "Смесь",
+       "Бутылочка",
+       "Вода"
+      ],
+      [
+       "Перекус",
+       "Игрушки",
+       "Книжка"
+      ],
+      [
+       "Медкарта",
+       "Полис ОМС",
+       "Карта клиники"
+      ],
+      [
+       "Слинг",
+       "Солнцезащитный",
+       "Панамка"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "خروج مع الأطفال",
+     "detail": "مع الصغار",
+     "groups": [
+      [
+       "حفاضات",
+       "مناديل مبللة",
+       "أكياس بلاستيك"
+      ],
+      [
+       "ملابس بديلة",
+       "مريلة",
+       "منشفة"
+      ],
+      [
+       "حليب أطفال",
+       "رضاعة",
+       "ماء"
+      ],
+      [
+       "وجبات خفيفة",
+       "ألعاب",
+       "كتاب مصور"
+      ],
+      [
+       "سجل الصحة",
+       "بطاقة التأمين",
+       "بطاقة العيادة"
+      ],
+      [
+       "حمالة الطفل",
+       "واقي الشمس",
+       "قبعة"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "hospital",
+   "palette": 10,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "通院",
+     "detail": "病院へ行くとき",
+     "groups": [
+      [
+       "保険証",
+       "診察券",
+       "お薬手帳"
+      ],
+      [
+       "財布",
+       "現金",
+       "スマホ"
+      ],
+      [
+       "紹介状",
+       "検査結果"
+      ],
+      [
+       "マスク",
+       "飲み物"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Doctor visit",
+     "detail": "Going to the clinic",
+     "groups": [
+      [
+       "Insurance card",
+       "Clinic card",
+       "Med list"
+      ],
+      [
+       "Wallet",
+       "Cash",
+       "Phone"
+      ],
+      [
+       "Referral",
+       "Test results"
+      ],
+      [
+       "Mask",
+       "Drink"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "看病",
+     "detail": "去医院的时候",
+     "groups": [
+      [
+       "医保卡",
+       "就诊卡",
+       "用药记录"
+      ],
+      [
+       "钱包",
+       "现金",
+       "手机"
+      ],
+      [
+       "转诊单",
+       "检查结果"
+      ],
+      [
+       "口罩",
+       "饮料"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "看醫生",
+     "detail": "去醫院的時候",
+     "groups": [
+      [
+       "健保卡",
+       "掛號證",
+       "用藥紀錄"
+      ],
+      [
+       "錢包",
+       "現金",
+       "手機"
+      ],
+      [
+       "轉診單",
+       "檢查報告"
+      ],
+      [
+       "口罩",
+       "飲料"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "병원",
+     "detail": "병원에 갈 때",
+     "groups": [
+      [
+       "건강보험증",
+       "진찰권",
+       "약 수첩"
+      ],
+      [
+       "지갑",
+       "현금",
+       "휴대폰"
+      ],
+      [
+       "진료의뢰서",
+       "검사 결과"
+      ],
+      [
+       "마스크",
+       "음료"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Al médico",
+     "detail": "Para ir a la consulta",
+     "groups": [
+      [
+       "Tarjeta sanitaria",
+       "Tarjeta clínica",
+       "Medicación"
+      ],
+      [
+       "Cartera",
+       "Efectivo",
+       "Móvil"
+      ],
+      [
+       "Volante",
+       "Resultados"
+      ],
+      [
+       "Mascarilla",
+       "Bebida"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Rendez-vous médical",
+     "detail": "Pour aller chez le médecin",
+     "groups": [
+      [
+       "Carte vitale",
+       "Carte clinique",
+       "Ordonnance"
+      ],
+      [
+       "Portefeuille",
+       "Espèces",
+       "Téléphone"
+      ],
+      [
+       "Lettre du médecin",
+       "Résultats"
+      ],
+      [
+       "Masque",
+       "Boisson"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Arztbesuch",
+     "detail": "Zum Arzt gehen",
+     "groups": [
+      [
+       "Versichertenkarte",
+       "Arztkarte",
+       "Medikamentenplan"
+      ],
+      [
+       "Geldbörse",
+       "Bargeld",
+       "Handy"
+      ],
+      [
+       "Überweisung",
+       "Befunde"
+      ],
+      [
+       "Maske",
+       "Getränk"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Visita medica",
+     "detail": "Per andare dal medico",
+     "groups": [
+      [
+       "Tessera sanitaria",
+       "Tessera clinica",
+       "Elenco farmaci"
+      ],
+      [
+       "Portafoglio",
+       "Contanti",
+       "Telefono"
+      ],
+      [
+       "Impegnativa",
+       "Referti"
+      ],
+      [
+       "Mascherina",
+       "Bevanda"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Consulta médica",
+     "detail": "Para ir ao médico",
+     "groups": [
+      [
+       "Carteirinha",
+       "Cartão SUS",
+       "Lista de remédios"
+      ],
+      [
+       "Carteira",
+       "Dinheiro",
+       "Celular"
+      ],
+      [
+       "Encaminhamento",
+       "Exames"
+      ],
+      [
+       "Máscara",
+       "Bebida"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "К врачу",
+     "detail": "Когда идёшь в поликлинику",
+     "groups": [
+      [
+       "Полис ОМС",
+       "Карта клиники",
+       "Список лекарств"
+      ],
+      [
+       "Кошелёк",
+       "Наличные",
+       "Телефон"
+      ],
+      [
+       "Направление",
+       "Анализы"
+      ],
+      [
+       "Маска",
+       "Напиток"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "زيارة الطبيب",
+     "detail": "للذهاب إلى العيادة",
+     "groups": [
+      [
+       "بطاقة التأمين",
+       "بطاقة العيادة",
+       "قائمة الأدوية"
+      ],
+      [
+       "المحفظة",
+       "نقود",
+       "الهاتف"
+      ],
+      [
+       "خطاب التحويل",
+       "نتائج الفحص"
+      ],
+      [
+       "كمامة",
+       "مشروب"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "ceremony",
+   "palette": 4,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "冠婚葬祭",
+     "detail": "急に必要になるもの",
+     "groups": [
+      [
+       "礼服",
+       "ネクタイ",
+       "黒靴下"
+      ],
+      [
+       "袱紗",
+       "香典",
+       "ご祝儀袋"
+      ],
+      [
+       "数珠",
+       "ハンカチ",
+       "筆ペン"
+      ],
+      [
+       "財布",
+       "スマホ"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Formal event",
+     "detail": "Weddings and funerals",
+     "groups": [
+      [
+       "Formal wear",
+       "Tie",
+       "Black socks"
+      ],
+      [
+       "Gift",
+       "Card",
+       "Envelope"
+      ],
+      [
+       "Handkerchief",
+       "Pen",
+       "Mints"
+      ],
+      [
+       "Wallet",
+       "Phone"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "红白喜事",
+     "detail": "临时要用的东西",
+     "groups": [
+      [
+       "正装",
+       "领带",
+       "黑袜子"
+      ],
+      [
+       "礼金",
+       "贺卡",
+       "红包"
+      ],
+      [
+       "手帕",
+       "笔",
+       "口香糖"
+      ],
+      [
+       "钱包",
+       "手机"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "婚喪喜慶",
+     "detail": "臨時需要的東西",
+     "groups": [
+      [
+       "正式服裝",
+       "領帶",
+       "黑襪子"
+      ],
+      [
+       "禮金",
+       "卡片",
+       "紅包袋"
+      ],
+      [
+       "手帕",
+       "筆",
+       "口香糖"
+      ],
+      [
+       "錢包",
+       "手機"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "경조사",
+     "detail": "갑자기 필요한 것",
+     "groups": [
+      [
+       "정장",
+       "넥타이",
+       "검은 양말"
+      ],
+      [
+       "축의금",
+       "카드",
+       "봉투"
+      ],
+      [
+       "손수건",
+       "펜",
+       "껌"
+      ],
+      [
+       "지갑",
+       "휴대폰"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Evento formal",
+     "detail": "Bodas y funerales",
+     "groups": [
+      [
+       "Traje",
+       "Corbata",
+       "Calcetines negros"
+      ],
+      [
+       "Regalo",
+       "Tarjeta",
+       "Sobre"
+      ],
+      [
+       "Pañuelo",
+       "Bolígrafo",
+       "Caramelos"
+      ],
+      [
+       "Cartera",
+       "Móvil"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Cérémonie",
+     "detail": "Mariages et funérailles",
+     "groups": [
+      [
+       "Costume",
+       "Cravate",
+       "Chaussettes noires"
+      ],
+      [
+       "Cadeau",
+       "Carte",
+       "Enveloppe"
+      ],
+      [
+       "Mouchoir",
+       "Stylo",
+       "Bonbons"
+      ],
+      [
+       "Portefeuille",
+       "Téléphone"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Feierlichkeit",
+     "detail": "Hochzeiten und Trauerfeiern",
+     "groups": [
+      [
+       "Anzug",
+       "Krawatte",
+       "Schwarze Socken"
+      ],
+      [
+       "Geschenk",
+       "Karte",
+       "Umschlag"
+      ],
+      [
+       "Taschentuch",
+       "Stift",
+       "Pfefferminz"
+      ],
+      [
+       "Geldbörse",
+       "Handy"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Cerimonia",
+     "detail": "Matrimoni e funerali",
+     "groups": [
+      [
+       "Abito",
+       "Cravatta",
+       "Calzini neri"
+      ],
+      [
+       "Regalo",
+       "Biglietto",
+       "Busta"
+      ],
+      [
+       "Fazzoletto",
+       "Penna",
+       "Mentine"
+      ],
+      [
+       "Portafoglio",
+       "Telefono"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Evento formal",
+     "detail": "Casamentos e velórios",
+     "groups": [
+      [
+       "Terno",
+       "Gravata",
+       "Meias pretas"
+      ],
+      [
+       "Presente",
+       "Cartão",
+       "Envelope"
+      ],
+      [
+       "Lenço",
+       "Caneta",
+       "Balas"
+      ],
+      [
+       "Carteira",
+       "Celular"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Торжество",
+     "detail": "Свадьбы и похороны",
+     "groups": [
+      [
+       "Костюм",
+       "Галстук",
+       "Чёрные носки"
+      ],
+      [
+       "Подарок",
+       "Открытка",
+       "Конверт"
+      ],
+      [
+       "Платок",
+       "Ручка",
+       "Мятные конфеты"
+      ],
+      [
+       "Кошелёк",
+       "Телефон"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "مناسبة رسمية",
+     "detail": "الأعراس والعزاء",
+     "groups": [
+      [
+       "بدلة",
+       "ربطة عنق",
+       "جوارب سوداء"
+      ],
+      [
+       "هدية",
+       "بطاقة",
+       "ظرف"
+      ],
+      [
+       "منديل",
+       "قلم",
+       "حلوى نعناع"
+      ],
+      [
+       "المحفظة",
+       "الهاتف"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "disaster",
+   "palette": 8,
+   "columns": 4,
+   "languages": {
+    "ja": {
+     "name": "防災",
+     "detail": "持ち出し袋の中身",
+     "groups": [
+      [
+       "水",
+       "非常食",
+       "携帯ラジオ"
+      ],
+      [
+       "懐中電灯",
+       "電池",
+       "モバイル充電"
+      ],
+      [
+       "救急セット",
+       "常備薬",
+       "マスク"
+      ],
+      [
+       "現金",
+       "身分証コピー",
+       "通帳"
+      ],
+      [
+       "軍手",
+       "ホイッスル",
+       "レインコート"
+      ],
+      [
+       "タオル",
+       "歯ブラシ",
+       "携帯トイレ"
+      ]
+     ]
+    },
+    "en": {
+     "name": "Emergency kit",
+     "detail": "What goes in the go-bag",
+     "groups": [
+      [
+       "Water",
+       "Emergency food",
+       "Radio"
+      ],
+      [
+       "Flashlight",
+       "Batteries",
+       "Power bank"
+      ],
+      [
+       "First aid kit",
+       "Medicine",
+       "Mask"
+      ],
+      [
+       "Cash",
+       "Copy of ID",
+       "Bank card"
+      ],
+      [
+       "Work gloves",
+       "Whistle",
+       "Raincoat"
+      ],
+      [
+       "Towel",
+       "Toothbrush",
+       "Toilet bags"
+      ]
+     ]
+    },
+    "zh-Hans": {
+     "name": "应急包",
+     "detail": "避难时带走的东西",
+     "groups": [
+      [
+       "饮用水",
+       "应急食品",
+       "收音机"
+      ],
+      [
+       "手电筒",
+       "电池",
+       "充电宝"
+      ],
+      [
+       "急救包",
+       "常备药",
+       "口罩"
+      ],
+      [
+       "现金",
+       "证件复印件",
+       "银行卡"
+      ],
+      [
+       "手套",
+       "哨子",
+       "雨衣"
+      ],
+      [
+       "毛巾",
+       "牙刷",
+       "便携厕所"
+      ]
+     ]
+    },
+    "zh-Hant": {
+     "name": "防災包",
+     "detail": "避難時帶走的東西",
+     "groups": [
+      [
+       "飲用水",
+       "緊急糧食",
+       "收音機"
+      ],
+      [
+       "手電筒",
+       "電池",
+       "行動電源"
+      ],
+      [
+       "急救包",
+       "常備藥",
+       "口罩"
+      ],
+      [
+       "現金",
+       "證件影本",
+       "存摺"
+      ],
+      [
+       "手套",
+       "哨子",
+       "雨衣"
+      ],
+      [
+       "毛巾",
+       "牙刷",
+       "攜帶式馬桶"
+      ]
+     ]
+    },
+    "ko": {
+     "name": "비상용품",
+     "detail": "비상 가방 속 물건",
+     "groups": [
+      [
+       "물",
+       "비상식량",
+       "휴대용 라디오"
+      ],
+      [
+       "손전등",
+       "건전지",
+       "보조배터리"
+      ],
+      [
+       "구급상자",
+       "상비약",
+       "마스크"
+      ],
+      [
+       "현금",
+       "신분증 사본",
+       "통장"
+      ],
+      [
+       "목장갑",
+       "호루라기",
+       "우비"
+      ],
+      [
+       "수건",
+       "칫솔",
+       "휴대용 변기"
+      ]
+     ]
+    },
+    "es": {
+     "name": "Kit de emergencia",
+     "detail": "Lo que va en la mochila",
+     "groups": [
+      [
+       "Agua",
+       "Víveres",
+       "Radio"
+      ],
+      [
+       "Linterna",
+       "Pilas",
+       "Batería externa"
+      ],
+      [
+       "Botiquín",
+       "Medicinas",
+       "Mascarilla"
+      ],
+      [
+       "Efectivo",
+       "Copia del DNI",
+       "Tarjeta bancaria"
+      ],
+      [
+       "Guantes",
+       "Silbato",
+       "Chubasquero"
+      ],
+      [
+       "Toalla",
+       "Cepillo de dientes",
+       "Bolsas WC"
+      ]
+     ]
+    },
+    "fr": {
+     "name": "Kit d'urgence",
+     "detail": "Le contenu du sac d'évacuation",
+     "groups": [
+      [
+       "Eau",
+       "Rations",
+       "Radio"
+      ],
+      [
+       "Lampe torche",
+       "Piles",
+       "Batterie externe"
+      ],
+      [
+       "Trousse de secours",
+       "Médicaments",
+       "Masque"
+      ],
+      [
+       "Espèces",
+       "Copie d'identité",
+       "Carte bancaire"
+      ],
+      [
+       "Gants",
+       "Sifflet",
+       "Imperméable"
+      ],
+      [
+       "Serviette",
+       "Brosse à dents",
+       "WC portable"
+      ]
+     ]
+    },
+    "de": {
+     "name": "Notfallset",
+     "detail": "Inhalt des Notfallrucksacks",
+     "groups": [
+      [
+       "Wasser",
+       "Notvorrat",
+       "Radio"
+      ],
+      [
+       "Taschenlampe",
+       "Batterien",
+       "Powerbank"
+      ],
+      [
+       "Erste-Hilfe-Set",
+       "Medikamente",
+       "Maske"
+      ],
+      [
+       "Bargeld",
+       "Ausweiskopie",
+       "Bankkarte"
+      ],
+      [
+       "Arbeitshandschuhe",
+       "Trillerpfeife",
+       "Regenjacke"
+      ],
+      [
+       "Handtuch",
+       "Zahnbürste",
+       "Notfalltoilette"
+      ]
+     ]
+    },
+    "it": {
+     "name": "Kit di emergenza",
+     "detail": "Cosa mettere nello zaino",
+     "groups": [
+      [
+       "Acqua",
+       "Scorte",
+       "Radio"
+      ],
+      [
+       "Torcia",
+       "Batterie",
+       "Power bank"
+      ],
+      [
+       "Kit pronto soccorso",
+       "Medicine",
+       "Mascherina"
+      ],
+      [
+       "Contanti",
+       "Copia documento",
+       "Bancomat"
+      ],
+      [
+       "Guanti",
+       "Fischietto",
+       "Impermeabile"
+      ],
+      [
+       "Asciugamano",
+       "Spazzolino",
+       "WC portatile"
+      ]
+     ]
+    },
+    "pt-BR": {
+     "name": "Kit de emergência",
+     "detail": "O que vai na mochila",
+     "groups": [
+      [
+       "Água",
+       "Mantimentos",
+       "Rádio"
+      ],
+      [
+       "Lanterna",
+       "Pilhas",
+       "Power bank"
+      ],
+      [
+       "Primeiros socorros",
+       "Remédios",
+       "Máscara"
+      ],
+      [
+       "Dinheiro",
+       "Cópia do RG",
+       "Cartão do banco"
+      ],
+      [
+       "Luvas",
+       "Apito",
+       "Capa de chuva"
+      ],
+      [
+       "Toalha",
+       "Escova de dentes",
+       "Banheiro portátil"
+      ]
+     ]
+    },
+    "ru": {
+     "name": "Тревожный чемоданчик",
+     "detail": "Что положить в сумку",
+     "groups": [
+      [
+       "Вода",
+       "Сухпаёк",
+       "Радио"
+      ],
+      [
+       "Фонарик",
+       "Батарейки",
+       "Пауэрбанк"
+      ],
+      [
+       "Аптечка",
+       "Лекарства",
+       "Маска"
+      ],
+      [
+       "Наличные",
+       "Копия паспорта",
+       "Банковская карта"
+      ],
+      [
+       "Перчатки",
+       "Свисток",
+       "Дождевик"
+      ],
+      [
+       "Полотенце",
+       "Зубная щётка",
+       "Биотуалет"
+      ]
+     ]
+    },
+    "ar": {
+     "name": "حقيبة الطوارئ",
+     "detail": "ما يوضع في حقيبة الإخلاء",
+     "groups": [
+      [
+       "ماء",
+       "طعام الطوارئ",
+       "راديو"
+      ],
+      [
+       "مصباح يدوي",
+       "بطاريات",
+       "باور بنك"
+      ],
+      [
+       "حقيبة إسعاف",
+       "أدوية",
+       "كمامة"
+      ],
+      [
+       "نقود",
+       "نسخة الهوية",
+       "بطاقة بنكية"
+      ],
+      [
+       "قفازات",
+       "صفارة",
+       "معطف مطر"
+      ],
+      [
+       "منشفة",
+       "فرشاة أسنان",
+       "مرحاض محمول"
+      ]
+     ]
+    }
+   }
+  }
+ ]
+}

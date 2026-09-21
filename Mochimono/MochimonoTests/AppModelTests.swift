@@ -16,7 +16,9 @@ struct AppModelTests {
 
     @Test func 初回は雛形から3本入っている() {
         let model = AppModel(defaults: freshDefaults())
-        #expect(model.store.lists.map(\.name) == ["街中", "通勤・通学", "国内旅行"])
+        // 名前は端末の言語で変わるので、その言語の雛形と比べる
+        let names = Store.starter(language: model.language).lists.map(\.name)
+        #expect(model.store.lists.map(\.name) == names)
         #expect(model.store.lists.allSatisfy { !$0.items.isEmpty })
         #expect(model.saveError == nil)
     }
@@ -25,10 +27,10 @@ struct AppModelTests {
     @Test func 雛形から追加できる() {
         let model = AppModel(defaults: freshDefaults())
         let before = model.store.lists.count
-        let preset = Preset.preset(id: "camp")!
+        let preset = Preset.preset(id: "camp", language: model.language)!
         let id = model.addList(from: preset)
         #expect(model.store.lists.count == before + 1)
-        #expect(model.list(id)?.name == "キャンプ・BBQ")
+        #expect(model.list(id)?.name == preset.name)   // 名前は端末の言語で変わる
         #expect(model.list(id)?.items.count == preset.items.count)
         #expect(model.list(id)?.palette == preset.palette)
         #expect(model.list(id)?.packedCount == 0)
@@ -37,7 +39,7 @@ struct AppModelTests {
     /// 同じ雛形から2本作っても、片方の編集がもう片方に及ばない。
     @Test func 雛形から2本作っても互いに影響しない() {
         let model = AppModel(defaults: freshDefaults())
-        let preset = Preset.preset(id: "gym")!
+        let preset = Preset.preset(id: "gym", language: model.language)!
         let a = model.addList(from: preset)
         let b = model.addList(from: preset)
         #expect(a != b)
@@ -128,7 +130,7 @@ struct AppModelTests {
         let model = AppModel(defaults: freshDefaults())
         let id = model.store.lists[0].id
         model.updateContents(of: id, name: "   ", text: "A")
-        #expect(model.list(id)?.name == "名前のないリスト")
+        #expect(model.list(id)?.name == CoreText.get(.untitledList, model.language))
     }
 
     /// 編集画面を開かずに1つ足せること。
@@ -166,11 +168,13 @@ struct AppModelTests {
         let defaults = freshDefaults()
         do {
             let model = AppModel(defaults: defaults)
+            let n = model.store.lists.map(\.name)
             model.moveLists(from: IndexSet(integer: 2), to: 0)
-            #expect(model.store.lists.map(\.name) == ["国内旅行", "街中", "通勤・通学"])
+            #expect(model.store.lists.map(\.name) == [n[2], n[0], n[1]])
         }
-        #expect(AppModel(defaults: defaults).store.lists.map(\.name)
-                == ["国内旅行", "街中", "通勤・通学"])
+        let model = AppModel(defaults: defaults)
+        let n = Store.starter(language: model.language).lists.map(\.name)
+        #expect(model.store.lists.map(\.name) == [n[2], n[0], n[1]])
     }
 
     /// 貼り付けたテキストから盤面になること。**この道具の芯なので落とせない。**

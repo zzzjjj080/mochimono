@@ -153,7 +153,7 @@ struct AppendTests {
 struct PasteTests {
 
     @Test func テキストから盤面になる() {
-        let l = PackingList.fromPastedText("財布\nスマホ\n\n充電器")
+        let l = PackingList.fromPastedText("財布\nスマホ\n\n充電器", language: .ja)
         #expect(l?.items.map { "\($0.text):\($0.group)" } == ["財布:0", "スマホ:0", "充電器:1"])
     }
 
@@ -161,7 +161,7 @@ struct PasteTests {
     @Test func 書き出して読み戻しても変わらない() {
         var original = PackingList(name: "野球", text: "帽子\nバット\n\nタオル\n水筒")
         original.toggle(original.items[0].id)
-        let restored = PackingList.fromPastedText(original.text, name: original.name)
+        let restored = PackingList.fromPastedText(original.text, name: original.name, language: .ja)
         #expect(restored?.text == original.text)
         #expect(restored?.items.map(\.text) == original.items.map(\.text))
         #expect(restored?.items.map(\.group) == original.items.map(\.group))
@@ -170,19 +170,19 @@ struct PasteTests {
     }
 
     @Test func 名前を渡さなければ最初の項目から借りる() {
-        #expect(PackingList.fromPastedText("財布\nスマホ")?.name == "財布")
-        let long = PackingList.fromPastedText("とてもながいなまえのもちもの\nスマホ")
+        #expect(PackingList.fromPastedText("財布\nスマホ", language: .ja)?.name == "財布")
+        let long = PackingList.fromPastedText("とてもながいなまえのもちもの\nスマホ", language: .ja)
         #expect(long?.name.count == 10)
     }
 
     @Test func 中身が無ければ作らない() {
-        #expect(PackingList.fromPastedText("") == nil)
-        #expect(PackingList.fromPastedText("\n \n\t\n") == nil)
+        #expect(PackingList.fromPastedText("", language: .ja) == nil)
+        #expect(PackingList.fromPastedText("\n \n\t\n", language: .ja) == nil)
     }
 
     /// 他のアプリで書いたテキストも、そのまま受け取れること。
     @Test func 箇条書きの記号が混ざっていても読める() {
-        let l = PackingList.fromPastedText("  財布  \r\nスマホ\r\n\r\n充電器")
+        let l = PackingList.fromPastedText("  財布  \r\nスマホ\r\n\r\n充電器", language: .ja)
         #expect(l?.items.map(\.text) == ["財布", "スマホ", "充電器"])
     }
 }

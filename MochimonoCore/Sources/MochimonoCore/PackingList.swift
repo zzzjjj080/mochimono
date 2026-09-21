@@ -75,7 +75,9 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     public init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
-        name = try c.decodeIfPresent(String.self, forKey: .name) ?? "名前のないリスト"
+        // 名前が欠けた保存は壊れたときだけ。そのときの言語は分からないので英語で埋める
+        name = try c.decodeIfPresent(String.self, forKey: .name)
+            ?? CoreText.get(.untitledList, .fallback)
         text = try c.decodeIfPresent(String.self, forKey: .text) ?? ""
         columns = try c.decodeIfPresent(Columns.self, forKey: .columns) ?? .four
         palette = try c.decodeIfPresent(Palette.self, forKey: .palette) ?? .first
@@ -140,15 +142,16 @@ public struct PackingList: Identifiable, Equatable, Codable, Sendable {
     /// **書き出したものをそのまま読み戻せること**が、この道具の芯。
     /// 独自の書式を足すと、他のアプリで書いたテキストが使えなくなる。
     /// だから**受け取るのは、ただのテキストだけ**にしてある。
-    public static func fromPastedText(_ text: String, name: String? = nil) -> PackingList? {
+    public static func fromPastedText(_ text: String, name: String? = nil,
+                                      language: Language) -> PackingList? {
         let items = parse(text, preserving: [])
         guard !items.isEmpty else { return nil }
-        return PackingList(name: name ?? suggestedName(for: items), text: text)
+        return PackingList(name: name ?? suggestedName(for: items, language: language), text: text)
     }
 
     /// 名前が無いときは、最初の項目から借りる。「新しいリスト」が並ぶより探しやすい。
-    static func suggestedName(for items: [Item]) -> String {
-        guard let first = items.first?.text else { return "新しいリスト" }
+    static func suggestedName(for items: [Item], language: Language) -> String {
+        guard let first = items.first?.text else { return CoreText.get(.newList, language) }
         return first.count <= 10 ? first : String(first.prefix(10))
     }
 

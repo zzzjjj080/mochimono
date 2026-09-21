@@ -70,7 +70,7 @@ final class TipJar {
             switch try await product.purchase() {
             case .success(let verification):
                 guard case .verified(let transaction) = verification else {
-                    state = .failed("購入を確認できませんでした")
+                    state = .failed(String(localized: "購入を確認できませんでした"))
                     return
                 }
                 await record(transaction)
@@ -84,7 +84,7 @@ final class TipJar {
                 state = .idle
             }
         } catch {
-            state = .failed("購入できませんでした")
+            state = .failed(String(localized: "購入できませんでした"))
         }
     }
 

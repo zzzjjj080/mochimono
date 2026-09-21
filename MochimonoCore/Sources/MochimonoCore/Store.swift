@@ -45,21 +45,25 @@ public struct Store: Equatable, Codable, Sendable {
     /// 末尾に足すと、本数が増えたときに元と離れて見比べられない。
     /// 名前は重ならないようにする。同じ名前が並ぶと、どちらを開いたのか分からなくなる。
     @discardableResult
-    public mutating func duplicate(id: PackingList.ID) -> PackingList.ID? {
+    public mutating func duplicate(id: PackingList.ID, language: Language) -> PackingList.ID? {
         guard let i = lists.firstIndex(where: { $0.id == id }) else { return nil }
-        let copy = lists[i].duplicated(name: unusedName(basedOn: lists[i].name))
+        let copy = lists[i].duplicated(name: unusedName(basedOn: lists[i].name, language: language))
         lists.insert(copy, at: i + 1)
         return copy.id
     }
 
     /// 「◯◯のコピー」。既にあれば 2, 3 … と数字を足す。
-    func unusedName(basedOn name: String) -> String {
-        let base = name + "のコピー"
+    /// **語順は言語ごとに違う**（`%@ copy` / `Copie de …` など）ので、組み立ては表の書式に任せる。
+    func unusedName(basedOn name: String, language: Language) -> String {
+        let base = String(format: CoreText.get(.copyOf, language), name)
         let taken = Set(lists.map(\.name))
         guard taken.contains(base) else { return base }
         var n = 2
-        while taken.contains("\(base)\(n)") { n += 1 }
-        return "\(base)\(n)"
+        func numbered(_ n: Int) -> String {
+            String(format: CoreText.get(.copyOfNumbered, language), name, n)
+        }
+        while taken.contains(numbered(n)) { n += 1 }
+        return numbered(n)
     }
 
     public mutating func remove(id: PackingList.ID) {
@@ -70,10 +74,11 @@ public struct Store: Equatable, Codable, Sendable {
     ///
     /// 空っぽで始めると、何をどう書けばいいのかが分からない。
     /// **よく使う3本を最初から入れておく。** 残りは「追加」から雛形として選べる。
-    public static var starter: Store {
+    /// **その言語の雛形で作る。** 英語の画面に日本語の雛形が並ぶと、最初の一画面で使えない。
+    public static func starter(language: Language) -> Store {
         Store(appearance: .system,
               lists: ["town", "commute", "trip-domestic"]
-                .compactMap { Preset.preset(id: $0)?.makeList() })
+                .compactMap { Preset.preset(id: $0, language: language)?.makeList() })
     }
 
 }

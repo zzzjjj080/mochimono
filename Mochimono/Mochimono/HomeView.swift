@@ -76,16 +76,18 @@ struct HomeView: View {
     }
 
     /// 「今日」「昨日」だけ言葉にする。日付だけだと、直近かどうかが一目で分からない。
+    ///
+    /// 日付の書き方は**書式の地域に任せる**（`formatted`）。「9月5日」を直書きすると、
+    /// 英語の端末でも日本式の日付が出る。
     static func completedLabel(_ date: Date, now: Date = Date(),
                                calendar: Calendar = .current) -> String {
-        if calendar.isDateInToday(date) { return "今日そろった" }
-        if calendar.isDateInYesterday(date) { return "昨日そろった" }
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "ja_JP")
+        if calendar.isDateInToday(date) { return String(localized: "今日そろった") }
+        if calendar.isDateInYesterday(date) { return String(localized: "昨日そろった") }
         // 年をまたいだら年も出す。「1/4」だけでは去年のものと区別が付かない。
         let sameYear = calendar.component(.year, from: date) == calendar.component(.year, from: now)
-        f.dateFormat = sameYear ? "M月d日" : "yyyy年M月d日"
-        return f.string(from: date) + "にそろった"
+        let day = sameYear ? date.formatted(.dateTime.month().day())
+                           : date.formatted(.dateTime.year().month().day())
+        return String(localized: "\(day)にそろった")
     }
 
     private func row(_ list: PackingList) -> some View {
@@ -124,7 +126,8 @@ struct HomeView: View {
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
-                Text(list.isComplete ? "そろった" : "個")
+                // 三項演算子に文字列を2つ書くと String 扱いになり、訳が効かない。Text ごと選ぶ
+                (list.isComplete ? Text("そろった") : Text("個"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
