@@ -13,6 +13,9 @@ import MochimonoCore
 /// - 間隔は下の段で変えられる。**読んでいる途中に変えても、次の間から効く**
 /// - 間の途中で、いま読んだ物が付いたら残りを待たずに次へ進む（周の切れ目は縮めない）
 /// - 読み上げ中は画面を消さない。消えると読み上げも止まる
+/// - **電話・Siri・アラームで音が奪われたら止める。イヤホンを抜いたら止める**（Apple の決まり：
+///   抜いた瞬間にスピーカーから鳴り出してはいけない）。止めずにいると、読み終わりの知らせが来ずに
+///   待ちが残り、ボタンが「止める」のまま戻らなくなる
 @Observable @MainActor
 final class ReadAloudSession {
     private(set) var isRunning = false
@@ -22,6 +25,8 @@ final class ReadAloudSession {
     private let synthesizer = AVSpeechSynthesizer()
     private let speaker = Speaker()
     private var loop: Task<Void, Never>?
+    /// 割り込み（電話など）とイヤホンの抜き差しの見張り。読んでいる間だけ置く
+    private var watchers: [NSObjectProtocol] = []
     /// 声の選択肢（5つ）。端末に入っている声から、開いたときに組む
     let slots: [VoiceMenu.Slot]
     /// 読み始めてから読んだ品の数。交互に読む声（4・5番）の順番に使う
@@ -76,6 +81,7 @@ final class ReadAloudSession {
         // 流している音楽は止めずに小さくする。準備しながら聞いていることが多い
         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try? session.setActive(true)
+        watch(session)
         loop = Task { [weak self] in
             guard let self else { return }
             await self.run(items: items, gap: gap)
@@ -87,11 +93,33 @@ final class ReadAloudSession {
         guard isRunning else { return }
         loop?.cancel()
         synthesizer.stopSpeaking(at: .immediate)
+        // 読み始める直前・読み終えた直後に押されると、読み終わりの知らせが来ない。待ちはこちらで解く
+        speaker.finishNow()
     }
 
     private var voice: () -> Int = { 0 }
 
+    private func watch(_ session: AVAudioSession) {
+        let center = NotificationCenter.default
+        watchers = [
+            center.addObserver(forName: AVAudioSession.interruptionNotification, object: session,
+                               queue: .main) { [weak self] note in
+                let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+                guard raw.flatMap(AVAudioSession.InterruptionType.init) == .began else { return }
+                MainActor.assumeIsolated { self?.stop() }
+            },
+            center.addObserver(forName: AVAudioSession.routeChangeNotification, object: session,
+                               queue: .main) { [weak self] note in
+                let raw = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
+                guard raw.flatMap(AVAudioSession.RouteChangeReason.init) == .oldDeviceUnavailable else { return }
+                MainActor.assumeIsolated { self?.stop() }
+            },
+        ]
+    }
+
     private func finish() {
+        watchers.forEach(NotificationCenter.default.removeObserver)
+        watchers = []
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         UIApplication.shared.isIdleTimerDisabled = false
         isRunning = false
@@ -138,10 +166,20 @@ final class ReadAloudSession {
             ?? AVSpeechSynthesisVoice(language: speechCode)
         u.pitchMultiplier = variant.pitch
         u.rate = min(AVSpeechUtteranceDefaultSpeechRate * variant.rate, AVSpeechUtteranceMaximumSpeechRate)
+        // **時間切れも付ける。** 音の道が奪われたまま知らせが来ないと、読み上げが止まったまま戻らない。
+        // 1文字0.4秒＋3秒あれば、どの言語・どの速さでも読み終わる
+        let limit = Duration.milliseconds(3000 + text.count * 400)
+        let guardTask = Task { [speaker, synthesizer] in
+            try? await Task.sleep(for: limit)
+            guard !Task.isCancelled else { return }
+            synthesizer.stopSpeaking(at: .immediate)
+            speaker.finishNow()
+        }
         await withCheckedContinuation { c in
             speaker.onFinish = { c.resume() }
             synthesizer.speak(u)
         }
+        guardTask.cancel()
     }
 }
 
@@ -153,10 +191,13 @@ private final class Speaker: NSObject, AVSpeechSynthesizerDelegate, @unchecked S
     nonisolated func speechSynthesizer(_ s: AVSpeechSynthesizer, didCancel u: AVSpeechUtterance) { done() }
 
     private nonisolated func done() {
-        Task { @MainActor in
-            let f = self.onFinish
-            self.onFinish = nil       // 1回だけ。2回呼ぶと待ちが壊れる
-            f?()
-        }
+        Task { @MainActor in self.finishNow() }
+    }
+
+    /// 待っている読み上げを終わらせる。何度呼んでもよい（2回目以降は何もしない）
+    @MainActor func finishNow() {
+        let f = onFinish
+        onFinish = nil       // 1回だけ。2回呼ぶと待ちが壊れる
+        f?()
     }
 }

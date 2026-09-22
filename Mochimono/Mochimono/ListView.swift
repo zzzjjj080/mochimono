@@ -70,7 +70,7 @@ struct ListView: View {
 
     /// 読み上げの入り切り。**下の段のいちばん上に、押しやすい大きさで置く**（2026-09-22 本人指定）。
     /// 右上の小さな記号だったが、配色より触るので下へ移した。
-    private func readAloudButton(_ reader: ReadAloudSession) -> some View {
+    private func readAloudButton(_ reader: ReadAloudSession, compact: Bool) -> some View {
         Button {
             if reader.isRunning { reader.stop(); return }
             Haptics.select()
@@ -80,10 +80,16 @@ struct ListView: View {
         } label: {
             Label(reader.isRunning ? "止める" : "読み上げ",
                   systemImage: reader.isRunning ? "stop.fill" : "speaker.wave.2.fill")
+                .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
+                // 文字は「…」で切らない。入らなければ ViewThatFits が記号だけの形に落とす
+                .fixedSize(horizontal: !compact, vertical: false)
+                .padding(.horizontal, 10)
         }
         // 記号に動きは付けない。止める記号（■）が薄く点滅して、押せないように見えた
         .buttonStyle(BarButton(fill: reader.isRunning ? .readStop : .readGo, height: 40))
-        .frame(maxWidth: 124)
+        // 文字つきは中身の幅だけ取る（取らないと、声・間隔の送りを押しのけて広がる）
+        .fixedSize(horizontal: !compact, vertical: false)
+        .frame(width: compact ? 56 : nil)
         .accessibilityIdentifier("readAloud")
         .accessibilityLabel(reader.isRunning ? Text("読み上げを止める") : Text("読み上げ"))
         // いま読んでいる物。画面では盤面の枠で分かるので、文字は読み上げ用にだけ持たせる
@@ -347,9 +353,11 @@ struct ListView: View {
             // 上から、読み上げの段 → 色の段 → 操作の段（2026-09-22 本人指定）。
             // 読み上げは配色より触るので上に。読みながらでも色の段は残す
             if let reader, let list, !list.items.isEmpty {
+                // 入らなければ、見出し（声・間隔）→ ボタンの文字の順に落とす
                 ViewThatFits(in: .horizontal) {
-                    readAloudRow(reader, showsTitles: true)
-                    readAloudRow(reader, showsTitles: false)
+                    readAloudRow(reader, showsTitles: true, compact: false)
+                    readAloudRow(reader, showsTitles: false, compact: false)
+                    readAloudRow(reader, showsTitles: false, compact: true)
                 }
             }
             // 色の段。**番号だけでは何色か分からない**ので、実際の色を並べて見せる
@@ -393,16 +401,19 @@ struct ListView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+        // **下の段の文字は大きくしすぎない**（タブバーと同じ扱い）。盤面の文字はいくらでも大きくなる。
+        // 上限なしだと、いちばん大きい設定で段が画面より広くなり、盤面ごと横にはみ出した（2026-09-22）
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .background(.bar)
     }
 
     /// 読み上げの段。入り切りのボタンと、声・間隔の送り。
     /// **声と間隔は読んでいなくても変えられる。** 読みながら変えれば、次の1つから効いて聞き比べられる。
     /// 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
-    private func readAloudRow(_ reader: ReadAloudSession, showsTitles: Bool) -> some View {
+    private func readAloudRow(_ reader: ReadAloudSession, showsTitles: Bool, compact: Bool) -> some View {
         let gap = model.store.readAloudGap
         return HStack(spacing: 6) {
-            readAloudButton(reader)
+            readAloudButton(reader, compact: compact)
             Spacer(minLength: 2)
             if showsTitles { caption("声") }
             voiceArrow(back: true)
@@ -510,6 +521,13 @@ struct ListView: View {
     }
 }
 
+/// 記号だけ／文字つきを切り替えるための、型をそろえた入れ物
+private struct AnyLabelStyle: LabelStyle {
+    private let make: (Configuration) -> AnyView
+    init(_ style: some LabelStyle) { make = { AnyView(style.makeBody(configuration: $0)) } }
+    func makeBody(configuration: Configuration) -> some View { make(configuration) }
+}
+
 /// 下の段のボタン。**丸みは控えめに、色は濃く。**
 /// 標準の押しボタンは角が丸すぎて、盤面の四角いマスと並ぶと締まらない。
 private struct BarButton: ButtonStyle {
@@ -521,7 +539,7 @@ private struct BarButton: ButtonStyle {
             .font(.system(.subheadline, weight: .heavy))
             .foregroundStyle(.white)
             .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            .minimumScaleFactor(0.55)       // 長い言語（ドイツ語の Hinzufügen など）を「…」にしない
             .frame(maxWidth: .infinity, minHeight: height)
             .background(fill, in: .rect(cornerRadius: 7))
             .opacity(configuration.isPressed ? 0.72 : 1)
