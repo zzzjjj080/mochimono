@@ -7,7 +7,7 @@ import Foundation
 public enum ReadAloudOrder {
     public struct Step: Equatable, Sendable {
         public let item: Item
-        /// 周の頭か。頭では「残り◯個」を先に言う。
+        /// 周の頭か。2周目からの頭では、間を長めに取って区切りを耳で分かるようにする。
         public let startsRound: Bool
 
         public init(item: Item, startsRound: Bool) {
@@ -33,11 +33,20 @@ public enum ReadAloudOrder {
 
 /// 読み上げの間隔（1つ読み終えてから次を読むまで）。**アプリ全体で1つ。**
 ///
-/// 最初は3.5秒待っていたが「遅すぎる」と言われた（2026-09-22）。手が止まっている時間のほうが長くなる。
-/// 既定は短めにして、送る段は細かく刻む。送った先が1つ飛びにならないよう、段は表で持つ。
+/// 最初は3.5秒待っていたが「遅すぎる」と言われ、0.8秒でもまだ長く、**既定は最短の0.3秒**にした（2026-09-22）。
+/// 送った先が1つ飛びにならないよう、段は表で持つ。
 public enum ReadAloudGap {
     public static let steps: [Double] = [0.3, 0.5, 0.8, 1, 1.5, 2, 3, 5]
-    public static let `default`: Double = 0.8
+    public static let `default`: Double = 0.3
+    /// 周の切れ目は、ふだんの間の何倍空けるか。
+    /// 「残り◯個」と言う代わりに、**間の長さで「頭に戻った」を伝える**（2026-09-22 本人指定）。
+    public static let roundBreak: Double = 3
+
+    /// この1つを読む前に空ける間（秒）。最初の1つは待たない。
+    public static func pause(before step: ReadAloudOrder.Step, isFirst: Bool, gap: Double) -> Double {
+        if isFirst { return 0 }
+        return step.startsRound ? gap * roundBreak : gap
+    }
 
     /// 保存してある値を、いちばん近い段に寄せる（段を変えても古い値で迷子にならない）。
     public static func snapped(_ seconds: Double) -> Double {

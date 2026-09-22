@@ -1007,32 +1007,6 @@
    "ru": "Остановить чтение",
    "ar": "إيقاف القراءة"
   },
-  "残り%lld個": {
-   "en": "%lld left",
-   "zh-Hans": "还剩 %lld 项",
-   "zh-Hant": "還剩 %lld 項",
-   "ko": "%lld개 남음",
-   "es": "Quedan %lld",
-   "fr": "Encore %lld",
-   "de": "Noch %lld",
-   "it": "Ne mancano %lld",
-   "pt-BR": "Faltam %lld",
-   "ru": "Осталось: %lld",
-   "ar": "المتبقي: %lld"
-  },
-  "次へ": {
-   "en": "Next",
-   "zh-Hans": "下一个",
-   "zh-Hant": "下一個",
-   "ko": "다음",
-   "es": "Siguiente",
-   "fr": "Suivant",
-   "de": "Weiter",
-   "it": "Avanti",
-   "pt-BR": "Próximo",
-   "ru": "Дальше",
-   "ar": "التالي"
-  },
   "間隔": {
    "en": "Interval",
    "zh-Hans": "间隔",

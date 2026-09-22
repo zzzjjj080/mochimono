@@ -79,8 +79,7 @@ struct ListView: View {
             if reader.isRunning { reader.stop(); return }
             Haptics.select()
             reader.start(items: { [model, listID] in model.list(listID)?.items },
-                         gap: { [model] in model.store.readAloudGap },
-                         mark: { [model, listID] id in model.markPacked(id, in: listID) })
+                         gap: { [model] in model.store.readAloudGap })
         } label: {
             Label(isReading ? "読み上げを止める" : "読み上げ",
                   systemImage: isReading ? "speaker.wave.2.fill" : "speaker.wave.2")
@@ -387,13 +386,13 @@ struct ListView: View {
     }
 
     /// 読み上げ中の段。配色の段と入れ替える（読み上げ中に色は触らない）。
-    /// いま読んでいる物と、間隔の送りを出す。**間隔は読みながら詰められるよう、ここに置く。**
+    /// いま読んでいる物と、間隔の送りを1行に出す。**間隔は読みながら詰められるよう、ここに置く。**
     /// 設定画面に置くと、止めて開いて戻って、を繰り返さないと合わせられない。
     private func readAloudRow(_ reader: ReadAloudSession, list: PackingList) -> some View {
         let current = list.items.first { $0.id == reader.currentID }?.text
         let gap = model.store.readAloudGap
         return VStack(spacing: 8) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: "speaker.wave.2.fill")
                     .foregroundStyle(Color.accentColor)
                     .symbolEffect(.variableColor.iterative)
@@ -404,18 +403,10 @@ struct ListView: View {
                     .lineLimit(1)
                     .accessibilityIdentifier("readingItem")
                 Spacer(minLength: 0)
-                Button("次へ") { reader.send(.next) }
-                    .buttonStyle(.bordered)
-                    .accessibilityIdentifier("readNext")
-                Button("持った") { reader.send(.packed) }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityIdentifier("readPacked")
-            }
-            HStack(spacing: 6) {
+                // 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
                 Text("間隔")
                     .font(.system(.caption, weight: .bold))
                     .foregroundStyle(.secondary)
-                Spacer(minLength: 0)
                 gapButton(longer: false, disabled: ReadAloudGap.isShortest(gap))
                 // 秒の書き方は言語に任せる（「0.8秒」「0.8 s」「٠٫٨ ث」）
                 Text(Duration.milliseconds(Int(gap * 1000)).formatted(

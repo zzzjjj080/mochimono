@@ -56,6 +56,20 @@ struct ReadAloudGapTests {
         #expect(ReadAloudGap.steps.contains(ReadAloudGap.default))
     }
 
+    @Test func 既定は最短() {
+        #expect(ReadAloudGap.default == 0.3)
+        #expect(ReadAloudGap.isShortest(ReadAloudGap.default))
+    }
+
+    @Test func 周の切れ目は間の3倍() {
+        let head = ReadAloudOrder.Step(item: Item(text: "財布", group: 0), startsRound: true)
+        let middle = ReadAloudOrder.Step(item: Item(text: "鍵", group: 0), startsRound: false)
+        #expect(ReadAloudGap.pause(before: head, isFirst: false, gap: 0.3) == 0.3 * 3)
+        #expect(ReadAloudGap.pause(before: middle, isFirst: false, gap: 0.3) == 0.3)
+        #expect(ReadAloudGap.pause(before: head, isFirst: true, gap: 0.3) == 0)   // 押してすぐ読む
+        #expect(ReadAloudGap.pause(before: head, isFirst: false, gap: 2) == 6)
+    }
+
     @Test func 一段ずつ送る() {
         #expect(ReadAloudGap.step(1, longer: true) == 1.5)
         #expect(ReadAloudGap.step(1, longer: false) == 0.8)
