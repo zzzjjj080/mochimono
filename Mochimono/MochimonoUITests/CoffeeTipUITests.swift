@@ -61,4 +61,40 @@ final class CoffeeTipUITests: XCTestCase {
         shot.lifetime = .keepAlways
         add(shot)
     }
+
+    /// 押すと購入の窓が出て、閉じれば元に戻る（失敗の文言は出ない）。
+    ///
+    /// **テストはスキームの `.storekit` ではなく、App Store のテスト環境（sandbox）につながる**（xcodebuild から流すと効かない）。
+    /// 価格は本物の製品の値段が出る（シミュレータは米国なので $0.99）。最後まで買うにはテスト用の Apple アカウントで
+    /// サインインが要るので、ここでは窓が出るところと、閉じたときの戻り方までを見る。購入は実機で確かめる。
+    func test押すと購入の窓が出て閉じれば戻る() {
+        let app = launchApp()
+        app.buttons["list-国内旅行"].tapWhenReady()
+        app.buttons["openSettings"].tapWhenReady()
+        XCTAssertTrue(app.segmentedControls["columns"].waitForExistence(timeout: 15), "設定が開いていない")
+        let coffee = app.buttons["buyCoffee"]
+        for _ in 0..<8 {
+            if coffee.exists && coffee.isHittable { break }
+            app.swipeUp()
+        }
+        let enabled = NSPredicate(format: "isEnabled == true")
+        XCTAssertEqual(XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: enabled, object: coffee)],
+                                        timeout: 20), .completed, "商品が読めていない")
+        coffee.tap()
+
+        // 購入の窓（サインインか確認）は、アプリの外（システム）に出る
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let sheet = springboard.alerts.firstMatch
+        XCTAssertTrue(sheet.waitForExistence(timeout: 20), "購入の窓が出ない")
+        let shot = XCTAttachment(screenshot: springboard.screenshot())
+        shot.name = "purchase-sheet"; shot.lifetime = .keepAlways
+        add(shot)
+        for word in ["キャンセル", "Cancel"] where sheet.buttons[word].exists {
+            sheet.buttons[word].tap(); break
+        }
+        // 閉じたら、また押せる状態に戻る。「購入できませんでした」は出さない（やめただけなので）
+        XCTAssertEqual(XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: enabled, object: coffee)],
+                                        timeout: 15), .completed, "閉じても押せる状態に戻らない")
+        XCTAssertFalse(app.staticTexts["購入できませんでした"].exists, "やめただけなのに失敗と出る")
+    }
 }

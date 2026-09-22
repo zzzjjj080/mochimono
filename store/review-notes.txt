@@ -43,6 +43,11 @@ HOW TO EXERCISE THE APP
    The tip row ("Buy the developer a coffee") is on the same screen.
 7. On the first screen, "+" > "Create from text" pastes any list as a new board.
 8. Swipe a row right to duplicate it, left to delete it (with confirmation).
+9. NEW in 1.3: "Read" (green button below the board) reads the unchecked items
+   aloud one by one with AVSpeechSynthesizer, looping until all are checked;
+   tap the tile you picked up and it moves on. Pause (0.3-5 s) and voice (1-5)
+   are next to it. The microphone is NOT used; no permission is requested.
+   The screen stays on while reading; it stops when you leave the screen.
 
 DATA AND PRIVACY
 
@@ -52,7 +57,7 @@ use is StoreKit, to show the tip price and process the tip. All source code was
 written by us for this app; no template or purchased source was used.
 
 External services: none. Only Apple frameworks (SwiftUI, StoreKit, UIKit for
-haptics).
+haptics, AVFoundation for reading aloud).
 Not a medical app. No diagnosis, treatment, or health claims.
 Accessibility: follows the system text size and uses fewer columns at
 accessibility sizes. Tile/label contrast meets WCAG AA (4.5:1) for every colour
