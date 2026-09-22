@@ -153,6 +153,23 @@ struct VoiceMenuTests {
         #expect(s[1].variant(at: 0).voiceID == otoya.id)
     }
 
+    /// フランス語は既定の声が男（Thomas）。明るい男は別の男の声にする
+    @Test func 既定の声が男なら二番は別の男() {
+        let thomas = V(id: "com.apple.voice.compact.fr-FR.Thomas", name: "Thomas", quality: .standard, gender: .male)
+        let jacques = V(id: "com.apple.eloquence.fr-FR.Jacques", name: "Jacques", quality: .standard)
+        let s = VoiceMenu.slots(voices: [thomas, jacques, eddy], preferred: thomas.id)
+        #expect(s[0].variant(at: 0).voiceID == thomas.id)
+        #expect(s[1].variant(at: 0).voiceID != thomas.id)
+        #expect(s[1].variant(at: 0).voiceID == eddy.id || s[1].variant(at: 0).voiceID == jacques.id)
+    }
+
+    /// ロシア語のように女の声1つしか無い端末でも、5つそろって全部違う
+    @Test func 声が1つだけの言語でも5つ() {
+        let milena = V(id: "com.apple.voice.compact.ru-RU.Milena", name: "Milena", quality: .standard, gender: .female)
+        let s = VoiceMenu.slots(voices: [milena], preferred: milena.id)
+        #expect(Set(s).count == 5)
+    }
+
     @Test func 三番はいつもの声のまま速く() {
         let v = slots[2].variant(at: 0)
         #expect(v.voiceID == kyoko.id)

@@ -982,17 +982,17 @@
    "ar": "البدء من قالب"
   },
   "読み上げ": {
-   "en": "Read aloud",
+   "en": "Read",
    "zh-Hans": "朗读",
    "zh-Hant": "朗讀",
-   "ko": "소리 내어 읽기",
-   "es": "Leer en voz alta",
-   "fr": "Lire à voix haute",
+   "ko": "읽기",
+   "es": "Leer",
+   "fr": "Lire",
    "de": "Vorlesen",
-   "it": "Leggi ad alta voce",
-   "pt-BR": "Ler em voz alta",
-   "ru": "Читать вслух",
-   "ar": "القراءة بصوت عالٍ"
+   "it": "Leggi",
+   "pt-BR": "Ler",
+   "ru": "Читать",
+   "ar": "قراءة"
   },
   "読み上げを止める": {
    "en": "Stop reading",

@@ -5941,7 +5941,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read aloud"
+            "value": "Read"
           }
         },
         "zh-Hans": {
@@ -5959,19 +5959,19 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "소리 내어 읽기"
+            "value": "읽기"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leer en voz alta"
+            "value": "Leer"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lire à voix haute"
+            "value": "Lire"
           }
         },
         "de": {
@@ -5983,25 +5983,25 @@
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leggi ad alta voce"
+            "value": "Leggi"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ler em voz alta"
+            "value": "Ler"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Читать вслух"
+            "value": "Читать"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "القراءة بصوت عالٍ"
+            "value": "قراءة"
           }
         }
       }

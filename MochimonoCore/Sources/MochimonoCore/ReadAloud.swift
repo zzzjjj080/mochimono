@@ -114,7 +114,7 @@ public enum VoiceMenu {
         /// 性別。**Eloquence は端末が性別を返さない**ので、名前で補う。
         var resolvedGender: Gender {
             if gender != .unknown { return gender }
-            if ["Eddy", "Reed", "Rocko"].contains(name) { return .male }
+            if ["Eddy", "Reed", "Rocko", "Jacques"].contains(name) { return .male }
             if ["Flo", "Sandy", "Shelley"].contains(name) { return .female }
             return .unknown
         }
@@ -161,7 +161,9 @@ public enum VoiceMenu {
         }
         let first = usable.first { $0.id == preferred }?.id ?? preferred ?? usable.first?.id
         let usual = Variant(voiceID: first, pitch: 1)
-        let bright = Variant(voiceID: ranked(usable, .male).first ?? first,
+        // 明るい男は**1番と別の声**にする。フランス語は既定の声（Thomas）が男なので、
+        // 同じ声を選ぶと4・5番の掛け合いが1人の声の高低になってしまう
+        let bright = Variant(voiceID: ranked(usable, .male).first { $0 != first } ?? first,
                              pitch: brightMale.pitch, rate: brightMale.rate)
         return [
             Slot([usual]),

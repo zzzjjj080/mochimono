@@ -152,4 +152,32 @@ final class ReadAloudUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["readVoice"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["readVoice"].label, "2 / 5")
     }
+
+    /// 長い言語（ドイツ語・スペイン語・ロシア語）と右から左の言語（アラビア語）でも、読み上げの段が画面に収まり、重ならない。
+    func test長い言語でも読み上げの段が収まる() {
+        for lang in ["de", "ar", "es", "ru"] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-ui-testing", "-AppleLanguages", "(\(lang))", "-AppleLocale", lang]
+            app.launch()
+            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "list-")).firstMatch.tapWhenReady()
+            let read = app.buttons["readAloud"]
+            XCTAssertTrue(read.waitForExistence(timeout: 5), lang)
+            let width = app.windows.firstMatch.frame.width
+            let parts = [read, app.buttons["readVoiceBack"], app.buttons["readVoiceForward"],
+                         app.buttons["readGapShorter"], app.buttons["readGapLonger"]]
+            for p in parts {
+                XCTAssertTrue(p.exists, "\(lang) \(p.identifier)")
+                XCTAssertGreaterThanOrEqual(p.frame.minX, 0, "\(lang) \(p.identifier) が左にはみ出す")
+                XCTAssertLessThanOrEqual(p.frame.maxX, width, "\(lang) \(p.identifier) が右にはみ出す")
+            }
+            let frames = parts.map(\.frame).sorted { $0.minX < $1.minX }
+            for (a, b) in zip(frames, frames.dropFirst()) {
+                XCTAssertLessThanOrEqual(a.maxX, b.minX + 0.5, "\(lang) 読み上げの段が重なる")
+            }
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "read-\(lang)"; shot.lifetime = .keepAlways
+            add(shot)
+            app.terminate()
+        }
+    }
 }
