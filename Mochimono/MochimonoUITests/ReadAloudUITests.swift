@@ -118,4 +118,31 @@ final class ReadAloudUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["readGap"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["readGap"].label, "0.5秒")
     }
+
+    /// 声は5つを番号で送る。端で一周し、次に開いても残っている。
+    func test声を送れて残る() {
+        var app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["readAloud"].tapWhenReady()
+        let voice = app.staticTexts["readVoice"]
+        XCTAssertTrue(voice.waitForExistence(timeout: 5))
+        XCTAssertEqual(voice.label, "1 / 5")
+        app.buttons["readVoiceBack"].tap()                 // 1 の前は 5
+        XCTAssertEqual(voice.label, "5 / 5")
+        app.buttons["readVoiceForward"].tap()
+        app.buttons["readVoiceForward"].tap()
+        XCTAssertEqual(voice.label, "2 / 5")
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "voice"; shot.lifetime = .keepAlways
+        add(shot)
+
+        app.terminate()
+        app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-keep", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]
+        app.launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["readAloud"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["readVoice"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["readVoice"].label, "2 / 5")
+    }
 }

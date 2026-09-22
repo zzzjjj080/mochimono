@@ -79,7 +79,8 @@ struct ListView: View {
             if reader.isRunning { reader.stop(); return }
             Haptics.select()
             reader.start(items: { [model, listID] in model.list(listID)?.items },
-                         gap: { [model] in model.store.readAloudGap })
+                         gap: { [model] in model.store.readAloudGap },
+                         voice: { [model] in model.store.readAloudVoice })
         } label: {
             Label(isReading ? "読み上げを止める" : "読み上げ",
                   systemImage: isReading ? "speaker.wave.2.fill" : "speaker.wave.2")
@@ -386,13 +387,13 @@ struct ListView: View {
     }
 
     /// 読み上げ中の段。配色の段と入れ替える（読み上げ中に色は触らない）。
-    /// いま読んでいる物と、間隔の送りを1行に出す。**間隔は読みながら詰められるよう、ここに置く。**
+    /// 上の行にいま読んでいる物、下の行に声と間隔の送り。**どちらも読みながら変えて聞き比べられるよう、ここに置く。**
     /// 設定画面に置くと、止めて開いて戻って、を繰り返さないと合わせられない。
     private func readAloudRow(_ reader: ReadAloudSession, list: PackingList) -> some View {
         let current = list.items.first { $0.id == reader.currentID }?.text
         let gap = model.store.readAloudGap
-        return VStack(spacing: 8) {
-            HStack(spacing: 6) {
+        return VStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Image(systemName: "speaker.wave.2.fill")
                     .foregroundStyle(Color.accentColor)
                     .symbolEffect(.variableColor.iterative)
@@ -403,7 +404,20 @@ struct ListView: View {
                     .lineLimit(1)
                     .accessibilityIdentifier("readingItem")
                 Spacer(minLength: 0)
-                // 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
+            }
+            // 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
+            HStack(spacing: 6) {
+                Text("声")
+                    .font(.system(.caption, weight: .bold))
+                    .foregroundStyle(.secondary)
+                voiceArrow(back: true)
+                // 声は名前を出さず番号で（配色と同じ）。名前は端末や言語で変わり、選ぶ手がかりにならない
+                Text("\((model.store.readAloudVoice + 1).formatted()) / \(VoiceMenu.count.formatted())")
+                    .font(.system(.subheadline, weight: .heavy))
+                    .monospacedDigit()
+                    .accessibilityIdentifier("readVoice")
+                voiceArrow(back: false)
+                Spacer(minLength: 4)
                 Text("間隔")
                     .font(.system(.caption, weight: .bold))
                     .foregroundStyle(.secondary)
@@ -414,7 +428,8 @@ struct ListView: View {
                                fractionalPart: .show(length: 1))))
                     .font(.system(.subheadline, weight: .heavy))
                     .monospacedDigit()
-                    .frame(minWidth: 56)
+                    .lineLimit(1)
+                    .fixedSize()
                     .accessibilityIdentifier("readGap")
                 gapButton(longer: true, disabled: ReadAloudGap.isLongest(gap))
             }
@@ -423,13 +438,27 @@ struct ListView: View {
         .padding(.bottom, 2)
     }
 
+    private func voiceArrow(back: Bool) -> some View {
+        Button { model.setReadAloudVoice(VoiceMenu.step(model.store.readAloudVoice, forward: !back)) } label: {
+            Image(systemName: back ? "arrowtriangle.left.fill" : "arrowtriangle.right.fill")
+                .flipsForRightToLeftLayoutDirection(true)
+                .font(.system(.footnote, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 30, height: 28)
+                .contentShape(.rect)            // 余白も押せるようにする（引き継ぎ書 4-44）
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(back ? "readVoiceBack" : "readVoiceForward")
+        .accessibilityLabel(back ? Text("前の声") : Text("次の声"))
+    }
+
     private func gapButton(longer: Bool, disabled: Bool) -> some View {
         Button {
             model.setReadAloudGap(ReadAloudGap.step(model.store.readAloudGap, longer: longer))
         } label: {
             Image(systemName: longer ? "plus" : "minus")
                 .font(.system(.footnote, weight: .bold))
-                .frame(width: 40, height: 28)
+                .frame(width: 30, height: 26)
                 .contentShape(.rect)            // 余白も押せるようにする（引き継ぎ書 4-44）
         }
         .buttonStyle(.bordered)

@@ -155,6 +155,14 @@ final class AppModel {
         save()
     }
 
+    /// 読み上げの声（番号）。アプリ全体で1つ。
+    func setReadAloudVoice(_ index: Int) {
+        guard store.readAloudVoice != index else { return }
+        store.readAloudVoice = index
+        Haptics.select()
+        save()
+    }
+
     /// 読み上げの間隔。アプリ全体で1つ（リストごとに合わせる手間をかけさせない）。
     func setReadAloudGap(_ seconds: Double) {
         guard store.readAloudGap != seconds else { return }

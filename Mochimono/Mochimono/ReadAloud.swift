@@ -22,10 +22,33 @@ final class ReadAloudSession {
     private let synthesizer = AVSpeechSynthesizer()
     private let speaker = Speaker()
     private var loop: Task<Void, Never>?
+    /// 声の選択肢（5つ）。端末に入っている声から、開いたときに組む
+    let voices: [VoiceMenu.Variant]
 
     init(language: Language) {
-        speechCode = language.speechCode(region: Locale.current.region?.identifier)
+        let code = language.speechCode(region: Locale.current.region?.identifier)
+        speechCode = code
         synthesizer.delegate = speaker
+        voices = Self.menu(for: code)
+    }
+
+    /// その言語の声を集める。地域まで合う声（ja-JP）が無ければ、言語だけ合う声（ja-*）で組む。
+    private static func menu(for code: String) -> [VoiceMenu.Variant] {
+        let all = AVSpeechSynthesisVoice.speechVoices()
+            .filter { !$0.voiceTraits.contains(.isPersonalVoice) }
+        let lang = String(code.prefix { $0 != "-" })
+        let exact = all.filter { $0.language == code }
+        let pool = exact.isEmpty ? all.filter { $0.language.hasPrefix(lang + "-") } : exact
+        let voices = pool.map { v in
+            let quality: VoiceMenu.Voice.Quality = switch v.quality {
+                case .premium: .premium
+                case .enhanced: .enhanced
+                default: .standard
+            }
+            return VoiceMenu.Voice(id: v.identifier, name: v.name, quality: quality)
+        }
+        return VoiceMenu.variants(voices: voices,
+                                  preferred: AVSpeechSynthesisVoice(language: code)?.identifier)
     }
 
     // MARK: - 始める・止める
@@ -33,7 +56,10 @@ final class ReadAloudSession {
     /// - Parameters:
     ///   - items: いまの盤面を返す。**毎回取り直す**（手で付けた印・編集を拾うため）
     ///   - gap: いまの間隔（秒）。毎回取り直す
-    func start(items: @escaping () -> [Item]?, gap: @escaping () -> Double) {
+    ///   - voice: いまの声の番号。毎回取り直す（読みながら送って聞き比べられるように）
+    func start(items: @escaping () -> [Item]?, gap: @escaping () -> Double,
+               voice: @escaping () -> Int) {
+        self.voice = voice
         guard !isRunning else { return }
         isRunning = true
         currentID = nil
@@ -54,6 +80,8 @@ final class ReadAloudSession {
         loop?.cancel()
         synthesizer.stopSpeaking(at: .immediate)
     }
+
+    private var voice: () -> Int = { 0 }
 
     private func finish() {
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
@@ -96,7 +124,10 @@ final class ReadAloudSession {
     private func say(_ text: String) async {
         guard !Task.isCancelled else { return }
         let u = AVSpeechUtterance(string: text)
-        u.voice = AVSpeechSynthesisVoice(language: speechCode)
+        let variant = voices[min(max(voice(), 0), voices.count - 1)]
+        u.voice = variant.voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:))
+            ?? AVSpeechSynthesisVoice(language: speechCode)
+        u.pitchMultiplier = variant.pitch
         u.rate = AVSpeechUtteranceDefaultSpeechRate
         await withCheckedContinuation { c in
             speaker.onFinish = { c.resume() }

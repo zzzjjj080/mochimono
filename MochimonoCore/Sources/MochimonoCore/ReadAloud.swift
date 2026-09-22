@@ -83,3 +83,57 @@ extension Language {
         }
     }
 }
+
+/// 読み上げの声の選び方。**名前は出さず、番号（1〜5）で送る**（配色と同じ扱い）。
+///
+/// 端末に入っている声は機種・言語・追加した声で違う。数が足りないときは、
+/// 同じ声の高さを変えたものを足して、**いつでも5つそろえる**。番号の数が端末ごとに変わると、送った先が読めない。
+public enum VoiceMenu {
+    public static let count = 5
+
+    /// 端末の声1つぶん（`AVSpeechSynthesisVoice` から、Core で扱う分だけ写す）。
+    public struct Voice: Equatable, Sendable {
+        public enum Quality: Int, Sendable { case standard = 1, enhanced = 2, premium = 3 }
+        public let id: String
+        public let name: String
+        public let quality: Quality
+        public init(id: String, name: String, quality: Quality) {
+            self.id = id; self.name = name; self.quality = quality
+        }
+    }
+
+    /// 1つの選択肢。`voiceID` が nil なら端末の既定の声。
+    public struct Variant: Hashable, Sendable {
+        public let voiceID: String?
+        public let pitch: Float
+    }
+
+    /// 高さを変えて足すときの段。上げ下げを交互にして、似た声が並ばないようにする。
+    static let pitches: [Float] = [1.25, 0.8, 1.45, 0.65]
+
+    /// - Parameters:
+    ///   - voices: その言語の声
+    ///   - preferred: 端末の既定の声（いままで聞いていた声）。**これを1番にする**
+    public static func variants(voices: [Voice], preferred: String?) -> [Variant] {
+        // ざらついた効果音の声（Bahh・Bells など）は除く。持ち物を読ませる声ではない
+        let usable = voices.filter { !$0.id.hasPrefix("com.apple.speech.synthesis.voice.") }
+        let first = usable.first { $0.id == preferred }
+        let others = usable.filter { $0.id != preferred }
+            .sorted { ($0.quality.rawValue, $1.name) > ($1.quality.rawValue, $0.name) }
+        var result = ([first].compactMap { $0 } + others).prefix(count).map { Variant(voiceID: $0.id, pitch: 1) }
+        if result.isEmpty { result = [Variant(voiceID: nil, pitch: 1)] }
+        let bases = result
+        var i = 0
+        while result.count < count {
+            result.append(Variant(voiceID: bases[i % bases.count].voiceID,
+                                  pitch: pitches[i % pitches.count]))
+            i += 1
+        }
+        return result
+    }
+
+    /// 1つ送る。端まで来たら反対の端へ（配色の矢印と同じく一周する）。
+    public static func step(_ index: Int, forward: Bool) -> Int {
+        (index + (forward ? 1 : count - 1)) % count
+    }
+}

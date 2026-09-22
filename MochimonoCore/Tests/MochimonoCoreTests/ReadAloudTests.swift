@@ -115,3 +115,53 @@ struct SpeechCodeTests {
         #expect(Language.en.speechCode(region: "GB") == "en-GB")
     }
 }
+
+@Suite("声の選択肢")
+struct VoiceMenuTests {
+    typealias V = VoiceMenu.Voice
+    let kyoko = V(id: "ja.kyoko", name: "Kyoko", quality: .standard)
+    let otoya = V(id: "ja.otoya", name: "Otoya", quality: .standard)
+    let premium = V(id: "ja.kyoko.premium", name: "Kyoko", quality: .premium)
+    let bahh = V(id: "com.apple.speech.synthesis.voice.Bahh", name: "Bahh", quality: .standard)
+
+    @Test func いつでも5つ() {
+        #expect(VoiceMenu.variants(voices: [], preferred: nil).count == 5)
+        #expect(VoiceMenu.variants(voices: [kyoko], preferred: "ja.kyoko").count == 5)
+        let many = (0..<9).map { V(id: "v\($0)", name: "V\($0)", quality: .standard) }
+        #expect(VoiceMenu.variants(voices: many, preferred: nil).count == 5)
+    }
+
+    @Test func 一番はいままでの声() {
+        let v = VoiceMenu.variants(voices: [premium, otoya, kyoko], preferred: "ja.kyoko")
+        #expect(v[0] == .init(voiceID: "ja.kyoko", pitch: 1))
+        #expect(v[1].voiceID == "ja.kyoko.premium")      // 残りは質の高い順
+    }
+
+    @Test func 足りない分は高さを変えて足す() {
+        let v = VoiceMenu.variants(voices: [kyoko, otoya], preferred: "ja.kyoko")
+        #expect(v.map(\.voiceID) == ["ja.kyoko", "ja.otoya", "ja.kyoko", "ja.otoya", "ja.kyoko"])
+        #expect(v.map(\.pitch) == [1, 1, 1.25, 0.8, 1.45])
+        #expect(Set(v).count == 5)                        // 同じものが並ばない
+    }
+
+    @Test func 効果音の声は使わない() {
+        let v = VoiceMenu.variants(voices: [bahh, kyoko], preferred: nil)
+        #expect(!v.contains { $0.voiceID == bahh.id })
+    }
+
+    @Test func 送ると一周する() {
+        #expect(VoiceMenu.step(4, forward: true) == 0)
+        #expect(VoiceMenu.step(0, forward: false) == 4)
+        #expect(VoiceMenu.step(1, forward: true) == 2)
+    }
+
+    @Test func 声の番号を保存しておける() throws {
+        var store = Store()
+        #expect(store.readAloudVoice == 0)
+        store.readAloudVoice = 3
+        let back = try JSONDecoder().decode(Store.self, from: JSONEncoder().encode(store))
+        #expect(back.readAloudVoice == 3)
+        let old = try JSONDecoder().decode(Store.self, from: #"{"lists":[]}"#.data(using: .utf8)!)
+        #expect(old.readAloudVoice == 0)
+    }
+}

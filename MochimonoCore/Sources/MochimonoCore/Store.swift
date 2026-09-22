@@ -6,12 +6,15 @@ public struct Store: Equatable, Codable, Sendable {
     public var lists: [PackingList]
     /// 読み上げの間隔（秒）。`ReadAloudGap` の段のどれか
     public var readAloudGap: Double
+    /// 読み上げの声（`VoiceMenu` の番号、0〜4）
+    public var readAloudVoice: Int
 
     public init(appearance: Appearance = .system, lists: [PackingList] = [],
-                readAloudGap: Double = ReadAloudGap.default) {
+                readAloudGap: Double = ReadAloudGap.default, readAloudVoice: Int = 0) {
         self.appearance = appearance
         self.lists = lists
         self.readAloudGap = readAloudGap
+        self.readAloudVoice = readAloudVoice
     }
 
     // 項目を足しても、既に保存してある記録を失わないようにする（引き継ぎ書 4-21）。
@@ -20,6 +23,7 @@ public struct Store: Equatable, Codable, Sendable {
         appearance = try c.decodeIfPresent(Appearance.self, forKey: .appearance) ?? .system
         lists = try c.decodeIfPresent([PackingList].self, forKey: .lists) ?? []
         readAloudGap = try c.decodeIfPresent(Double.self, forKey: .readAloudGap) ?? ReadAloudGap.default
+        readAloudVoice = try c.decodeIfPresent(Int.self, forKey: .readAloudVoice) ?? 0
     }
 
     public subscript(id: PackingList.ID) -> PackingList? {

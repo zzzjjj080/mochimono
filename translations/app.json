@@ -1058,6 +1058,46 @@
    "pt-BR": "Lê em voz alta, um a um, os itens não marcados.",
    "ru": "По очереди читает вслух неотмеченные пункты.",
    "ar": "يقرأ العناصر غير المحددة بصوت عالٍ واحدًا تلو الآخر."
-  }
+  },
+  "声": {
+   "en": "Voice",
+   "zh-Hans": "声音",
+   "zh-Hant": "聲音",
+   "ko": "목소리",
+   "es": "Voz",
+   "fr": "Voix",
+   "de": "Stimme",
+   "it": "Voce",
+   "pt-BR": "Voz",
+   "ru": "Голос",
+   "ar": "الصوت"
+  },
+  "前の声": {
+   "en": "Previous voice",
+   "zh-Hans": "上一个声音",
+   "zh-Hant": "上一個聲音",
+   "ko": "이전 목소리",
+   "es": "Voz anterior",
+   "fr": "Voix précédente",
+   "de": "Vorherige Stimme",
+   "it": "Voce precedente",
+   "pt-BR": "Voz anterior",
+   "ru": "Предыдущий голос",
+   "ar": "الصوت السابق"
+  },
+  "次の声": {
+   "en": "Next voice",
+   "zh-Hans": "下一个声音",
+   "zh-Hant": "下一個聲音",
+   "ko": "다음 목소리",
+   "es": "Voz siguiente",
+   "fr": "Voix suivante",
+   "de": "Nächste Stimme",
+   "it": "Voce successiva",
+   "pt-BR": "Próxima voz",
+   "ru": "Следующий голос",
+   "ar": "الصوت التالي"
+  },
+  "%@ / %@": "__SAME__"
  }
 }
