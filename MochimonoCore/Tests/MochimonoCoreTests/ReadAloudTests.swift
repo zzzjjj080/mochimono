@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import MochimonoCore
 
@@ -49,71 +50,49 @@ struct ReadAloudOrderTests {
     }
 }
 
-@Suite("声の合図")
-struct VoiceCommandTests {
-    /// 表の語をそれだけ言ったら、その合図になること。
-    /// **ほかの合図の語を含んでしまう語が混ざると、ここで落ちる。**
-    @Test(arguments: Language.allCases)
-    func 表の語はそれぞれ自分の合図になる(_ language: Language) {
-        for command in VoiceCommand.allCases {
-            for word in VoiceCommands.words(command, language) {
-                #expect(VoiceCommands.match(word, language: language) == command,
-                        "\(language.rawValue)「\(word)」")
-            }
-        }
+@Suite("読み上げの間隔")
+struct ReadAloudGapTests {
+    @Test func 既定は段のどれか() {
+        #expect(ReadAloudGap.steps.contains(ReadAloudGap.default))
     }
 
-    @Test(arguments: Language.allCases)
-    func 全言語に4つの合図がある(_ language: Language) {
-        for command in VoiceCommand.allCases {
-            #expect((VoiceCommands.table[language]?[command] ?? []).count > 0, "\(language.rawValue) \(command)")
-        }
+    @Test func 一段ずつ送る() {
+        #expect(ReadAloudGap.step(1, longer: true) == 1.5)
+        #expect(ReadAloudGap.step(1, longer: false) == 0.8)
     }
 
-    @Test func 打ち消しは持ったにしない() {
-        #expect(VoiceCommands.match("持ってない", language: .ja) == .next)
-        #expect(VoiceCommands.match("まだ持ってない", language: .ja) == .next)
-        #expect(VoiceCommands.match("I don't have it", language: .en) == .next)
-        #expect(VoiceCommands.match("No, not yet", language: .en) == .next)
-        #expect(VoiceCommands.match("no lo tengo", language: .es) == .next)
-        #expect(VoiceCommands.match("je ne l'ai pas", language: .fr) == .next)
-        #expect(VoiceCommands.match("hab ich nicht", language: .de) == .next)
-        #expect(VoiceCommands.match("não tenho", language: .ptBR) == .next)
-        #expect(VoiceCommands.match("还没拿", language: .zhHans) == .next)
-        #expect(VoiceCommands.match("아직 없어", language: .ko) == .next)
-        #expect(VoiceCommands.match("нет ещё", language: .ru) == .next)
+    @Test func 端では止まる() {
+        #expect(ReadAloudGap.step(0.3, longer: false) == 0.3)
+        #expect(ReadAloudGap.step(5, longer: true) == 5)
+        #expect(ReadAloudGap.isShortest(0.3))
+        #expect(ReadAloudGap.isLongest(5))
     }
 
-    @Test func 言い方の揺れを拾う() {
-        #expect(VoiceCommands.match("持ったよ。", language: .ja) == .packed)
-        #expect(VoiceCommands.match("ＯＫ", language: .ja) == .packed)
-        #expect(VoiceCommands.match("Got it!", language: .en) == .packed)
-        #expect(VoiceCommands.match("Okay", language: .en) == .packed)
-        #expect(VoiceCommands.match("Si", language: .es) == .packed)        // アクセントを落として聞き取られても
-        #expect(VoiceCommands.match("C’est bon", language: .fr) == .packed)  // 曲がった ’ でも
-        #expect(VoiceCommands.match("Ja, hab ich", language: .de) == .packed)
-        #expect(VoiceCommands.match("Да", language: .ru) == .packed)
-        #expect(VoiceCommands.match("好了", language: .zhHans) == .packed)
-        #expect(VoiceCommands.match("네", language: .ko) == .packed)
-        #expect(VoiceCommands.match("نعم", language: .ar) == .packed)
+    @Test func 段に無い値は近い段に寄せる() {
+        #expect(ReadAloudGap.snapped(3.5) == 3)
+        #expect(ReadAloudGap.snapped(0) == 0.3)
+        #expect(ReadAloudGap.step(1.2, longer: true) == 1.5)
     }
 
-    @Test func 止めるともう一回() {
-        #expect(VoiceCommands.match("ストップ", language: .ja) == .stop)
-        #expect(VoiceCommands.match("もう一回", language: .ja) == .again)
-        #expect(VoiceCommands.match("Stop please", language: .en) == .stop)
-        #expect(VoiceCommands.match("Say that again", language: .en) == .again)
-        #expect(VoiceCommands.match("pas encore", language: .fr) == .next)   // 「encore」だけに釣られない
+    @Test func 保存しておける() throws {
+        var store = Store()
+        #expect(store.readAloudGap == ReadAloudGap.default)
+        store.readAloudGap = 2
+        let back = try JSONDecoder().decode(Store.self, from: JSONEncoder().encode(store))
+        #expect(back.readAloudGap == 2)
     }
 
-    @Test func 語の途中には当たらない() {
-        #expect(VoiceCommands.match("now", language: .en) == nil)          // no
-        #expect(VoiceCommands.match("knot", language: .en) == nil)         // not
-        #expect(VoiceCommands.match("pasta", language: .it) == nil)
-        #expect(VoiceCommands.match("", language: .ja) == nil)
-        #expect(VoiceCommands.match("えーと", language: .ja) == nil)
+    /// 1.2 までの保存（間隔の項目が無い）を読んでも既定になる
+    @Test func 古い保存は既定になる() throws {
+        let old = #"{"appearance":"dark","lists":[]}"#.data(using: .utf8)!
+        let store = try JSONDecoder().decode(Store.self, from: old)
+        #expect(store.readAloudGap == ReadAloudGap.default)
+        #expect(store.appearance == .dark)
     }
+}
 
+@Suite("声の言語")
+struct SpeechCodeTests {
     @Test func 声の言語の札() {
         #expect(Language.ja.speechCode(region: "JP") == "ja-JP")
         #expect(Language.es.speechCode(region: "MX") == "es-MX")

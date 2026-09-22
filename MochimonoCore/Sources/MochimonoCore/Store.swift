@@ -4,10 +4,14 @@ import Foundation
 public struct Store: Equatable, Codable, Sendable {
     public var appearance: Appearance
     public var lists: [PackingList]
+    /// 読み上げの間隔（秒）。`ReadAloudGap` の段のどれか
+    public var readAloudGap: Double
 
-    public init(appearance: Appearance = .system, lists: [PackingList] = []) {
+    public init(appearance: Appearance = .system, lists: [PackingList] = [],
+                readAloudGap: Double = ReadAloudGap.default) {
         self.appearance = appearance
         self.lists = lists
+        self.readAloudGap = readAloudGap
     }
 
     // 項目を足しても、既に保存してある記録を失わないようにする（引き継ぎ書 4-21）。
@@ -15,6 +19,7 @@ public struct Store: Equatable, Codable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         appearance = try c.decodeIfPresent(Appearance.self, forKey: .appearance) ?? .system
         lists = try c.decodeIfPresent([PackingList].self, forKey: .lists) ?? []
+        readAloudGap = try c.decodeIfPresent(Double.self, forKey: .readAloudGap) ?? ReadAloudGap.default
     }
 
     public subscript(id: PackingList.ID) -> PackingList? {

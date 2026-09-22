@@ -1446,82 +1446,6 @@
         }
       }
     },
-    "この端末では声で答えられません。画面のボタンで答えてください": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "この端末では声で答えられません。画面のボタンで答えてください"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voice answers aren’t available on this device. Use the buttons instead."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此设备无法用语音回答，请使用屏幕上的按钮。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此裝置無法用語音回答，請使用螢幕上的按鈕。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이 기기에서는 말로 답할 수 없습니다. 화면의 버튼을 사용하세요."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En este dispositivo no se puede responder con la voz. Usa los botones."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les réponses vocales ne sont pas disponibles sur cet appareil. Utilisez les boutons."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprachantworten sind auf diesem Gerät nicht verfügbar. Nutze die Tasten."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Su questo dispositivo non puoi rispondere a voce. Usa i pulsanti."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neste aparelho não é possível responder por voz. Use os botões."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На этом устройстве голосовые ответы недоступны. Используйте кнопки."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "الإجابة بالصوت غير متاحة على هذا الجهاز. استخدم الأزرار."
-          }
-        }
-      }
-    },
     "そのまま貼り付けられる普通のテキストとして渡します。受け取った側は「リストを追加」から貼るだけで、同じ盤面になります。": {
       "localizations": {
         "ja": {
@@ -1750,78 +1674,78 @@
         }
       }
     },
-    "まだの物を順に読み上げます。「持った」と答えると印が付きます": {
+    "まだの物を順に読み上げます": {
       "localizations": {
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "まだの物を順に読み上げます。「持った」と答えると印が付きます"
+            "value": "まだの物を順に読み上げます"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reads the unchecked items one by one. Say “got it” to check one off."
+            "value": "Reads the unchecked items aloud one by one."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "依次朗读未勾选的项目。回答“好了”即可勾选。"
+            "value": "依次朗读未勾选的项目。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "依序朗讀未勾選的項目。回答「好了」即可勾選。"
+            "value": "依序朗讀未勾選的項目。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "체크하지 않은 항목을 차례로 읽어 줍니다. “됐어”라고 답하면 체크됩니다."
+            "value": "체크하지 않은 항목을 차례로 읽어 줍니다."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lee uno a uno los elementos sin marcar. Di «listo» para marcarlo."
+            "value": "Lee en voz alta, uno a uno, los elementos sin marcar."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lit un à un les éléments non cochés. Dites « c’est bon » pour cocher."
+            "value": "Lit à voix haute, un à un, les éléments non cochés."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Liest die offenen Einträge nacheinander vor. Sag „hab ich“, um abzuhaken."
+            "value": "Liest die offenen Einträge nacheinander vor."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Legge una alla volta le voci non spuntate. Di’ «fatto» per spuntarla."
+            "value": "Legge ad alta voce, una alla volta, le voci non spuntate."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lê um a um os itens não marcados. Diga “peguei” para marcar."
+            "value": "Lê em voz alta, um a um, os itens não marcados."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "По очереди читает неотмеченные пункты. Скажите «взял», чтобы отметить."
+            "value": "По очереди читает вслух неотмеченные пункты."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يقرأ العناصر غير المحددة واحدًا تلو الآخر. قل «تمام» لتحديد العنصر."
+            "value": "يقرأ العناصر غير المحددة بصوت عالٍ واحدًا تلو الآخر."
           }
         }
       }
@@ -2886,82 +2810,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "إذا لم يُفتح البريد، راسلنا على %@."
-          }
-        }
-      }
-    },
-    "ヨシ": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ヨシ"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Got it"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "좋아"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "C’est bon"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Okay"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fatto"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Beleza"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Есть"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "تمام"
           }
         }
       }
@@ -4634,158 +4482,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "اضغط «+» في الأعلى لتبدأ من قالب مثل السفر أو الذهاب للعمل."
-          }
-        }
-      }
-    },
-    "声で「持った」「次」「もう一回」「止めて」と答えられます": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "声で「持った」「次」「もう一回」「止めて」と答えられます"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Answer by voice: “got it”, “next”, “again”, or “stop”."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可以用语音回答：“好了”“下一个”“再说一遍”“停”。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可以用語音回答：「好了」「下一個」「再說一遍」「停」。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“됐어”, “다음”, “다시”, “그만”이라고 말로 답할 수 있습니다."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Responde con la voz: «listo», «siguiente», «otra vez» o «para»."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Répondez à voix haute : « c’est bon », « suivant », « répète » ou « stop »."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Antworte per Stimme: „hab ich“, „weiter“, „nochmal“ oder „stopp“."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rispondi a voce: «fatto», «avanti», «ripeti» o «basta»."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Responda por voz: “peguei”, “próximo”, “repete” ou “para”."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отвечайте голосом: «взял», «дальше», «повтори» или «стоп»."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "أجب بصوتك: «تمام» أو «التالي» أو «كرر» أو «توقف»."
-          }
-        }
-      }
-    },
-    "声で答えるには、設定でマイクと音声認識を許可してください": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "声で答えるには、設定でマイクと音声認識を許可してください"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To answer by voice, allow Microphone and Speech Recognition in Settings."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要用语音回答，请在“设置”中允许麦克风和语音识别。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "若要用語音回答，請在「設定」中允許麥克風和語音辨識。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "말로 답하려면 설정에서 마이크와 음성 인식을 허용하세요."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Para responder con la voz, permite el micrófono y el reconocimiento de voz en Ajustes."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pour répondre à voix haute, autorisez le micro et la reconnaissance vocale dans Réglages."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um per Stimme zu antworten, erlaube Mikrofon und Spracherkennung in den Einstellungen."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Per rispondere a voce, consenti microfono e riconoscimento vocale in Impostazioni."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Para responder por voz, permita o microfone e o reconhecimento de fala nos Ajustes."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Чтобы отвечать голосом, разрешите микрофон и распознавание речи в Настройках."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "للإجابة بصوتك، اسمح بالميكروفون والتعرّف على الكلام في الإعدادات."
           }
         }
       }
@@ -6686,6 +6382,234 @@
           "stringUnit": {
             "state": "translated",
             "value": "ادعُ المطوّر إلى قهوة"
+          }
+        }
+      }
+    },
+    "間隔": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "間隔"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interval"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "间隔"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "間隔"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "간격"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalle"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abstand"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervallo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Интервал"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الفاصل"
+          }
+        }
+      }
+    },
+    "間隔を短くする": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "間隔を短くする"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shorter interval"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缩短间隔"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "縮短間隔"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "간격 줄이기"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo más corto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalle plus court"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kürzerer Abstand"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervallo più breve"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo menor"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уменьшить интервал"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فاصل أقصر"
+          }
+        }
+      }
+    },
+    "間隔を長くする": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "間隔を長くする"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Longer interval"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加长间隔"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加長間隔"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "간격 늘리기"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo más largo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalle plus long"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Längerer Abstand"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervallo più lungo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intervalo maior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увеличить интервал"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فاصل أطول"
           }
         }
       }

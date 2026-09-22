@@ -418,8 +418,6 @@
 				INFOPLIST_FILE = "Stamp-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Tilecheck;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "While Tilecheck reads your list aloud, you can answer “got it” or “next” by voice. Your voice is recognized on this iPhone and never sent anywhere.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Tilecheck recognizes your answers (“got it”, “next”, “stop”) on this iPhone while it reads your list aloud. Nothing is sent anywhere.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -466,8 +464,6 @@
 				INFOPLIST_FILE = "Stamp-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Tilecheck;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "While Tilecheck reads your list aloud, you can answer “got it” or “next” by voice. Your voice is recognized on this iPhone and never sent anywhere.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Tilecheck recognizes your answers (“got it”, “next”, “stop”) on this iPhone while it reads your list aloud. Nothing is sent anywhere.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

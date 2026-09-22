@@ -32,6 +32,14 @@ final class AppModel {
             store = Self.demoStore(language: language)
             return
         }
+        // 開き直しても残るかを見るテストでは、UIテスト用の保存を消さずに読む
+        if CommandLine.arguments.contains("-ui-testing-keep"),
+           let data = UserDefaults(suiteName: "mochimono.uitest")!.data(forKey: Self.key),
+           let kept = try? JSONDecoder().decode(Store.self, from: data) {
+            self.defaults = UserDefaults(suiteName: "mochimono.uitest")!
+            store = kept
+            return
+        }
         // UIテストは毎回まっさらから始める。前回の状態が残ると結果が変わる。
         if CommandLine.arguments.contains("-ui-testing") {
             let suite = UserDefaults(suiteName: "mochimono.uitest")!
@@ -150,6 +158,14 @@ final class AppModel {
         guard var l = store[listID], l.columns != columns else { return }
         l.columns = columns
         store[listID] = l
+        Haptics.select()
+        save()
+    }
+
+    /// 読み上げの間隔。アプリ全体で1つ（リストごとに合わせる手間をかけさせない）。
+    func setReadAloudGap(_ seconds: Double) {
+        guard store.readAloudGap != seconds else { return }
+        store.readAloudGap = seconds
         Haptics.select()
         save()
     }

@@ -79,6 +79,7 @@ struct ListView: View {
             if reader.isRunning { reader.stop(); return }
             Haptics.select()
             reader.start(items: { [model, listID] in model.list(listID)?.items },
+                         gap: { [model] in model.store.readAloudGap },
                          mark: { [model, listID] id in model.markPacked(id, in: listID) })
         } label: {
             Label(isReading ? "読み上げを止める" : "読み上げ",
@@ -87,7 +88,7 @@ struct ListView: View {
                 .symbolEffect(.variableColor.iterative, isActive: isReading)
         }
         .accessibilityIdentifier("readAloud")
-        .accessibilityHint("まだの物を順に読み上げます。「持った」と答えると印が付きます")
+        .accessibilityHint("まだの物を順に読み上げます")
     }
 
     @ViewBuilder
@@ -386,15 +387,18 @@ struct ListView: View {
     }
 
     /// 読み上げ中の段。配色の段と入れ替える（読み上げ中に色は触らない）。
-    /// いま読んでいる物と、声で何と言えばよいかを出す。手が空いたときは押しても答えられる。
+    /// いま読んでいる物と、間隔の送りを出す。**間隔は読みながら詰められるよう、ここに置く。**
+    /// 設定画面に置くと、止めて開いて戻って、を繰り返さないと合わせられない。
     private func readAloudRow(_ reader: ReadAloudSession, list: PackingList) -> some View {
         let current = list.items.first { $0.id == reader.currentID }?.text
-        return VStack(alignment: .leading, spacing: 6) {
+        let gap = model.store.readAloudGap
+        return VStack(spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: reader.phase == .listening ? "mic.fill" : "speaker.wave.2.fill")
-                    .foregroundStyle(reader.phase == .listening ? Color.red : Color.accentColor)
-                    .symbolEffect(.pulse, isActive: reader.phase == .listening)
+                Image(systemName: "speaker.wave.2.fill")
+                    .foregroundStyle(Color.accentColor)
+                    .symbolEffect(.variableColor.iterative)
                     .frame(width: 20)
+                    .accessibilityHidden(true)
                 Text(current ?? "…")
                     .font(.system(.headline, weight: .heavy))
                     .lineLimit(1)
@@ -407,20 +411,40 @@ struct ListView: View {
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("readPacked")
             }
-            .controlSize(.small)
-            Group {
-                switch reader.voice {
-                case .ready, .unknown: Text("声で「持った」「次」「もう一回」「止めて」と答えられます")
-                case .denied: Text("声で答えるには、設定でマイクと音声認識を許可してください")
-                case .unsupported: Text("この端末では声で答えられません。画面のボタンで答えてください")
-                }
+            HStack(spacing: 6) {
+                Text("間隔")
+                    .font(.system(.caption, weight: .bold))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                gapButton(longer: false, disabled: ReadAloudGap.isShortest(gap))
+                // 秒の書き方は言語に任せる（「0.8秒」「0.8 s」「٠٫٨ ث」）
+                Text(Duration.milliseconds(Int(gap * 1000)).formatted(
+                        .units(allowed: [.seconds], width: .abbreviated,
+                               fractionalPart: .show(length: 1))))
+                    .font(.system(.subheadline, weight: .heavy))
+                    .monospacedDigit()
+                    .frame(minWidth: 56)
+                    .accessibilityIdentifier("readGap")
+                gapButton(longer: true, disabled: ReadAloudGap.isLongest(gap))
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .lineLimit(2)
-            .fixedSize(horizontal: false, vertical: true)
         }
+        .controlSize(.small)
         .padding(.bottom, 2)
+    }
+
+    private func gapButton(longer: Bool, disabled: Bool) -> some View {
+        Button {
+            model.setReadAloudGap(ReadAloudGap.step(model.store.readAloudGap, longer: longer))
+        } label: {
+            Image(systemName: longer ? "plus" : "minus")
+                .font(.system(.footnote, weight: .bold))
+                .frame(width: 40, height: 28)
+                .contentShape(.rect)            // 余白も押せるようにする（引き継ぎ書 4-44）
+        }
+        .buttonStyle(.bordered)
+        .disabled(disabled)
+        .accessibilityIdentifier(longer ? "readGapLonger" : "readGapShorter")
+        .accessibilityLabel(longer ? Text("間隔を長くする") : Text("間隔を短くする"))
     }
 
     /// 配色の段。矢印・見本・番号・カラーの4つをこの順に並べる。

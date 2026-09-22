@@ -1,15 +1,11 @@
 import XCTest
 
-/// 手ぶらで準備する読み上げ。
-/// **声の聞き取りはシミュレータで試せない**ので、ここでは画面のボタンで同じ道を通す
-/// （声の「持った」と画面の「持った」は `send(_:)` で合流する）。声そのものは実機で確かめる。
+/// 手ぶらで準備する読み上げ。音そのものは実機で確かめる。
 final class ReadAloudUITests: XCTestCase {
 
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
-        // マイクの許可の窓で止まらないよう、声の合図を切る
-        app.launchArguments = ["-ui-testing", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP",
-                               "-ReadAloudNoMic"]
+        app.launchArguments = ["-ui-testing", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]
         app.launch()
         return app
     }
@@ -24,10 +20,22 @@ final class ReadAloudUITests: XCTestCase {
                        file: file, line: line)
     }
 
+    /// 間隔をいちばん長く（5秒）してから読み始める。
+    /// **既定の間隔では、押す前に次へ進んでしまう**ので、ボタンで答える確認はこれを通す。
+    private func startSlow(_ app: XCUIApplication) {
+        app.buttons["readAloud"].tapWhenReady()
+        let longer = app.buttons["readGapLonger"]
+        XCTAssertTrue(longer.waitForExistence(timeout: 5))
+        while longer.isEnabled { longer.tap() }
+        app.buttons["readAloud"].tap()                 // いったん止めて、頭から読み直す
+        XCTAssertTrue(app.staticTexts["paletteNumber"].waitForExistence(timeout: 5))
+        app.buttons["readAloud"].tap()
+    }
+
     func test持ったで印が付いて次へ進む() {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
-        app.buttons["readAloud"].tapWhenReady()
+        startSlow(app)
         reading(app, is: "財布")
         // 読んでいる間は、配色の段が読み上げの段に入れ替わる
         XCTAssertFalse(app.staticTexts["paletteNumber"].exists)
@@ -64,7 +72,7 @@ final class ReadAloudUITests: XCTestCase {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
         for name in MochimonoUITests.街中のすべて.dropFirst(2) { app.buttons["item-\(name)"].tapWhenReady() }
-        app.buttons["readAloud"].tapWhenReady()
+        startSlow(app)
         reading(app, is: "財布")
         app.buttons["readNext"].tapWhenReady()
         reading(app, is: "スマホ")
@@ -77,10 +85,47 @@ final class ReadAloudUITests: XCTestCase {
         let app = launch()
         app.buttons["list-街中"].tapWhenReady()
         for name in MochimonoUITests.街中のすべて.dropFirst() { app.buttons["item-\(name)"].tapWhenReady() }
-        app.buttons["readAloud"].tapWhenReady()
+        startSlow(app)
         reading(app, is: "財布")
         app.buttons["readPacked"].tapWhenReady()
         XCTAssertTrue(app.buttons["completeBanner"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["paletteNumber"].waitForExistence(timeout: 10))
+    }
+
+    /// 読んでいる物のマスを押したら、残りの間を待たずに次へ進む。
+    func testマスを押すと次へ進む() {
+        let app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        // 間隔をいちばん長く（5秒）して、待ちを打ち切ったことが分かるようにする
+        startSlow(app)
+        reading(app, is: "財布")
+        app.buttons["item-財布"].tap()
+        let found = NSPredicate(format: "label == %@", "スマホ")
+        let exp = XCTNSPredicateExpectation(predicate: found, object: app.staticTexts["readingItem"])
+        XCTAssertEqual(XCTWaiter.wait(for: [exp], timeout: 3.5), .completed, "5秒待たずに次へ進むこと")
+    }
+
+    /// 間隔は読みながら変えられ、次に開いても残っている。
+    func test間隔を変えられて残る() {
+        var app = launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["readAloud"].tapWhenReady()
+        let gap = app.staticTexts["readGap"]
+        XCTAssertTrue(gap.waitForExistence(timeout: 5))
+        XCTAssertEqual(gap.label, "0.8秒")
+        app.buttons["readGapLonger"].tap()
+        XCTAssertEqual(gap.label, "1.0秒")
+        app.buttons["readGapShorter"].tap()
+        app.buttons["readGapShorter"].tap()
+        XCTAssertEqual(gap.label, "0.5秒")
+
+        app.terminate()
+        app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-keep", "-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"]   // 保存を消さずに開き直す
+        app.launch()
+        app.buttons["list-街中"].tapWhenReady()
+        app.buttons["readAloud"].tapWhenReady()
+        XCTAssertTrue(app.staticTexts["readGap"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["readGap"].label, "0.5秒")
     }
 }
