@@ -86,7 +86,10 @@ extension Language {
 
 /// 読み上げの声の選び方。**名前は出さず、番号（1〜5）で送る**（配色と同じ扱い）。
 ///
-/// 1番は端末の既定の声（それまで聞いていた声）。**2・3番は明るい男、4・5番は可愛い女の子**（2026-09-22 本人指定）。
+/// 並び（2026-09-22 本人指定）：
+/// 1 端末の既定の声（それまで聞いていた声） / 2 明るい男 / 3 きびきびした早口 /
+/// 4 可愛い女の子 / 5 ロボット。3と5は「自由な発想で」と任された枠。
+/// 3 は**準備を急ぐ人向けに速さで**、5 は**機械声をあえて機械らしく高めに**して、ほかの4つと聞き分けられるようにした。
 /// 最初は「その言語の声を名前順」にしたら、日本語では機械声（Eloquence の Eddy・Grandpa…）が並び、
 /// 「暗い男ばかり」と言われた。**声の性別と自然さで選び、高さと速さで性格を付ける。**
 /// 同じ声を使い回しても、高さ・速さが違うので5つは必ず別物になる。
@@ -127,10 +130,15 @@ public enum VoiceMenu {
         }
     }
 
-    /// 2〜5番の性格。**明るい男は少しだけ高く、可愛い女の子はかなり高く、どちらも少し速く。**
+    /// 性格ごとの高さと速さ。**明るい男は少しだけ高く、可愛い女の子はかなり高く、どちらも少し速く。**
     /// 男を高くしすぎると裏声に、女の子を速くしすぎると早口に聞こえるので、この幅に留める。
-    static let brightMale: [(pitch: Float, rate: Float)] = [(1.12, 1.05), (1.25, 1.1)]
-    static let cuteGirl: [(pitch: Float, rate: Float)] = [(1.5, 1.06), (1.75, 1.1)]
+    static let brightMale = (pitch: Float(1.12), rate: Float(1.05))
+    static let cuteGirl = (pitch: Float(1.5), rate: Float(1.06))
+    /// きびきび：いつもの声のまま、ぐっと速く。高さはほぼ変えない（変えると別人に聞こえて速さが伝わらない）
+    static let brisk = (pitch: Float(1.05), rate: Float(1.3))
+    /// ロボット：機械声を高めに、少し速く。機械声が無い端末では、いつもの声をうんと低く・ゆっくりにする
+    static let robot = (pitch: Float(1.5), rate: Float(1.15))
+    static let robotFallback = (pitch: Float(0.6), rate: Float(0.9))
 
     /// - Parameters:
     ///   - voices: その言語の声
@@ -142,9 +150,19 @@ public enum VoiceMenu {
                 && !["Grandma", "Grandpa"].contains($0.name)
         }
         let first = usable.first { $0.id == preferred }?.id ?? preferred ?? usable.first?.id
-        return [Variant(voiceID: first, pitch: 1)]
-            + fill(brightMale, from: ranked(usable, .male), fallback: first)
-            + fill(cuteGirl, from: ranked(usable, .female), fallback: first)
+        let male = ranked(usable, .male).first
+        let female = ranked(usable, .female).first
+        // ロボットは Rocko（名前も声もロボットらしい）を先に。無ければ機械声のどれか
+        let robotic = usable.filter(\.isRobotic)
+        let machine = (robotic.first { $0.name == "Rocko" } ?? robotic.first)?.id
+        return [
+            Variant(voiceID: first, pitch: 1),
+            Variant(voiceID: male ?? first, pitch: brightMale.pitch, rate: brightMale.rate),
+            Variant(voiceID: first, pitch: brisk.pitch, rate: brisk.rate),
+            Variant(voiceID: female ?? first, pitch: cuteGirl.pitch, rate: cuteGirl.rate),
+            machine.map { Variant(voiceID: $0, pitch: robot.pitch, rate: robot.rate) }
+                ?? Variant(voiceID: first, pitch: robotFallback.pitch, rate: robotFallback.rate),
+        ]
     }
 
     /// その性別の声を、**自然な声を先に**、質の高い順に並べる。
@@ -156,13 +174,6 @@ public enum VoiceMenu {
                 return a.name < b.name
             }
             .map(\.id)
-    }
-
-    /// 声が1つしか無ければ、同じ声を高さと速さを変えて2回使う。1つも無ければ既定の声で。
-    static func fill(_ looks: [(pitch: Float, rate: Float)], from ids: [String], fallback: String?) -> [Variant] {
-        looks.enumerated().map { i, look in
-            Variant(voiceID: ids.isEmpty ? fallback : ids[i % ids.count], pitch: look.pitch, rate: look.rate)
-        }
     }
 
     /// 1つ送る。端まで来たら反対の端へ（配色の矢印と同じく一周する）。

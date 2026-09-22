@@ -143,10 +143,12 @@ struct VoiceMenuTests {
         #expect(v[0] == .init(voiceID: kyoko.id, pitch: 1, rate: 1))
     }
 
-    @Test func 二三番は明るい男() {
+    let rocko = V(id: "com.apple.eloquence.ja-JP.Rocko", name: "Rocko", quality: .standard)
+
+    @Test func 二番は明るい男() {
         let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect([v[1].voiceID, v[2].voiceID] == [eddy.id, reed.id])      // 性別は名前で補う
-        #expect(v[1].pitch > 1 && v[2].pitch > v[1].pitch)              // 暗くしない
+        #expect(v[1].voiceID == eddy.id)                     // 性別は名前で補う
+        #expect(v[1].pitch > 1)                              // 暗くしない
     }
 
     @Test func 男は自然な声があればそちらを先に() {
@@ -154,10 +156,30 @@ struct VoiceMenuTests {
         #expect(v[1].voiceID == otoya.id)
     }
 
-    @Test func 四五番は可愛い女の子で自然な声を使う() {
+    @Test func 三番はいつもの声のまま速く() {
         let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect(v[3].voiceID == kyoko.id)                              // 機械声の Flo より Kyoko
-        #expect(v[3].pitch >= 1.5 && v[4].pitch > v[3].pitch)
+        #expect(v[2].voiceID == kyoko.id)
+        #expect(v[2].rate >= 1.25)
+        #expect(v[2].rate > v[1].rate && v[2].rate > v[3].rate)   // いちばん速い
+    }
+
+    @Test func 四番は可愛い女の子で自然な声を使う() {
+        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
+        #expect(v[3].voiceID == kyoko.id)                          // 機械声の Flo より Kyoko
+        #expect(v[3].pitch >= 1.5)
+    }
+
+    @Test func 五番はロボット() {
+        #expect(VoiceMenu.variants(voices: iphone + [rocko], preferred: kyoko.id)[4].voiceID == rocko.id)
+        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)[4]
+        #expect(v.voiceID?.hasPrefix("com.apple.eloquence.") == true)   // Rocko が無くても機械声
+        #expect(v.pitch > 1)
+    }
+
+    @Test func 機械声が無ければ五番は低くゆっくり() {
+        let v = VoiceMenu.variants(voices: [kyoko], preferred: kyoko.id)[4]
+        #expect(v.voiceID == kyoko.id)
+        #expect(v.pitch < 1 && v.rate < 1)
     }
 
     @Test func 年寄りと効果音の声は使わない() {
