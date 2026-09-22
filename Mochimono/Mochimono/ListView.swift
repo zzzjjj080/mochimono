@@ -52,9 +52,6 @@ struct ListView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if let list {
-                if !list.items.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) { readAloudButton }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("設定", action: settings)
                         .accessibilityIdentifier("openSettings")
@@ -70,25 +67,32 @@ struct ListView: View {
         .onChange(of: scenePhase) { _, phase in if phase == .background { reader?.stop() } }
     }
 
-    private var isReading: Bool { reader?.isRunning == true }
 
-    /// 読み上げの入り切り。**記号だけにする**（文字を並べると、長い言語で見出しが押し出される）。
-    private var readAloudButton: some View {
+    /// 読み上げの入り切り。**下の段のいちばん上に、押しやすい大きさで置く**（2026-09-22 本人指定）。
+    /// 右上の小さな記号だったが、配色より触るので下へ移した。
+    private func readAloudButton(_ reader: ReadAloudSession) -> some View {
         Button {
-            guard let reader else { return }
             if reader.isRunning { reader.stop(); return }
             Haptics.select()
             reader.start(items: { [model, listID] in model.list(listID)?.items },
                          gap: { [model] in model.store.readAloudGap },
                          voice: { [model] in model.store.readAloudVoice })
         } label: {
-            Label(isReading ? "読み上げを止める" : "読み上げ",
-                  systemImage: isReading ? "speaker.wave.2.fill" : "speaker.wave.2")
-                .labelStyle(.iconOnly)
-                .symbolEffect(.variableColor.iterative, isActive: isReading)
+            Label(reader.isRunning ? "止める" : "読み上げ",
+                  systemImage: reader.isRunning ? "stop.fill" : "speaker.wave.2.fill")
         }
+        // 記号に動きは付けない。止める記号（■）が薄く点滅して、押せないように見えた
+        .buttonStyle(BarButton(fill: reader.isRunning ? .readStop : .readGo, height: 40))
+        .frame(maxWidth: 124)
         .accessibilityIdentifier("readAloud")
+        .accessibilityLabel(reader.isRunning ? Text("読み上げを止める") : Text("読み上げ"))
+        // いま読んでいる物。画面では盤面の枠で分かるので、文字は読み上げ用にだけ持たせる
+        .accessibilityValue(Text(verbatim: list(ofReader: reader) ?? ""))
         .accessibilityHint("まだの物を順に読み上げます")
+    }
+
+    private func list(ofReader reader: ReadAloudSession) -> String? {
+        list?.items.first { $0.id == reader.currentID }?.text
     }
 
     @ViewBuilder
@@ -340,10 +344,16 @@ struct ListView: View {
 
     private var bottomBar: some View {
         VStack(spacing: 8) {
+            // 上から、読み上げの段 → 色の段 → 操作の段（2026-09-22 本人指定）。
+            // 読み上げは配色より触るので上に。読みながらでも色の段は残す
+            if let reader, let list, !list.items.isEmpty {
+                ViewThatFits(in: .horizontal) {
+                    readAloudRow(reader, showsTitles: true)
+                    readAloudRow(reader, showsTitles: false)
+                }
+            }
             // 色の段。**番号だけでは何色か分からない**ので、実際の色を並べて見せる
-            if let reader, reader.isRunning, let list {
-                readAloudRow(reader, list: list)
-            } else if let list, !list.items.isEmpty {
+            if let list, !list.items.isEmpty {
                 ViewThatFits(in: .horizontal) {
                     colorRow(list, showsTitle: true)
                     colorRow(list, showsTitle: false)
@@ -386,56 +396,45 @@ struct ListView: View {
         .background(.bar)
     }
 
-    /// 読み上げ中の段。配色の段と入れ替える（読み上げ中に色は触らない）。
-    /// 上の行にいま読んでいる物、下の行に声と間隔の送り。**どちらも読みながら変えて聞き比べられるよう、ここに置く。**
-    /// 設定画面に置くと、止めて開いて戻って、を繰り返さないと合わせられない。
-    private func readAloudRow(_ reader: ReadAloudSession, list: PackingList) -> some View {
-        let current = list.items.first { $0.id == reader.currentID }?.text
+    /// 読み上げの段。入り切りのボタンと、声・間隔の送り。
+    /// **声と間隔は読んでいなくても変えられる。** 読みながら変えれば、次の1つから効いて聞き比べられる。
+    /// 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
+    private func readAloudRow(_ reader: ReadAloudSession, showsTitles: Bool) -> some View {
         let gap = model.store.readAloudGap
-        return VStack(spacing: 6) {
-            HStack(spacing: 8) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .foregroundStyle(Color.accentColor)
-                    .symbolEffect(.variableColor.iterative)
-                    .frame(width: 20)
-                    .accessibilityHidden(true)
-                Text(current ?? "…")
-                    .font(.system(.headline, weight: .heavy))
-                    .lineLimit(1)
-                    .accessibilityIdentifier("readingItem")
-                Spacer(minLength: 0)
-            }
-            // 答えは盤面のマスを押す。「次へ」「持った」は置かない（2026-09-22 本人判断）
-            HStack(spacing: 6) {
-                Text("声")
-                    .font(.system(.caption, weight: .bold))
-                    .foregroundStyle(.secondary)
-                voiceArrow(back: true)
-                // 声は名前を出さず番号で（配色と同じ）。名前は端末や言語で変わり、選ぶ手がかりにならない
-                Text("\((model.store.readAloudVoice + 1).formatted()) / \(VoiceMenu.count.formatted())")
-                    .font(.system(.subheadline, weight: .heavy))
-                    .monospacedDigit()
-                    .accessibilityIdentifier("readVoice")
-                voiceArrow(back: false)
-                Spacer(minLength: 4)
-                Text("間隔")
-                    .font(.system(.caption, weight: .bold))
-                    .foregroundStyle(.secondary)
-                gapButton(longer: false, disabled: ReadAloudGap.isShortest(gap))
-                // 秒の書き方は言語に任せる（「0.8秒」「0.8 s」「٠٫٨ ث」）
-                Text(Duration.milliseconds(Int(gap * 1000)).formatted(
-                        .units(allowed: [.seconds], width: .abbreviated,
-                               fractionalPart: .show(length: 1))))
-                    .font(.system(.subheadline, weight: .heavy))
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .fixedSize()
-                    .accessibilityIdentifier("readGap")
-                gapButton(longer: true, disabled: ReadAloudGap.isLongest(gap))
-            }
+        return HStack(spacing: 6) {
+            readAloudButton(reader)
+            Spacer(minLength: 2)
+            if showsTitles { caption("声") }
+            voiceArrow(back: true)
+            // 声は名前を出さず番号で（配色と同じ）。名前は端末や言語で変わり、選ぶ手がかりにならない
+            Text("\((model.store.readAloudVoice + 1).formatted()) / \(VoiceMenu.count.formatted())")
+                .font(.system(.subheadline, weight: .heavy))
+                .monospacedDigit()
+                .fixedSize()
+                .accessibilityIdentifier("readVoice")
+            voiceArrow(back: false)
+            Spacer(minLength: 2)
+            if showsTitles { caption("間隔") }
+            gapButton(longer: false, disabled: ReadAloudGap.isShortest(gap))
+            // 秒の書き方は言語に任せる（「0.8秒」「0.8 s」「٠٫٨ ث」）
+            Text(Duration.milliseconds(Int(gap * 1000)).formatted(
+                    .units(allowed: [.seconds], width: .abbreviated,
+                           fractionalPart: .show(length: 1))))
+                .font(.system(.subheadline, weight: .heavy))
+                .monospacedDigit()
+                .lineLimit(1)
+                .fixedSize()
+                .accessibilityIdentifier("readGap")
+            gapButton(longer: true, disabled: ReadAloudGap.isLongest(gap))
         }
         .controlSize(.small)
-        .padding(.bottom, 2)
+    }
+
+    private func caption(_ title: LocalizedStringKey) -> some View {
+        Text(title)
+            .font(.system(.caption, weight: .bold))
+            .foregroundStyle(.secondary)
+            .fixedSize()
     }
 
     private func voiceArrow(back: Bool) -> some View {
@@ -444,7 +443,7 @@ struct ListView: View {
                 .flipsForRightToLeftLayoutDirection(true)
                 .font(.system(.footnote, weight: .bold))
                 .foregroundStyle(.secondary)
-                .frame(width: 30, height: 28)
+                .frame(width: 26, height: 30)
                 .contentShape(.rect)            // 余白も押せるようにする（引き継ぎ書 4-44）
         }
         .buttonStyle(.plain)
@@ -515,6 +514,7 @@ struct ListView: View {
 /// 標準の押しボタンは角が丸すぎて、盤面の四角いマスと並ぶと締まらない。
 private struct BarButton: ButtonStyle {
     let fill: Color
+    var height: CGFloat = 46
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -522,7 +522,7 @@ private struct BarButton: ButtonStyle {
             .foregroundStyle(.white)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
-            .frame(maxWidth: .infinity, minHeight: 46)
+            .frame(maxWidth: .infinity, minHeight: height)
             .background(fill, in: .rect(cornerRadius: 7))
             .opacity(configuration.isPressed ? 0.72 : 1)
             .animation(.easeOut(duration: 0.07), value: configuration.isPressed)
@@ -535,6 +535,15 @@ extension Color {
     static let barPrimary = Color(uiColor: UIColor { t in
         t.userInterfaceStyle == .dark ? UIColor(red: 0.33, green: 0.42, blue: 0.68, alpha: 1)
                                       : UIColor(red: 0.16, green: 0.22, blue: 0.40, alpha: 1)
+    })
+    /// 読み上げの入り切り。**始める前は緑、読んでいる間は朱**（止めるボタンだと一目で分かるように）
+    static let readGo = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(red: 0.20, green: 0.62, blue: 0.47, alpha: 1)
+                                      : UIColor(red: 0.10, green: 0.50, blue: 0.38, alpha: 1)
+    })
+    static let readStop = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark ? UIColor(red: 0.85, green: 0.38, blue: 0.27, alpha: 1)
+                                      : UIColor(red: 0.78, green: 0.30, blue: 0.20, alpha: 1)
     })
     static let barSecondary = Color(uiColor: UIColor { t in
         t.userInterfaceStyle == .dark ? UIColor(red: 0.36, green: 0.39, blue: 0.44, alpha: 1)

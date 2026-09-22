@@ -129,67 +129,54 @@ struct VoiceMenuTests {
     let bahh = V(id: "com.apple.speech.synthesis.voice.Bahh", name: "Bahh", quality: .standard)
 
     var iphone: [V] { [eddy, flo, grandpa, kyoko, reed] }
+    var slots: [VoiceMenu.Slot] { VoiceMenu.slots(voices: iphone, preferred: kyoko.id) }
 
     @Test func いつでも5つで全部違う() {
         for voices in [[], [kyoko], iphone, iphone + [otoya]] {
-            let v = VoiceMenu.variants(voices: voices, preferred: voices.first?.id)
-            #expect(v.count == 5)
-            #expect(Set(v).count == 5)
+            let s = VoiceMenu.slots(voices: voices, preferred: voices.first?.id)
+            #expect(s.count == VoiceMenu.count)
+            #expect(Set(s).count == 5)
         }
     }
 
     @Test func 一番はいままでの声のまま() {
-        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect(v[0] == .init(voiceID: kyoko.id, pitch: 1, rate: 1))
+        #expect(slots[0].voices == [.init(voiceID: kyoko.id, pitch: 1, rate: 1)])
     }
 
-    let rocko = V(id: "com.apple.eloquence.ja-JP.Rocko", name: "Rocko", quality: .standard)
-
     @Test func 二番は明るい男() {
-        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect(v[1].voiceID == eddy.id)                     // 性別は名前で補う
-        #expect(v[1].pitch > 1)                              // 暗くしない
+        #expect(slots[1].variant(at: 0).voiceID == eddy.id)          // 性別は名前で補う
+        #expect(slots[1].variant(at: 0).pitch > 1)                   // 暗くしない
     }
 
     @Test func 男は自然な声があればそちらを先に() {
-        let v = VoiceMenu.variants(voices: iphone + [otoya], preferred: kyoko.id)
-        #expect(v[1].voiceID == otoya.id)
+        let s = VoiceMenu.slots(voices: iphone + [otoya], preferred: kyoko.id)
+        #expect(s[1].variant(at: 0).voiceID == otoya.id)
     }
 
     @Test func 三番はいつもの声のまま速く() {
-        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect(v[2].voiceID == kyoko.id)
-        #expect(v[2].rate >= 1.25)
-        #expect(v[2].rate > v[1].rate && v[2].rate > v[3].rate)   // いちばん速い
-    }
-
-    @Test func 四番は可愛い女の子で自然な声を使う() {
-        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
-        #expect(v[3].voiceID == kyoko.id)                          // 機械声の Flo より Kyoko
-        #expect(v[3].pitch >= 1.5)
-    }
-
-    @Test func 五番はロボット() {
-        #expect(VoiceMenu.variants(voices: iphone + [rocko], preferred: kyoko.id)[4].voiceID == rocko.id)
-        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)[4]
-        #expect(v.voiceID?.hasPrefix("com.apple.eloquence.") == true)   // Rocko が無くても機械声
-        #expect(v.pitch > 1)
-    }
-
-    @Test func 機械声が無ければ五番は低くゆっくり() {
-        let v = VoiceMenu.variants(voices: [kyoko], preferred: kyoko.id)[4]
+        let v = slots[2].variant(at: 0)
         #expect(v.voiceID == kyoko.id)
-        #expect(v.pitch < 1 && v.rate < 1)
+        #expect(v.rate >= 1.25)
+    }
+
+    @Test func 四番は1と2が1つずつ交互() {
+        let one = slots[0].variant(at: 0), two = slots[1].variant(at: 0)
+        #expect((0..<4).map { slots[3].variant(at: $0) } == [one, two, one, two])
+    }
+
+    @Test func 五番は1と2が2つずつ交互() {
+        let one = slots[0].variant(at: 0), two = slots[1].variant(at: 0)
+        #expect((0..<6).map { slots[4].variant(at: $0) } == [one, one, two, two, one, one])
     }
 
     @Test func 年寄りと効果音の声は使わない() {
-        let v = VoiceMenu.variants(voices: iphone + [bahh], preferred: kyoko.id)
-        #expect(!v.contains { $0.voiceID == grandpa.id || $0.voiceID == bahh.id })
+        let s = VoiceMenu.slots(voices: iphone + [bahh], preferred: kyoko.id)
+        #expect(!s.flatMap(\.voices).contains { $0.voiceID == grandpa.id || $0.voiceID == bahh.id })
     }
 
     @Test func 男の声が無ければ既定の声で埋める() {
-        let v = VoiceMenu.variants(voices: [kyoko], preferred: kyoko.id)
-        #expect(v.allSatisfy { $0.voiceID == kyoko.id })
+        let s = VoiceMenu.slots(voices: [kyoko], preferred: kyoko.id)
+        #expect(s.flatMap(\.voices).allSatisfy { $0.voiceID == kyoko.id })
     }
 
     @Test func 送ると一周する() {

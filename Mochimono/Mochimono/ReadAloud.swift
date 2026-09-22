@@ -23,17 +23,19 @@ final class ReadAloudSession {
     private let speaker = Speaker()
     private var loop: Task<Void, Never>?
     /// 声の選択肢（5つ）。端末に入っている声から、開いたときに組む
-    let voices: [VoiceMenu.Variant]
+    let slots: [VoiceMenu.Slot]
+    /// 読み始めてから読んだ品の数。交互に読む声（4・5番）の順番に使う
+    private var spoken = 0
 
     init(language: Language) {
         let code = language.speechCode(region: Locale.current.region?.identifier)
         speechCode = code
         synthesizer.delegate = speaker
-        voices = Self.menu(for: code)
+        slots = Self.menu(for: code)
     }
 
     /// その言語の声を集める。地域まで合う声（ja-JP）が無ければ、言語だけ合う声（ja-*）で組む。
-    private static func menu(for code: String) -> [VoiceMenu.Variant] {
+    private static func menu(for code: String) -> [VoiceMenu.Slot] {
         let all = AVSpeechSynthesisVoice.speechVoices()
             .filter { !$0.voiceTraits.contains(.isPersonalVoice) }
         let lang = String(code.prefix { $0 != "-" })
@@ -52,7 +54,7 @@ final class ReadAloudSession {
             }
             return VoiceMenu.Voice(id: v.identifier, name: v.name, quality: quality, gender: gender)
         }
-        return VoiceMenu.variants(voices: voices,
+        return VoiceMenu.slots(voices: voices,
                                   preferred: AVSpeechSynthesisVoice(language: code)?.identifier)
     }
 
@@ -68,6 +70,7 @@ final class ReadAloudSession {
         guard !isRunning else { return }
         isRunning = true
         currentID = nil
+        spoken = 0
         UIApplication.shared.isIdleTimerDisabled = true
         let session = AVAudioSession.sharedInstance()
         // 流している音楽は止めずに小さくする。準備しながら聞いていることが多い
@@ -114,6 +117,7 @@ final class ReadAloudSession {
             guard let step = ReadAloudOrder.next(after: currentID, in: now) else { continue }
             currentID = step.item.id
             await say(step.item.text)
+            spoken += 1
         }
     }
 
@@ -129,7 +133,7 @@ final class ReadAloudSession {
     private func say(_ text: String) async {
         guard !Task.isCancelled else { return }
         let u = AVSpeechUtterance(string: text)
-        let variant = voices[min(max(voice(), 0), voices.count - 1)]
+        let variant = slots[min(max(voice(), 0), slots.count - 1)].variant(at: spoken)
         u.voice = variant.voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:))
             ?? AVSpeechSynthesisVoice(language: speechCode)
         u.pitchMultiplier = variant.pitch

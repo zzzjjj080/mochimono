@@ -88,8 +88,8 @@ extension Language {
 ///
 /// 並び（2026-09-22 本人指定）：
 /// 1 端末の既定の声（それまで聞いていた声） / 2 明るい男 / 3 きびきびした早口 /
-/// 4 可愛い女の子 / 5 ロボット。3と5は「自由な発想で」と任された枠。
-/// 3 は**準備を急ぐ人向けに速さで**、5 は**機械声をあえて機械らしく高めに**して、ほかの4つと聞き分けられるようにした。
+/// 4 1と2が1つずつ交互に読む / 5 1と2が2つずつ交互に読む。
+/// 可愛い女の子・ロボットも作ったが外した。**掛け合いのほうが、同じ声が続く単調さが消えて聞き流さない。**
 /// 最初は「その言語の声を名前順」にしたら、日本語では機械声（Eloquence の Eddy・Grandpa…）が並び、
 /// 「暗い男ばかり」と言われた。**声の性別と自然さで選び、高さと速さで性格を付ける。**
 /// 同じ声を使い回しても、高さ・速さが違うので5つは必ず別物になる。
@@ -133,35 +133,42 @@ public enum VoiceMenu {
     /// 性格ごとの高さと速さ。**明るい男は少しだけ高く、可愛い女の子はかなり高く、どちらも少し速く。**
     /// 男を高くしすぎると裏声に、女の子を速くしすぎると早口に聞こえるので、この幅に留める。
     static let brightMale = (pitch: Float(1.12), rate: Float(1.05))
-    static let cuteGirl = (pitch: Float(1.5), rate: Float(1.06))
     /// きびきび：いつもの声のまま、ぐっと速く。高さはほぼ変えない（変えると別人に聞こえて速さが伝わらない）
     static let brisk = (pitch: Float(1.05), rate: Float(1.3))
-    /// ロボット：機械声を高めに、少し速く。機械声が無い端末では、いつもの声をうんと低く・ゆっくりにする
-    static let robot = (pitch: Float(1.5), rate: Float(1.15))
-    static let robotFallback = (pitch: Float(0.6), rate: Float(0.9))
+
+    /// 1つの番号。声を1つ、または**何個かずつ交代する**声の組。
+    public struct Slot: Hashable, Sendable {
+        public let voices: [Variant]
+        /// 何個読んだら次の声に替わるか
+        public let run: Int
+        public init(_ voices: [Variant], run: Int = 1) {
+            self.voices = voices; self.run = max(run, 1)
+        }
+        /// 読み始めてから `n` 個目（0から）の品を読む声
+        public func variant(at n: Int) -> Variant {
+            voices[(max(n, 0) / run) % voices.count]
+        }
+    }
 
     /// - Parameters:
     ///   - voices: その言語の声
     ///   - preferred: 端末の既定の声（いままで聞いていた声）。**これを1番にする**
-    public static func variants(voices: [Voice], preferred: String?) -> [Variant] {
+    public static func slots(voices: [Voice], preferred: String?) -> [Slot] {
         // 効果音の声（Bahh など）と、年寄りの声（Grandma・Grandpa）は使わない
         let usable = voices.filter {
             !$0.id.hasPrefix("com.apple.speech.synthesis.voice.")
                 && !["Grandma", "Grandpa"].contains($0.name)
         }
         let first = usable.first { $0.id == preferred }?.id ?? preferred ?? usable.first?.id
-        let male = ranked(usable, .male).first
-        let female = ranked(usable, .female).first
-        // ロボットは Rocko（名前も声もロボットらしい）を先に。無ければ機械声のどれか
-        let robotic = usable.filter(\.isRobotic)
-        let machine = (robotic.first { $0.name == "Rocko" } ?? robotic.first)?.id
+        let usual = Variant(voiceID: first, pitch: 1)
+        let bright = Variant(voiceID: ranked(usable, .male).first ?? first,
+                             pitch: brightMale.pitch, rate: brightMale.rate)
         return [
-            Variant(voiceID: first, pitch: 1),
-            Variant(voiceID: male ?? first, pitch: brightMale.pitch, rate: brightMale.rate),
-            Variant(voiceID: first, pitch: brisk.pitch, rate: brisk.rate),
-            Variant(voiceID: female ?? first, pitch: cuteGirl.pitch, rate: cuteGirl.rate),
-            machine.map { Variant(voiceID: $0, pitch: robot.pitch, rate: robot.rate) }
-                ?? Variant(voiceID: first, pitch: robotFallback.pitch, rate: robotFallback.rate),
+            Slot([usual]),
+            Slot([bright]),
+            Slot([Variant(voiceID: first, pitch: brisk.pitch, rate: brisk.rate)]),
+            Slot([usual, bright], run: 1),
+            Slot([usual, bright], run: 2),
         ]
     }
 
