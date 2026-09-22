@@ -45,7 +45,12 @@ final class ReadAloudSession {
                 case .enhanced: .enhanced
                 default: .standard
             }
-            return VoiceMenu.Voice(id: v.identifier, name: v.name, quality: quality)
+            let gender: VoiceMenu.Voice.Gender = switch v.gender {
+                case .male: .male
+                case .female: .female
+                default: .unknown
+            }
+            return VoiceMenu.Voice(id: v.identifier, name: v.name, quality: quality, gender: gender)
         }
         return VoiceMenu.variants(voices: voices,
                                   preferred: AVSpeechSynthesisVoice(language: code)?.identifier)
@@ -128,7 +133,7 @@ final class ReadAloudSession {
         u.voice = variant.voiceID.flatMap(AVSpeechSynthesisVoice.init(identifier:))
             ?? AVSpeechSynthesisVoice(language: speechCode)
         u.pitchMultiplier = variant.pitch
-        u.rate = AVSpeechUtteranceDefaultSpeechRate
+        u.rate = min(AVSpeechUtteranceDefaultSpeechRate * variant.rate, AVSpeechUtteranceMaximumSpeechRate)
         await withCheckedContinuation { c in
             speaker.onFinish = { c.resume() }
             synthesizer.speak(u)

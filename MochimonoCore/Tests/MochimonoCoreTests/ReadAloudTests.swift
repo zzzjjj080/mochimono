@@ -119,34 +119,55 @@ struct SpeechCodeTests {
 @Suite("声の選択肢")
 struct VoiceMenuTests {
     typealias V = VoiceMenu.Voice
-    let kyoko = V(id: "ja.kyoko", name: "Kyoko", quality: .standard)
-    let otoya = V(id: "ja.otoya", name: "Otoya", quality: .standard)
-    let premium = V(id: "ja.kyoko.premium", name: "Kyoko", quality: .premium)
+    // 実際の iPhone の日本語：自然な声は Kyoko だけ、残りは Eloquence（性別が返らない）
+    let kyoko = V(id: "com.apple.voice.compact.ja-JP.Kyoko", name: "Kyoko", quality: .standard, gender: .female)
+    let eddy = V(id: "com.apple.eloquence.ja-JP.Eddy", name: "Eddy", quality: .standard)
+    let reed = V(id: "com.apple.eloquence.ja-JP.Reed", name: "Reed", quality: .standard)
+    let flo = V(id: "com.apple.eloquence.ja-JP.Flo", name: "Flo", quality: .standard)
+    let grandpa = V(id: "com.apple.eloquence.ja-JP.Grandpa", name: "Grandpa", quality: .standard)
+    let otoya = V(id: "com.apple.voice.enhanced.ja-JP.Otoya", name: "Otoya", quality: .enhanced, gender: .male)
     let bahh = V(id: "com.apple.speech.synthesis.voice.Bahh", name: "Bahh", quality: .standard)
 
-    @Test func いつでも5つ() {
-        #expect(VoiceMenu.variants(voices: [], preferred: nil).count == 5)
-        #expect(VoiceMenu.variants(voices: [kyoko], preferred: "ja.kyoko").count == 5)
-        let many = (0..<9).map { V(id: "v\($0)", name: "V\($0)", quality: .standard) }
-        #expect(VoiceMenu.variants(voices: many, preferred: nil).count == 5)
+    var iphone: [V] { [eddy, flo, grandpa, kyoko, reed] }
+
+    @Test func いつでも5つで全部違う() {
+        for voices in [[], [kyoko], iphone, iphone + [otoya]] {
+            let v = VoiceMenu.variants(voices: voices, preferred: voices.first?.id)
+            #expect(v.count == 5)
+            #expect(Set(v).count == 5)
+        }
     }
 
-    @Test func 一番はいままでの声() {
-        let v = VoiceMenu.variants(voices: [premium, otoya, kyoko], preferred: "ja.kyoko")
-        #expect(v[0] == .init(voiceID: "ja.kyoko", pitch: 1))
-        #expect(v[1].voiceID == "ja.kyoko.premium")      // 残りは質の高い順
+    @Test func 一番はいままでの声のまま() {
+        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
+        #expect(v[0] == .init(voiceID: kyoko.id, pitch: 1, rate: 1))
     }
 
-    @Test func 足りない分は高さを変えて足す() {
-        let v = VoiceMenu.variants(voices: [kyoko, otoya], preferred: "ja.kyoko")
-        #expect(v.map(\.voiceID) == ["ja.kyoko", "ja.otoya", "ja.kyoko", "ja.otoya", "ja.kyoko"])
-        #expect(v.map(\.pitch) == [1, 1, 1.25, 0.8, 1.45])
-        #expect(Set(v).count == 5)                        // 同じものが並ばない
+    @Test func 二三番は明るい男() {
+        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
+        #expect([v[1].voiceID, v[2].voiceID] == [eddy.id, reed.id])      // 性別は名前で補う
+        #expect(v[1].pitch > 1 && v[2].pitch > v[1].pitch)              // 暗くしない
     }
 
-    @Test func 効果音の声は使わない() {
-        let v = VoiceMenu.variants(voices: [bahh, kyoko], preferred: nil)
-        #expect(!v.contains { $0.voiceID == bahh.id })
+    @Test func 男は自然な声があればそちらを先に() {
+        let v = VoiceMenu.variants(voices: iphone + [otoya], preferred: kyoko.id)
+        #expect(v[1].voiceID == otoya.id)
+    }
+
+    @Test func 四五番は可愛い女の子で自然な声を使う() {
+        let v = VoiceMenu.variants(voices: iphone, preferred: kyoko.id)
+        #expect(v[3].voiceID == kyoko.id)                              // 機械声の Flo より Kyoko
+        #expect(v[3].pitch >= 1.5 && v[4].pitch > v[3].pitch)
+    }
+
+    @Test func 年寄りと効果音の声は使わない() {
+        let v = VoiceMenu.variants(voices: iphone + [bahh], preferred: kyoko.id)
+        #expect(!v.contains { $0.voiceID == grandpa.id || $0.voiceID == bahh.id })
+    }
+
+    @Test func 男の声が無ければ既定の声で埋める() {
+        let v = VoiceMenu.variants(voices: [kyoko], preferred: kyoko.id)
+        #expect(v.allSatisfy { $0.voiceID == kyoko.id })
     }
 
     @Test func 送ると一周する() {
