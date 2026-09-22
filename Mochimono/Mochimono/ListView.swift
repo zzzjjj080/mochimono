@@ -22,6 +22,9 @@ struct ListView: View {
     /// そろった回数。**増えたことが合図**で、紙吹雪と帯の演出をやり直す。
     @State private var burst = 0
     @State private var celebrating = false
+    /// 手ぶらで準備するための読み上げ。開いたときに作り、画面を離れたら止める
+    @State private var reader: ReadAloudSession?
+    @Environment(\.scenePhase) private var scenePhase
 
     private var list: PackingList? { model.list(listID) }
 
@@ -49,6 +52,9 @@ struct ListView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if let list {
+                if !list.items.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) { readAloudButton }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("設定", action: settings)
                         .accessibilityIdentifier("openSettings")
@@ -58,6 +64,30 @@ struct ListView: View {
         .safeAreaInset(edge: .bottom) { bottomBar }
         // 祝いは**画面全体**に出す。盤面の中だけだと、そろった手応えが小さい
         .overlay { if celebrating { CompleteFlash().id(burst) } }
+        .onAppear { if reader == nil { reader = ReadAloudSession(language: model.language) } }
+        // 画面を離れたら読み上げも止める。別のリストの品名を読み続けない
+        .onDisappear { reader?.stop() }
+        .onChange(of: scenePhase) { _, phase in if phase == .background { reader?.stop() } }
+    }
+
+    private var isReading: Bool { reader?.isRunning == true }
+
+    /// 読み上げの入り切り。**記号だけにする**（文字を並べると、長い言語で見出しが押し出される）。
+    private var readAloudButton: some View {
+        Button {
+            guard let reader else { return }
+            if reader.isRunning { reader.stop(); return }
+            Haptics.select()
+            reader.start(items: { [model, listID] in model.list(listID)?.items },
+                         mark: { [model, listID] id in model.markPacked(id, in: listID) })
+        } label: {
+            Label(isReading ? "読み上げを止める" : "読み上げ",
+                  systemImage: isReading ? "speaker.wave.2.fill" : "speaker.wave.2")
+                .labelStyle(.iconOnly)
+                .symbolEffect(.variableColor.iterative, isActive: isReading)
+        }
+        .accessibilityIdentifier("readAloud")
+        .accessibilityHint("まだの物を順に読み上げます。「持った」と答えると印が付きます")
     }
 
     @ViewBuilder
@@ -65,6 +95,7 @@ struct ListView: View {
         let table = ToneTable(palette: list.palette,
                               groups: list.toneGroups,
                               scheme: colorScheme.scheme)
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 12) {
                 if !list.items.isEmpty { gauge(list, table: table) }
@@ -88,6 +119,12 @@ struct ListView: View {
             .padding(.horizontal, 12)
             .padding(.top, 10)
             .padding(.bottom, 24)
+        }
+        // 読んでいる物を画面に入れる。長いリストでも、どれを読んだか目で追える
+        .onChange(of: reader?.currentID) { _, id in
+            guard let id else { return }
+            withAnimation(.snappy) { proxy.scrollTo(id, anchor: .center) }
+        }
         }
         .onChange(of: list.isComplete) { _, complete in
             // **そろった瞬間だけ。** 開き直すたびに祝われると煩わしい
@@ -133,6 +170,14 @@ struct ListView: View {
                 }
                 // 文字が大きくなったぶんマスも縦に伸ばす。伸ばさないと縮小されて意味がない
                 .aspectRatio(cols.aspectRatio / scale, contentMode: .fit)
+                // 読み上げ中の1つ。**枠だけ**付ける。塗りを変えると、持った・まだの読み方が崩れる
+                .overlay {
+                    if reader?.currentID == item.id {
+                        RoundedRectangle(cornerRadius: 5)
+                            .strokeBorder(Color.primary, lineWidth: 3)
+                            .padding(-2)
+                    }
+                }
         }
         .buttonStyle(PressableCell())
         .accessibilityIdentifier("item-\(item.text)")
@@ -295,7 +340,9 @@ struct ListView: View {
     private var bottomBar: some View {
         VStack(spacing: 8) {
             // 色の段。**番号だけでは何色か分からない**ので、実際の色を並べて見せる
-            if let list, !list.items.isEmpty {
+            if let reader, reader.isRunning, let list {
+                readAloudRow(reader, list: list)
+            } else if let list, !list.items.isEmpty {
                 ViewThatFits(in: .horizontal) {
                     colorRow(list, showsTitle: true)
                     colorRow(list, showsTitle: false)
@@ -336,6 +383,44 @@ struct ListView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(.bar)
+    }
+
+    /// 読み上げ中の段。配色の段と入れ替える（読み上げ中に色は触らない）。
+    /// いま読んでいる物と、声で何と言えばよいかを出す。手が空いたときは押しても答えられる。
+    private func readAloudRow(_ reader: ReadAloudSession, list: PackingList) -> some View {
+        let current = list.items.first { $0.id == reader.currentID }?.text
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: reader.phase == .listening ? "mic.fill" : "speaker.wave.2.fill")
+                    .foregroundStyle(reader.phase == .listening ? Color.red : Color.accentColor)
+                    .symbolEffect(.pulse, isActive: reader.phase == .listening)
+                    .frame(width: 20)
+                Text(current ?? "…")
+                    .font(.system(.headline, weight: .heavy))
+                    .lineLimit(1)
+                    .accessibilityIdentifier("readingItem")
+                Spacer(minLength: 0)
+                Button("次へ") { reader.send(.next) }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("readNext")
+                Button("持った") { reader.send(.packed) }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("readPacked")
+            }
+            .controlSize(.small)
+            Group {
+                switch reader.voice {
+                case .ready, .unknown: Text("声で「持った」「次」「もう一回」「止めて」と答えられます")
+                case .denied: Text("声で答えるには、設定でマイクと音声認識を許可してください")
+                case .unsupported: Text("この端末では声で答えられません。画面のボタンで答えてください")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.bottom, 2)
     }
 
     /// 配色の段。矢印・見本・番号・カラーの4つをこの順に並べる。

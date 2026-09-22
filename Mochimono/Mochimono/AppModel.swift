@@ -70,6 +70,13 @@ final class AppModel {
         save()
     }
 
+    /// 印を付ける（外さない）。**声で「持った」と言われたとき用。**
+    /// 入り切りの `toggle` を使うと、読んでいる間に手で付けていた物の印が外れてしまう。
+    func markPacked(_ item: Item.ID, in listID: PackingList.ID) {
+        guard let l = store[listID], l.items.first(where: { $0.id == item })?.isPacked == false else { return }
+        toggle(item, in: listID)
+    }
+
     /// チェックを全部外す。**破壊的な操作はこの1本だけ。** 呼ぶ前に必ず確認を通す。
     ///
     /// 例外は「ヨシ！ 全部そろいました」を押したとき。**そろった盤面で次にやることは

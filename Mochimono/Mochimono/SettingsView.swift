@@ -81,9 +81,25 @@ struct SettingsView: View {
             // リストが1つも無いときでも出す（if let list の外）
             FeedbackSection()
             if AppFeature.showsTipJar { CoffeeTipSection(tipJar: tipJar) }
+
+            // 入っている版の印。実機に入れ替わったかを画面で確かめるため（引き継ぎ書 4-145）
+            Section {} footer: {
+                Text(verbatim: Self.buildLabel)
+                    .font(.caption2.monospacedDigit())
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("buildLabel")
+            }
         }
         .navigationTitle("設定")
         .navigationBarTitleDisplayMode(.inline)
     }
+
+    /// 例：`1.3 (5) · b52 09/22 10:30`。Xcode から直接ビルドしたときは印が空なので、版番号だけ出す
+    static let buildLabel: String = {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let version = "\(info["CFBundleShortVersionString"] as? String ?? "?") (\(info["CFBundleVersion"] as? String ?? "?"))"
+        guard let stamp = info["TCBuildStamp"] as? String, !stamp.isEmpty else { return version }
+        return "\(version) · \(stamp)"
+    }()
 
 }

@@ -34,11 +34,13 @@ fi
 # リリース構成で入れる。デバッグ構成は最適化が効かない（4-27）
 # 端末を -destination に渡さず generic で作る。available の端末を渡すと
 # 「developer disk image がマウントできない」で10分待たされる（4-20）
+# 設定画面のいちばん下に出す印（引き継ぎ書 4-145）。未コミットの変更があれば + を付ける
+STAMP="b$(git rev-list --count HEAD)$(git diff --quiet HEAD -- .. || echo +) $(date '+%m/%d %H:%M')"
 xcodebuild -project Mochimono.xcodeproj -scheme Mochimono -configuration Release \
   -destination 'generic/platform=iOS' -derivedDataPath /tmp/mochimono-dev \
-  -allowProvisioningUpdates build
+  -allowProvisioningUpdates TC_BUILD_STAMP="$STAMP" build
 
 APP=$(find /tmp/mochimono-dev/Build/Products -maxdepth 3 -name "Mochimono.app" -path "*Release-iphoneos*" | head -1)
 xcrun devicectl device install app --device "$DEV" "$APP"
-echo "入れ終わりました。ホーム画面の Tilecheck から起動してください。"
+echo "入れ終わりました。設定画面のいちばん下に「$STAMP」が出ていれば入れ替わっています。"
 echo "触覚は実機でしか確認できません。タップ・チェック・配色の矢印を触ってください。"
