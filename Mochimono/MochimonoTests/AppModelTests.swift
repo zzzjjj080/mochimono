@@ -45,7 +45,7 @@ struct AppModelTests {
         #expect(a != b)
         model.updateContents(of: a, name: "ジムA", text: "タオルだけ")
         #expect(model.list(b)?.items.count == preset.items.count)
-        #expect(model.list(b)?.name == "ジム・運動")
+        #expect(model.list(b)?.name == preset.name)   // 名前は端末の言語で変わる
     }
 
     /// チェックしてアプリを閉じても、次に開いたら残っている。

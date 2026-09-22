@@ -14,7 +14,7 @@
 4. 掲載文（`store/locales.json` の新機能・概要など。`Tools-PushListing.py`）
 5. 日本語の概要に「手ぶらで読み上げ」の段を足す（`store/ja-readaloud-section.txt`）
 6. 審査メモ（`store/review-notes.txt`）
-7. ビルド 1.3 (5) を紐づける（`VALID` になっていること）
+7. ビルド 1.3 (6) を紐づける（`VALID` になっていること）
 8. スクリーンショットが13言語×2サイズそろっているのを確かめて、提出する
 """
 from __future__ import annotations
@@ -23,7 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 APP = "6806789668"
-PREV, VERSION, BUILD = "1.2", "1.3", "5"
+PREV, VERSION, BUILD = "1.2", "1.3", "6"
 CHECK = "--check" in sys.argv
 
 
